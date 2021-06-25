@@ -9,6 +9,7 @@ import {
   FavroDataOrganizationUser,
 } from '../types/FavroApi';
 import { FavroResponse } from './FavroResponse';
+import { stringsMatchIgnoringCase } from './utility.js';
 
 type FavroDataOrganizationUserPartial =
   FavroDataOrganization['sharedToUsers'][number];
@@ -36,7 +37,8 @@ export class FavroUser<
     return 'name' in this._data ? this._data.name : undefined;
   }
 
-  get email() {
+  get email(): Data extends FavroDataOrganizationUser ? string : undefined {
+    // @ts-expect-error
     return 'email' in this._data ? this._data.email : undefined;
   }
 }
@@ -245,6 +247,26 @@ export class BravoClient {
     assertBravoClaim(org, 'Organization not set');
     const users = org.sharedToUsers.map((u) => new FavroUser(u));
     return users;
+  }
+
+  async findFullUserByName(name: string) {
+    const users = await this.listFullUsers();
+    return users.find((u) => stringsMatchIgnoringCase(name, u.name));
+  }
+
+  async findFullUserByEmail(email: string) {
+    const users = await this.listFullUsers();
+    return users.find((u) => stringsMatchIgnoringCase(email, u.email));
+  }
+
+  async findFullUserById(userId: string) {
+    const users = await this.listFullUsers();
+    return users.find((u) => userId == u.userId);
+  }
+
+  async findPartialUserById(userId: string) {
+    const users = await this.listPartialUsers();
+    return users.find((u) => userId == u.userId);
   }
 
   /**
