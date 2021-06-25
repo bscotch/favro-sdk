@@ -275,6 +275,21 @@ export class BravoClient {
     return [...this._collections];
   }
 
+  async findCollectionByName(name: string) {
+    return findRequiredByField(await this.listCollections(), 'name', name, {
+      ignoreCase: true,
+    });
+  }
+
+  async findCollectionById(collectionId: string) {
+    return findRequiredByField(
+      await this.listCollections(),
+      'collectionId',
+      collectionId,
+      { ignoreCase: true },
+    );
+  }
+
   //#endregion
 
   /**
