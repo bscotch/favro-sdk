@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import cli from 'commander';
+import { program as cli } from 'commander';
 
 // Kick it off
 cli

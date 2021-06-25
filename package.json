@@ -46,6 +46,7 @@
     "@typescript-eslint/parser": "^4.28.0",
     "chai": "^4.3.4",
     "conventional-changelog-cli": "^2.1.1",
+    "dotenv": "^10.0.0",
     "eslint": "^7.29.0",
     "eslint-plugin-prettier": "^3.4.0",
     "fs-extra": "^10.0.0",

@@ -1,7 +1,5 @@
 #!/usr/bin/env node
-import cli from "commander";
+import { program as cli } from 'commander';
 
 // Kick it off
-cli.description('CLI Name')
-  .command("subcommand", "Do some things.")
-  .parse();
+cli.description('CLI Name').command('subcommand', 'Do some things.').parse();
