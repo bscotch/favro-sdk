@@ -215,7 +215,9 @@ export class BravoClient {
   }
 
   async findOrganizationByName(name: string) {
-    return findRequiredByField(await this.listOrganizations(), 'name', name);
+    return findRequiredByField(await this.listOrganizations(), 'name', name, {
+      ignoreCase: true,
+    });
   }
 
   async findOrganizationById(organizationId: string) {
@@ -226,6 +228,11 @@ export class BravoClient {
     );
   }
 
+  /**
+   * The organizationId is required for most API calls.
+   * Easily set the client's organizationId based on the
+   * org's name.
+   */
   async setOrganizationIdByName(organizationName: string) {
     const org = await this.findOrganizationByName(organizationName);
     assertBravoClaim(org.organizationId, `Org does not have an ID`);
@@ -258,11 +265,15 @@ export class BravoClient {
   }
 
   async findFullUserByName(name: string) {
-    return findRequiredByField(await this.listFullUsers(), 'name', name);
+    return findRequiredByField(await this.listFullUsers(), 'name', name, {
+      ignoreCase: true,
+    });
   }
 
   async findFullUserByEmail(email: string) {
-    return findRequiredByField(await this.listFullUsers(), 'email', email);
+    return findRequiredByField(await this.listFullUsers(), 'email', email, {
+      ignoreCase: true,
+    });
   }
 
   async findFullUserById(userId: string) {

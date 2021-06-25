@@ -35,6 +35,7 @@ As environment variables:
     - ✔ Find user by name, id, or email
     - List collections
     - Find collection by name
+    - Find collection by id
     - Create a collection
     - Delete a collection
     - ✔ List users
