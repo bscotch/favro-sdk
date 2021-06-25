@@ -38,14 +38,9 @@ As environment variables:
     - Find collection by id
     - Create a collection
     - Delete a collection
-    - ✔ List users
-    - ✔ Find user by name, id, or email
     - List widgets
     - Find widgets by name
     - Create a widget
-    - ✔ List orgs
-    - ✔ Find org by name
-    - ✔ Set org by name or ID
 
 ## Usage
 

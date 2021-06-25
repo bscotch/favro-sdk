@@ -7,12 +7,18 @@ import {
   FavroApiMethod,
   FavroDataOrganization,
   FavroDataOrganizationUser,
+  FavroDataOrganizationUserPartial,
+  FavroDataCollection,
 } from '../types/FavroApi';
 import { FavroResponse } from './FavroResponse';
 import { findRequiredByField } from './utility.js';
 
-type FavroDataOrganizationUserPartial =
-  FavroDataOrganization['sharedToUsers'][number];
+export class FavroCollection {
+  private _data: FavroDataCollection;
+  constructor(data: FavroDataCollection) {
+    this._data = data;
+  }
+}
 
 export class FavroUser<
   Data extends FavroDataOrganizationUser | FavroDataOrganizationUserPartial,
@@ -67,8 +73,8 @@ export class BravoClient {
   private _backendId?: string;
 
   private _organizations?: FavroDataOrganization[];
-
   private _users?: FavroUser<FavroDataOrganizationUser>[];
+  private _collections?: FavroCollection[];
 
   constructor(options?: {
     token?: string;
@@ -190,6 +196,8 @@ export class BravoClient {
     return favroRes;
   }
 
+  //#region Organizations
+
   async currentOrganization() {
     if (!this._organizationId) {
       return;
@@ -239,6 +247,10 @@ export class BravoClient {
     this.organizationId = org.organizationId;
   }
 
+  //#endregion
+
+  //#region Users
+
   /**
    * Full user info for the org (includes emails and names),
    * requires an API request.
@@ -284,6 +296,22 @@ export class BravoClient {
     return findRequiredByField(await this.listPartialUsers(), 'userId', userId);
   }
 
+  //#endregion
+
+  //#region Collections
+
+  async listCollections() {
+    const org = await this.currentOrganization();
+    assertBravoClaim(org, 'Organization not set');
+    if (!this._collections) {
+      const res = await this.request<FavroDataCollection>('users');
+      this._collections = res.entities.map((u) => new FavroCollection(u));
+    }
+    return [...this._collections];
+  }
+
+  //#endregion
+
   /**
    * To reduce API calls (the rate limits are tight), things
    * are generally cached. To ensure requests are up to date
@@ -292,6 +320,7 @@ export class BravoClient {
   clearCache() {
     this._users = undefined;
     this._organizations = undefined;
+    this._collections = undefined;
   }
 
   static toBase64(string: string) {
