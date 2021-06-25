@@ -28,6 +28,11 @@ As environment variables:
 
 - Class representing a Favro Client, connecting to a single workspace with an API token
   - Methods
+    - ✔ List orgs
+    - ✔ Find org by name
+    - ✔ Set org by name or ID
+    - ✔ List users
+    - ✔ Find user by name, id, or email
     - List collections
     - Find collection by name
     - Create a collection
@@ -37,7 +42,9 @@ As environment variables:
     - List widgets
     - Find widgets by name
     - Create a widget
-    -
+    - ✔ List orgs
+    - ✔ Find org by name
+    - ✔ Set org by name or ID
 
 ## Usage
 

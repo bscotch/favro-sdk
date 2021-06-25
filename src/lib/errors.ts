@@ -13,4 +13,5 @@ export function assertBravoClaim(
   if (!claim) {
     throw new BravoError(message);
   }
+  return claim;
 }

@@ -9,7 +9,7 @@ import {
   FavroDataOrganizationUser,
 } from '../types/FavroApi';
 import { FavroResponse } from './FavroResponse';
-import { stringsMatchIgnoringCase } from './utility.js';
+import { findRequiredByField } from './utility.js';
 
 type FavroDataOrganizationUserPartial =
   FavroDataOrganization['sharedToUsers'][number];
@@ -194,8 +194,10 @@ export class BravoClient {
     if (!this._organizationId) {
       return;
     }
-    return (await this.listOrganizations()).find(
-      (org) => org.organizationId == this._organizationId,
+    return findRequiredByField(
+      await this.listOrganizations(),
+      'organizationId',
+      this._organizationId,
     );
   }
 
@@ -213,13 +215,19 @@ export class BravoClient {
   }
 
   async findOrganizationByName(name: string) {
-    const orgs = await this.listOrganizations();
-    return orgs.find((org) => org.name);
+    return findRequiredByField(await this.listOrganizations(), 'name', name);
+  }
+
+  async findOrganizationById(organizationId: string) {
+    return findRequiredByField(
+      await this.listOrganizations(),
+      'organizationId',
+      organizationId,
+    );
   }
 
   async setOrganizationIdByName(organizationName: string) {
     const org = await this.findOrganizationByName(organizationName);
-    assertBravoClaim(org, `Org by name of ${organizationName} not found`);
     assertBravoClaim(org.organizationId, `Org does not have an ID`);
     this.organizationId = org.organizationId;
   }
@@ -250,23 +258,19 @@ export class BravoClient {
   }
 
   async findFullUserByName(name: string) {
-    const users = await this.listFullUsers();
-    return users.find((u) => stringsMatchIgnoringCase(name, u.name));
+    return findRequiredByField(await this.listFullUsers(), 'name', name);
   }
 
   async findFullUserByEmail(email: string) {
-    const users = await this.listFullUsers();
-    return users.find((u) => stringsMatchIgnoringCase(email, u.email));
+    return findRequiredByField(await this.listFullUsers(), 'email', email);
   }
 
   async findFullUserById(userId: string) {
-    const users = await this.listFullUsers();
-    return users.find((u) => userId == u.userId);
+    return findRequiredByField(await this.listFullUsers(), 'userId', userId);
   }
 
   async findPartialUserById(userId: string) {
-    const users = await this.listPartialUsers();
-    return users.find((u) => userId == u.userId);
+    return findRequiredByField(await this.listPartialUsers(), 'userId', userId);
   }
 
   /**
