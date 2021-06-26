@@ -27,7 +27,15 @@ export function assertBravoTestClaim(
 dotenv.config();
 
 const organizationName = process.env.FAVRO_ORGANIZATION_NAME!;
+assertBravoTestClaim(
+  organizationName,
+  `For testing, you must include FAVRO_ORGANIZATION_NAME in your .env file`,
+);
 const myUserEmail = process.env.FAVRO_USER_EMAIL!;
+assertBravoTestClaim(
+  organizationName,
+  `For testing, you must include FAVRO_USER_EMAIL in your .env file`,
+);
 
 const sandboxRoot = './sandbox';
 const samplesRoot = './samples';

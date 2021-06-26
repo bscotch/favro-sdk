@@ -1,6 +1,7 @@
 <p align="center"><i><a href="https://www.bscotch.net">Butterscotch Shenanigans</a> Presents:</i></p>
 
-<h1 align="center"> Bravo: The (unofficial) Node.js SDK for Favro</h1>
+<h1 align="center"> Bravo</h1>
+<h2 align="center">The <i>(Unofficial)<i> Node.js SDK for Favro</h2>
 
 [Favro](https://www.favro.com/) is an amazing project management tool
 and a great way to centralize all kinds of workflows. Favro provides a
@@ -21,8 +22,8 @@ _Butterscotch Shenanigans&reg; and Bravo are not affiliated with Favro._
 As environment variables:
 
 - `FAVRO_TOKEN`
-- `FAVRO_ORGANIZATION_ID`
 - `FAVRO_USER_EMAIL`
+- `FAVRO_ORGANIZATION_ID` (optional, can by found with Bravo)
 
 ## TODO
 
@@ -50,3 +51,10 @@ As environment variables:
 ### Dependencies
 
 - [**Node.js v14+**](https://nodejs.org/)
+
+## Development
+
+Env vars:
+
+- `FAVRO_TOKEN`
+- `FAVRO_USER_EMAIL`
