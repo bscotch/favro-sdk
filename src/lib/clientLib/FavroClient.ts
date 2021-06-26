@@ -5,11 +5,26 @@ import type {
   DataAnyEntity,
   ConstructorFavroEntity,
   DataFavroResponse,
+  OptionFavroHttpMethod,
 } from '$/types/FavroApi';
 import { FavroResponse, FavroResponseEntities } from '@/FavroResponse';
-import type { BravoClient, OptionsBravoRequest } from '@/BravoClient.js';
+import type { BravoClient } from '@/BravoClient.js';
 import { toBase64 } from '@/utility.js';
 import type { FavroEntity } from '@/FavroEntity.js';
+
+export interface OptionsBravoRequest {
+  method?: OptionFavroHttpMethod | Capitalize<OptionFavroHttpMethod>;
+  query?: Record<string, string>;
+  body?: any;
+  headers?: Record<string, string>;
+  /**
+   * BravoClients use the last-received Backend ID by default,
+   * but you can override this if necessary.
+   */
+  backendId?: string;
+  excludeOrganizationId?: boolean;
+  requireOrganizationId?: boolean;
+}
 
 export const favroApiBaseUrl = 'https://favro.com/api/v1';
 

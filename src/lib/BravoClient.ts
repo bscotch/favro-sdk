@@ -1,6 +1,5 @@
 import { assertBravoClaim } from './errors.js';
 import {
-  OptionFavroHttpMethod,
   DataFavroUser,
   DataFavroCollection,
   OptionFavroCollectionVisibility,
@@ -11,28 +10,12 @@ import { findByField, findRequiredByField } from './utility.js';
 import { FavroCollection } from './FavroCollection';
 import { FavroUser } from './FavroUser';
 import { FavroOrganization } from './FavroOrganization';
-import { FavroClient } from './clientLib/request.js';
-
-export interface OptionsBravoRequest {
-  method?: OptionFavroHttpMethod | Capitalize<OptionFavroHttpMethod>;
-  query?: Record<string, string>;
-  body?: any;
-  headers?: Record<string, string>;
-  /**
-   * BravoClients use the last-received Backend ID by default,
-   * but you can override this if necessary.
-   */
-  backendId?: string;
-  excludeOrganizationId?: boolean;
-  requireOrganizationId?: boolean;
-}
+import { FavroClient } from './clientLib/FavroClient.js';
+import { BravoClientCache } from './clientLib/BravoClientCache.js';
 
 export class BravoClient extends FavroClient {
-  private _organizations?: FavroOrganization[];
-  private _users?: FavroUser[];
-  private _collections?: FavroCollection[];
-
   //#region Organizations
+  private cache = new BravoClientCache();
 
   async currentOrganization() {
     if (!this._organizationId) {
@@ -49,7 +32,7 @@ export class BravoClient extends FavroClient {
    * List the calling user's organizations
    */
   async listOrganizations() {
-    if (!this._organizations) {
+    if (!this.cache.organizations) {
       const res = await this.request(
         'organizations',
         {
@@ -57,9 +40,9 @@ export class BravoClient extends FavroClient {
         },
         FavroOrganization,
       );
-      this._organizations = res.entities as FavroOrganization[];
+      this.cache.organizations = res.entities as FavroOrganization[];
     }
-    return [...this._organizations];
+    return this.cache.organizations;
   }
 
   async findOrganizationByName(name: string) {
@@ -97,15 +80,15 @@ export class BravoClient extends FavroClient {
   async listFullUsers() {
     const org = await this.currentOrganization();
     assertBravoClaim(org, 'Organization not set');
-    if (!this._users) {
+    if (!this.cache.users) {
       const res = await this.request<DataFavroUser>(
         'users',
         { method: 'get' },
         FavroUser,
       );
-      this._users = res.entities as FavroUser[];
+      this.cache.users = res.entities as FavroUser[];
     }
-    return [...this._users];
+    return this.cache.users;
   }
 
   /**
@@ -187,7 +170,7 @@ export class BravoClient extends FavroClient {
       collection,
       `Failed to create collection with status: ${res.status}`,
     );
-    this._addCollectionToCache(collection);
+    this.cache.addCollection(collection);
     return collection;
   }
 
@@ -199,41 +182,7 @@ export class BravoClient extends FavroClient {
       res.succeeded,
       `Failed to delete collection with status ${res.status}`,
     );
-    this._removeCollectionFromCache(collectionId);
-  }
-
-  /**
-   * Add a collection to the cache *if the cache already exists*,
-   * e.g. for updating it after creating a new collection. Ensures
-   * uniqueness. If the collection is already in the cache, it
-   * will be replaced by the one provided in this call (e.g. for
-   * replacing the cached copy with an updated one).
-   */
-  private _addCollectionToCache(collection: FavroCollection) {
-    if (!this._collections) {
-      return;
-    }
-    const cachedIdx = this._collections.findIndex(
-      (c) => c.collectionId == collection.collectionId,
-    );
-    if (cachedIdx > -1) {
-      this._collections.splice(cachedIdx, 1, collection);
-    } else {
-      this._collections.push(collection);
-    }
-  }
-
-  /**
-   * May need to remove a collection from the cache, e.g. after
-   * a deletion triggered locally.
-   */
-  private _removeCollectionFromCache(collectionId: string) {
-    const cachedIdx = this._collections?.findIndex(
-      (c) => c.collectionId == collectionId,
-    );
-    if (typeof cachedIdx == 'number' && cachedIdx > -1) {
-      this._collections!.splice(cachedIdx, 1);
-    }
+    this.cache.removeCollection(collectionId);
   }
 
   async deleteCollectionByName(name: string) {
@@ -252,15 +201,15 @@ export class BravoClient extends FavroClient {
   async listCollections() {
     const org = await this.currentOrganization();
     assertBravoClaim(org, 'Organization not set');
-    if (!this._collections) {
+    if (!this.cache.collections) {
       const res = await this.request(
         'collections',
         { method: 'get' },
         FavroCollection,
       );
-      this._collections = res.entities as FavroCollection[];
+      this.cache.collections = res.entities as FavroCollection[];
     }
-    return [...this._collections];
+    return this.cache.collections;
   }
 
   /**
@@ -283,7 +232,7 @@ export class BravoClient extends FavroClient {
   async findCollectionById(collectionId: string) {
     // See if already in the cache
     let collection = findByField(
-      this._collections || [],
+      this.cache.collections || [],
       'collectionId',
       collectionId,
     );
@@ -304,15 +253,4 @@ export class BravoClient extends FavroClient {
   }
 
   //#endregion
-
-  /**
-   * To reduce API calls (the rate limits are tight), things
-   * are generally cached. To ensure requests are up to date
-   * with recent changes, you can force a cache clear.
-   */
-  clearCache() {
-    this._users = undefined;
-    this._organizations = undefined;
-    this._collections = undefined;
-  }
 }
