@@ -1,7 +1,7 @@
 <p align="center"><i><a href="https://www.bscotch.net">Butterscotch Shenanigans</a> Presents:</i></p>
 
 <h1 align="center"> Bravo</h1>
-<h2 align="center">The <i>(Unofficial)<i> Node.js SDK for Favro</h2>
+<h2 align="center">The <i>(Unofficial)</i> Node.js SDK for Favro</h2>
 
 [Favro](https://www.favro.com/) is an amazing project management tool
 and a great way to centralize all kinds of workflows. Favro provides a
