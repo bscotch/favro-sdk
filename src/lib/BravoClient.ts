@@ -10,7 +10,7 @@ import {
   FavroDataCollection,
 } from '../types/FavroApi';
 import { FavroResponse } from './FavroResponse';
-import { findRequiredByField } from './utility.js';
+import { findByField, findRequiredByField } from './utility.js';
 import { FavroCollection } from './FavroCollection';
 import { FavroUser } from './FavroUser';
 
@@ -282,12 +282,24 @@ export class BravoClient {
   }
 
   async findCollectionById(collectionId: string) {
-    return findRequiredByField(
-      await this.listCollections(),
+    // See if already in the cache
+    let collection = findByField(
+      this._collections || [],
       'collectionId',
       collectionId,
-      { ignoreCase: true },
     );
+    if (!collection) {
+      // Then hit the API directly!
+      const res = await this.request<FavroDataCollection>(
+        `collections/${collectionId}`,
+      );
+      assertBravoClaim(
+        res.entities.length == 1,
+        `No collection found with id ${collectionId}`,
+      );
+      collection = new FavroCollection(res.entities[0]);
+    }
+    return collection;
   }
 
   //#endregion

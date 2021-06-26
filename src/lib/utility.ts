@@ -9,7 +9,7 @@ export function stringsMatchIgnoringCase(string1: string, string2: string) {
   );
 }
 
-export function findRequiredByField<
+export function findByField<
   Item extends Record<string, any>,
   Field extends keyof Item,
 >(
@@ -17,7 +17,7 @@ export function findRequiredByField<
   byField: Field,
   value: Item[Field],
   options?: { ignoreCase?: boolean },
-): Item {
+): Item | undefined {
   assertBravoClaim(findIn, 'Search array does not exist');
   const item = findIn.find((item) => {
     if (
@@ -29,6 +29,19 @@ export function findRequiredByField<
     }
     return item[byField] == value;
   });
+  return item;
+}
+
+export function findRequiredByField<
+  Item extends Record<string, any>,
+  Field extends keyof Item,
+>(
+  findIn: Item[],
+  byField: Field,
+  value: Item[Field],
+  options?: { ignoreCase?: boolean },
+): Item {
+  const item = findByField(findIn, byField, value, options);
   assertBravoClaim(item, 'Matching entity not found');
   return item;
 }
