@@ -1,14 +1,14 @@
 import type { BravoClient } from '@/BravoClient.js';
 import type { FavroEntity } from '@/FavroEntity.js';
 
-export type FavroApiMethod = 'get' | 'post' | 'put' | 'delete';
-export type FavroRole =
+export type OptionFavroHttpMethod = 'get' | 'post' | 'put' | 'delete';
+export type OptionFavroOrganizationRole =
   | 'administrator'
   | 'fullMember'
   | 'externalMember'
   | 'guest'
   | 'disabled';
-export type FavroCollectionBackground =
+export type OptionFavroCollectionColorBackground =
   | 'purple'
   | 'green'
   | 'grape'
@@ -21,9 +21,25 @@ export type FavroCollectionBackground =
   | 'solidRed'
   | 'solidPink'
   | 'solidGray';
+export type OptionFavroCollectionVisibility =
+  | 'users'
+  | 'organization'
+  | 'public';
+export type OptionFavroCollectionRole = 'guest' | 'view' | 'edit' | 'admin';
+
+export interface DataFavroOrganizationMember {
+  userId: string;
+  role: OptionFavroCollectionRole;
+  joinDate: string;
+}
+
+export interface DataFavroCollectionMember {
+  userId: string;
+  role: OptionFavroCollectionRole;
+}
 
 /** {@link https://favro.com/developer/#collections} */
-export interface FavroDataCollection {
+export interface DataFavroCollection {
   /** The id of the collection. */
   collectionId: string;
   /** The id of the organization that this collection exists in. */
@@ -31,49 +47,43 @@ export interface FavroDataCollection {
   organizationId: string;
   name: string;
   /** The array of collection members that the collection is shared to. */
-  sharedToUsers: FavroDataOrganizationUserPartial[];
+  sharedToUsers: DataFavroCollectionMember[];
   /** The collection public sharing level. */
-  publicSharing: string;
+  publicSharing: OptionFavroCollectionVisibility;
   /** The collection background. */
-  background: FavroCollectionBackground;
+  background: OptionFavroCollectionColorBackground;
   /** Whether or not the collection is archived. */
   archived: boolean;
   /** Whether or not full members shared this collection can create new widgets. */
   fullMembersCanAddWidgets: boolean;
 }
 
-export interface FavroDataOrganization {
+export interface DataFavroOrganization {
   organizationId: string;
   name: string;
-  sharedToUsers: {
-    userId: string;
-    role: FavroRole;
-  }[];
+  sharedToUsers: DataFavroOrganizationMember[];
 }
 
-export type FavroDataOrganizationUserPartial =
-  FavroDataOrganization['sharedToUsers'][number];
-
-export interface FavroDataOrganizationUser {
+export interface DataFavroUser {
   userId: string;
   name: string;
   email: string;
-  organizationRole: FavroRole;
+  organizationRole: OptionFavroOrganizationRole;
 }
-export type AnyEntityData = Record<string, any>;
+export type DataAnyEntity = Record<string, any>;
 
-interface FavroResponsePaged<EntityData extends AnyEntityData> {
+interface DataFavroResponsePaged<DataEntity extends DataAnyEntity> {
   limit: number;
   page: number;
   pages: number;
   requestId: string;
-  entities: EntityData[];
+  entities: DataEntity[];
 }
-export type FavroResponseData<EntityData extends AnyEntityData> =
-  | FavroResponsePaged<EntityData>
-  | EntityData;
+export type DataFavroResponse<DataEntity extends DataAnyEntity> =
+  | DataFavroResponsePaged<DataEntity>
+  | DataEntity;
 
-export type FavroEntityConstructor<EntityData> = new (
+export type ConstructorFavroEntity<EntityData> = new (
   client: BravoClient,
   data: EntityData,
 ) => FavroEntity<EntityData>;

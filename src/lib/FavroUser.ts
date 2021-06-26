@@ -1,29 +1,43 @@
-import {
-  FavroDataOrganizationUser,
-  FavroDataOrganizationUserPartial,
+import type {
+  DataFavroCollectionMember,
+  DataFavroOrganizationMember,
+  DataFavroUser,
 } from '../types/FavroApi';
 import { FavroEntity } from './FavroEntity.js';
 
-export class FavroUser<
-  Data extends FavroDataOrganizationUser | FavroDataOrganizationUserPartial,
-> extends FavroEntity<Data> {
+export class FavroUserBase<
+  UserData extends { userId: string },
+> extends FavroEntity<UserData> {
   get userId() {
     return this._data.userId;
   }
+}
 
+export class FavroUser extends FavroUserBase<DataFavroUser> {
+  get name() {
+    return this._data.name;
+  }
+
+  get email() {
+    return this._data.email;
+  }
+
+  /** Role in the organization */
   get role() {
-    return 'organizationRole' in this._data
-      ? this._data.organizationRole
-      : this._data.role;
+    return this._data.organizationRole;
   }
+}
 
-  get name(): Data extends FavroDataOrganizationUser ? string : undefined {
-    // @ts-expect-error
-    return 'name' in this._data ? this._data.name : undefined;
+export class FavroOrganizationMember extends FavroUserBase<DataFavroOrganizationMember> {
+  /** Role in the organization */
+  get role() {
+    return this._data.role;
   }
+}
 
-  get email(): Data extends FavroDataOrganizationUser ? string : undefined {
-    // @ts-expect-error
-    return 'email' in this._data ? this._data.email : undefined;
+export class FavroCollectionMember extends FavroUserBase<DataFavroCollectionMember> {
+  /** Role in the collection */
+  get role() {
+    return this._data.role;
   }
 }

@@ -22,7 +22,7 @@
     "build/types/**/*"
   ],
   "scripts": {
-    "test": "npm run build && mocha --inspect --require source-map-support/register --bail ./build/test/",
+    "test": "npm run build && mocha --inspect --require source-map-support/register --bail --timeout 6000 ./build/test/",
     "build": "rimraf build && tsc && tsc-alias",
     "preversion": "npm run lint && npm run build && npm test",
     "version": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && npm run format && git add -A",

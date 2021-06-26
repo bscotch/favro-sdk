@@ -1,14 +1,16 @@
-import type { FavroDataOrganization } from '../types/FavroApi';
+import type { DataFavroOrganization } from '../types/FavroApi';
 import { FavroEntity } from './FavroEntity.js';
-import { FavroUser } from './FavroUser.js';
+import { FavroOrganizationMember } from './FavroUser.js';
 
-export class FavroOrganization extends FavroEntity<FavroDataOrganization> {
+export class FavroOrganization extends FavroEntity<DataFavroOrganization> {
   get name() {
     return this._data.name;
   }
 
   get sharedToUsers() {
-    return this._data.sharedToUsers.map((u) => new FavroUser(this._client, u));
+    return this._data.sharedToUsers.map(
+      (u) => new FavroOrganizationMember(this._client, u),
+    );
   }
 
   get organizationId() {

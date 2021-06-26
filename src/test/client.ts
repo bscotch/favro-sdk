@@ -3,6 +3,16 @@ import { expect } from 'chai';
 import fs from 'fs-extra';
 import dotenv from 'dotenv';
 
+/**
+ * @note A root .env file must be populated with the required
+ * env vars in order to run tests!
+ */
+dotenv.config();
+const organizationName = process.env.FAVRO_ORGANIZATION_NAME!;
+const myUserEmail = process.env.FAVRO_USER_EMAIL!;
+const testCollectionName =
+  process.env.BRAVO_TEST_COLLECTION_NAME || '___BRAVO_TEST_COLLECTION';
+
 export class BravoTestError extends Error {
   constructor(message: string) {
     super(message);
@@ -20,18 +30,10 @@ export function assertBravoTestClaim(
   }
 }
 
-/**
- * @note A root .env file must be populated with the required
- * env vars in order to run tests!
- */
-dotenv.config();
-
-const organizationName = process.env.FAVRO_ORGANIZATION_NAME!;
 assertBravoTestClaim(
   organizationName,
   `For testing, you must include FAVRO_ORGANIZATION_NAME in your .env file`,
 );
-const myUserEmail = process.env.FAVRO_USER_EMAIL!;
 assertBravoTestClaim(
   organizationName,
   `For testing, you must include FAVRO_USER_EMAIL in your .env file`,
@@ -89,12 +91,34 @@ describe('BravoClient', function () {
 
   it('can find all users for an organization, including self', async function () {
     await client.setOrganizationIdByName(organizationName);
-    const partialUsers = await client.listPartialUsers();
+    const partialUsers = await client.listOrganizationMembers();
     expect(partialUsers.length, 'has partial users').to.be.greaterThan(0);
     const fullUsers = await client.listFullUsers();
     expect(fullUsers.length, 'has full users').to.be.greaterThan(0);
     const me = fullUsers.find((u) => u.email == myUserEmail);
     assertBravoTestClaim(me, 'Current user somehow not found in org');
+  });
+
+  xit('can list all collections', async function () {
+    const collections = await client.listCollections();
+    expect(
+      collections.length,
+      'Should have found at least one collection',
+    ).to.be.greaterThan(0);
+    expect(
+      collections.every((c) => c.collectionId),
+      'Collections should have collectionIds',
+    ).to.be.true;
+  });
+
+  it('can create and delete a collection', async function () {
+    const collection = await client.createCollection(testCollectionName);
+    assertBravoTestClaim(collection, 'Collection not created');
+    await client.deleteCollectionById(collection.collectionId);
+    try {
+      await client.findCollectionById(collection.collectionId);
+      assertBravoTestClaim(false, 'Should have had an error!');
+    } catch {}
   });
 
   after(function () {
