@@ -1,3 +1,6 @@
+import type { BravoClient } from '@/BravoClient.js';
+import type { FavroEntity } from '@/FavroEntity.js';
+
 export type FavroApiMethod = 'get' | 'post' | 'put' | 'delete';
 export type FavroRole =
   | 'administrator'
@@ -57,14 +60,20 @@ export interface FavroDataOrganizationUser {
   email: string;
   organizationRole: FavroRole;
 }
-export type AnyEntity = Record<string, any>;
-interface FavroResponsePaged<Entity extends AnyEntity = AnyEntity> {
+export type AnyEntityData = Record<string, any>;
+
+interface FavroResponsePaged<EntityData extends AnyEntityData> {
   limit: number;
   page: number;
   pages: number;
   requestId: string;
-  entities: Entity[];
+  entities: EntityData[];
 }
-export type FavroResponseData<Entity extends AnyEntity = AnyEntity> =
-  | FavroResponsePaged<Entity>
-  | Entity;
+export type FavroResponseData<EntityData extends AnyEntityData> =
+  | FavroResponsePaged<EntityData>
+  | EntityData;
+
+export type FavroEntityConstructor<EntityData> = new (
+  client: BravoClient,
+  data: EntityData,
+) => FavroEntity<EntityData>;

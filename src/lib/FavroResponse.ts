@@ -1,13 +1,21 @@
 import { Response } from 'node-fetch';
-import { AnyEntity, FavroResponseData } from '../types/FavroApi';
+import { FavroResponseData } from '../types/FavroApi';
+import type { BravoClient } from './BravoClient.js';
+import { FavroEntity } from './FavroEntity';
 
-export class FavroResponse<Entity extends AnyEntity = AnyEntity> {
+export class FavroResponse<EntityData, Entity extends FavroEntity<EntityData>> {
   private _response: Response;
   private _entities: Entity[];
 
-  constructor(response: Response, data: FavroResponseData<Entity>) {
+  constructor(
+    private _client: BravoClient,
+    entityClass: new (client: BravoClient, data: EntityData) => Entity,
+    response: Response,
+    data: FavroResponseData<EntityData>,
+  ) {
     this._response = response;
-    this._entities = 'entities' in data ? data.entities : [data];
+    const entitiesData = 'entities' in data ? data.entities : [data];
+    this._entities = entitiesData.map((e) => new entityClass(_client, e));
     // Could be a PAGED response (with an entities field) or not!
     // Normalize to always have the data be an array
   }

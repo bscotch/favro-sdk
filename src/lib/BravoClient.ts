@@ -2,17 +2,17 @@ import { assertBravoClaim, BravoError } from './errors.js';
 import fetch from 'node-fetch';
 import { URL } from 'url';
 import {
-  AnyEntity,
-  FavroResponseData,
+  AnyEntityData,
   FavroApiMethod,
-  FavroDataOrganization,
   FavroDataOrganizationUser,
   FavroDataCollection,
+  FavroEntityConstructor,
 } from '../types/FavroApi';
 import { FavroResponse } from './FavroResponse';
 import { findByField, findRequiredByField } from './utility.js';
 import { FavroCollection } from './FavroCollection';
 import { FavroUser } from './FavroUser';
+import { FavroOrganization } from './FavroOrganization';
 
 export class BravoClient {
   static readonly baseUrl = 'https://favro.com/api/v1';
@@ -37,7 +37,7 @@ export class BravoClient {
    */
   private _backendId?: string;
 
-  private _organizations?: FavroDataOrganization[];
+  private _organizations?: FavroOrganization[];
   private _users?: FavroUser<FavroDataOrganizationUser>[];
   private _collections?: FavroCollection[];
 
@@ -87,8 +87,9 @@ export class BravoClient {
    *
    * @param url Relative to the base URL {@link https://favro.com/api/v1}
    */
-  async request<Entity extends AnyEntity = AnyEntity>(
+  async request<EntityData extends AnyEntityData>(
     url: string,
+    entityClass: FavroEntityConstructor<EntityData>,
     options?: {
       method?: FavroApiMethod | Capitalize<FavroApiMethod>;
       query?: Record<string, string>;
@@ -153,8 +154,10 @@ export class BravoClient {
       body: options?.body,
     });
     const favroRes = new FavroResponse(
+      this,
+      entityClass,
       res,
-      (await res.json()) as FavroResponseData<Entity>,
+      await res.json(),
     );
     this._limitResetsAt = favroRes.limitResetsAt;
     this._requestsRemaining = favroRes.requestsRemaining;
@@ -183,10 +186,10 @@ export class BravoClient {
    */
   async listOrganizations() {
     if (!this._organizations) {
-      const res = await this.request<FavroDataOrganization>('organizations', {
+      const res = await this.request('organizations', FavroOrganization, {
         excludeOrganizationId: true,
       });
-      this._organizations = res.entities;
+      this._organizations = res.entities as FavroOrganization[];
     }
     return [...this._organizations];
   }
@@ -228,8 +231,11 @@ export class BravoClient {
     const org = await this.currentOrganization();
     assertBravoClaim(org, 'Organization not set');
     if (!this._users) {
-      const res = await this.request<FavroDataOrganizationUser>('users');
-      this._users = res.entities.map((u) => new FavroUser(u));
+      const res = await this.request<FavroDataOrganizationUser>(
+        'users',
+        FavroUser,
+      );
+      this._users = res.entities as FavroUser<FavroDataOrganizationUser>[];
     }
     return [...this._users];
   }
@@ -241,8 +247,7 @@ export class BravoClient {
   async listPartialUsers() {
     const org = await this.currentOrganization();
     assertBravoClaim(org, 'Organization not set');
-    const users = org.sharedToUsers.map((u) => new FavroUser(u));
-    return users;
+    return org.sharedToUsers;
   }
 
   async findFullUserByName(name: string) {
@@ -273,8 +278,8 @@ export class BravoClient {
     const org = await this.currentOrganization();
     assertBravoClaim(org, 'Organization not set');
     if (!this._collections) {
-      const res = await this.request<FavroDataCollection>('users');
-      this._collections = res.entities.map((u) => new FavroCollection(u));
+      const res = await this.request('users', FavroCollection);
+      this._collections = res.entities as FavroCollection[];
     }
     return [...this._collections];
   }
@@ -296,12 +301,13 @@ export class BravoClient {
       // Then hit the API directly!
       const res = await this.request<FavroDataCollection>(
         `collections/${collectionId}`,
+        FavroCollection,
       );
       assertBravoClaim(
         res.entities.length == 1,
         `No collection found with id ${collectionId}`,
       );
-      collection = new FavroCollection(res.entities[0]);
+      collection = res.entities[0] as FavroCollection;
     }
     return collection;
   }

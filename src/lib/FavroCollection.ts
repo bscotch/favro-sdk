@@ -1,11 +1,7 @@
 import { FavroDataCollection } from '../types/FavroApi';
+import { FavroEntity } from './FavroEntity.js';
 
-export class FavroCollection {
-  private _data: FavroDataCollection;
-  constructor(data: FavroDataCollection) {
-    this._data = data;
-  }
-
+export class FavroCollection extends FavroEntity<FavroDataCollection> {
   get name() {
     return this._data.name;
   }

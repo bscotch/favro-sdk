@@ -2,15 +2,11 @@ import {
   FavroDataOrganizationUser,
   FavroDataOrganizationUserPartial,
 } from '../types/FavroApi';
+import { FavroEntity } from './FavroEntity.js';
 
 export class FavroUser<
   Data extends FavroDataOrganizationUser | FavroDataOrganizationUserPartial,
-> {
-  private _data: Data;
-  constructor(data: Data) {
-    this._data = data;
-  }
-
+> extends FavroEntity<Data> {
   get userId() {
     return this._data.userId;
   }
