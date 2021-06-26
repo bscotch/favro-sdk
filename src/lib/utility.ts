@@ -45,3 +45,7 @@ export function findRequiredByField<
   assertBravoClaim(item, 'Matching entity not found');
   return item;
 }
+
+export function toBase64(string: string) {
+  return Buffer.from(string).toString('base64');
+}

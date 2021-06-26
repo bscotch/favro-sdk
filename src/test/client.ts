@@ -99,7 +99,7 @@ describe('BravoClient', function () {
     assertBravoTestClaim(me, 'Current user somehow not found in org');
   });
 
-  xit('can list all collections', async function () {
+  it('can list all collections', async function () {
     const collections = await client.listCollections();
     expect(
       collections.length,

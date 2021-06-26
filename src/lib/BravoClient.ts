@@ -1,23 +1,17 @@
-import { assertBravoClaim, BravoError } from './errors.js';
-import fetch from 'node-fetch';
-import { URL } from 'url';
+import { assertBravoClaim } from './errors.js';
 import {
-  DataAnyEntity,
   OptionFavroHttpMethod,
   DataFavroUser,
   DataFavroCollection,
-  ConstructorFavroEntity,
   OptionFavroCollectionVisibility,
-  DataFavroResponse,
   OptionFavroCollectionColorBackground,
   OptionFavroCollectionRole,
 } from '../types/FavroApi';
-import { FavroResponse, FavroResponseEntities } from './FavroResponse';
 import { findByField, findRequiredByField } from './utility.js';
 import { FavroCollection } from './FavroCollection';
 import { FavroUser } from './FavroUser';
 import { FavroOrganization } from './FavroOrganization';
-import { FavroEntity } from './FavroEntity.js';
+import { FavroClient } from './clientLib/request.js';
 
 export interface OptionsBravoRequest {
   method?: OptionFavroHttpMethod | Capitalize<OptionFavroHttpMethod>;
@@ -33,184 +27,10 @@ export interface OptionsBravoRequest {
   requireOrganizationId?: boolean;
 }
 
-export class BravoClient {
-  static readonly baseUrl = 'https://favro.com/api/v1';
-
-  private _token!: string;
-  private _organizationId?: string;
-  /**
-   * Authentication requires the user's identifer (their email address)
-   */
-  private _userEmail!: string;
-  /**
-   * The response header X-RateLimit-Remaining informs how many
-   * requests we can make before being blocked. Use this to ensure
-   * we don't frequently hit those! X-RateLimit-Reset is the time
-   * when the limit will be reset.
-   */
-  private _requestsRemaining?: number;
-  private _limitResetsAt?: Date;
-  /**
-   * Favro responses include the header X-Favro-Backend-Identifier,
-   * which is used to route to the same server. Required for paging.
-   */
-  private _backendId?: string;
-
+export class BravoClient extends FavroClient {
   private _organizations?: FavroOrganization[];
   private _users?: FavroUser[];
   private _collections?: FavroCollection[];
-
-  constructor(options?: {
-    token?: string;
-    organizationId?: string;
-    userEmail?: string;
-  }) {
-    for (const [optionsName, envName] of [
-      ['token', 'FAVRO_TOKEN'],
-      ['userEmail', 'FAVRO_USER_EMAIL'],
-    ] as const) {
-      const value = options?.[optionsName] || process.env[envName];
-      assertBravoClaim(value, `A Favro ${optionsName} is required.`);
-      this[`_${optionsName}`] = value;
-    }
-    this._organizationId =
-      options?.organizationId || process.env.FAVRO_ORGANIZATION_ID;
-  }
-
-  // @ts-expect-error
-  get organizationId(): string | undefined {
-    return this._organizationId;
-  }
-  /**
-   * Set the organizationID **if it isn't already set**
-   */
-  set organizationId(organizationId: string) {
-    if (this._organizationId && this._organizationId != organizationId) {
-      throw new BravoError(`Cannot reset clientId once it has been set.`);
-    }
-    this._organizationId = organizationId;
-  }
-
-  private get authHeader() {
-    const encodedCredentials = BravoClient.toBase64(
-      `${this._userEmail}:${this._token}`,
-    );
-    return {
-      Authorization: `Basic ${encodedCredentials}`,
-    };
-  }
-
-  /**
-   * General API request function against Favro's HTTP API {@link https://favro.com/developer/}.
-   * Defaults to a GET request. Default headers are automatically handled.
-   *
-   * @param url Relative to the base URL {@link https://favro.com/api/v1}
-   */
-  async request(
-    url: string,
-    options?: OptionsBravoRequest,
-  ): Promise<FavroResponse>;
-  async request<EntityData extends DataAnyEntity>(
-    url: string,
-    options: OptionsBravoRequest,
-    entityClass: ConstructorFavroEntity<EntityData>,
-  ): Promise<FavroResponseEntities<EntityData, FavroEntity<EntityData>>>;
-  async request<EntityData extends DataAnyEntity>(
-    url: string,
-    options?: OptionsBravoRequest,
-    entityClass?: ConstructorFavroEntity<EntityData>,
-  ): Promise<any> {
-    assertBravoClaim(
-      typeof this._requestsRemaining == 'undefined' ||
-        this._requestsRemaining > 0,
-      'No requests remaining!',
-    );
-    assertBravoClaim(
-      this._organizationId || !options?.requireOrganizationId,
-      'An organizationId must be set for this request',
-    );
-    const method = options?.method || 'get';
-    if (['get', 'delete'].includes(method) && options?.body) {
-      throw new BravoError(`HTTP Bodies not allowed for ${method} method`);
-    }
-    // Ensure initial slash
-    url = url.startsWith('/') ? url : `/${url}`;
-    url = `${BravoClient.baseUrl}${url}`;
-    const fullUrl = new URL(url);
-    if (options?.query) {
-      for (const param of Object.keys(options.query)) {
-        fullUrl.searchParams.append(param, options.query[param]);
-      }
-    }
-    let body = options?.body;
-    let contentType: string | undefined;
-    if (typeof body != 'undefined') {
-      if (Buffer.isBuffer(body)) {
-        contentType = 'application/octet-stream';
-      } else if (typeof body == 'string') {
-        contentType = 'text/markdown';
-      } else {
-        body = JSON.stringify(body);
-        contentType = 'application/json';
-      }
-    }
-    const headers = {
-      Host: 'favro.com', // Required by API (otherwise fails without explanation)
-      'Content-Type': contentType!,
-      ...options?.headers,
-      ...this.authHeader,
-      'User-Agent': `BravoClient <https://github.com/bscotch/favro-sdk>`,
-      organizationId: options?.excludeOrganizationId
-        ? undefined
-        : this._organizationId,
-      'X-Favro-Backend-Identifier': options?.backendId || this._backendId!,
-    };
-    const cleanHeaders = Object.keys(headers).reduce((acc, header: string) => {
-      // @ts-expect-error
-      if (typeof headers[header] == 'undefined') {
-        return acc;
-      }
-      // @ts-expect-error
-      acc[header] = `${headers[header]}`;
-      return acc;
-    }, {} as Record<string, string>);
-    const res = await fetch(fullUrl.toString(), {
-      method,
-      headers: cleanHeaders, // Force it to assume no undefineds
-      body,
-    });
-    this._backendId =
-      res.headers.get('X-Favro-Backend-Identifier') || this._backendId;
-    if (!entityClass) {
-      return new FavroResponse(res);
-    }
-    assertBravoClaim(res.status < 300, `Failed with status ${res.status}`);
-    let responseBody: string | DataFavroResponse<EntityData> = (
-      await res.buffer()
-    ).toString('utf8');
-    assertBravoClaim(
-      res.headers.get('Content-Type')?.startsWith('application/json'),
-      'Response type is not JSON, cannot be wrapped in Entity class.',
-    );
-    try {
-      responseBody = JSON.parse(responseBody) as DataFavroResponse<EntityData>;
-    } catch {
-      throw new BravoError(`Could not JSON-parse: ${responseBody.toString()}`);
-    }
-    const favroRes = new FavroResponseEntities(
-      responseBody,
-      entityClass,
-      this,
-      res,
-    );
-    this._limitResetsAt = favroRes.limitResetsAt;
-    this._requestsRemaining = favroRes.requestsRemaining;
-    if (this._requestsRemaining < 1 || res.status == 429) {
-      // TODO: Set an interval before allowing requests to go through again, OR SOMETHING
-      this._requestsRemaining = 0;
-    }
-    return favroRes;
-  }
 
   //#region Organizations
 
@@ -494,9 +314,5 @@ export class BravoClient {
     this._users = undefined;
     this._organizations = undefined;
     this._collections = undefined;
-  }
-
-  static toBase64(string: string) {
-    return Buffer.from(string).toString('base64');
   }
 }
