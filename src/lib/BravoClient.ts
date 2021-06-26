@@ -6,7 +6,11 @@ import {
   OptionFavroCollectionColorBackground,
   OptionFavroCollectionRole,
 } from '../types/FavroApi';
-import { findByField, findRequiredByField } from './utility.js';
+import {
+  findByField,
+  findRequiredByField,
+  stringsMatchIgnoringCase,
+} from './utility.js';
 import { FavroCollection } from './FavroCollection';
 import { FavroUser } from './FavroUser';
 import { FavroOrganization } from './FavroOrganization';
@@ -101,19 +105,19 @@ export class BravoClient extends FavroClient {
     return org.sharedToUsers;
   }
 
-  async findFullUserByName(name: string) {
+  async findUserByName(name: string) {
     return findRequiredByField(await this.listFullUsers(), 'name', name, {
       ignoreCase: true,
     });
   }
 
-  async findFullUserByEmail(email: string) {
+  async findUserByEmail(email: string) {
     return findRequiredByField(await this.listFullUsers(), 'email', email, {
       ignoreCase: true,
     });
   }
 
-  async findFullUserById(userId: string) {
+  async findUserById(userId: string) {
     return findRequiredByField(await this.listFullUsers(), 'userId', userId);
   }
 
@@ -185,10 +189,16 @@ export class BravoClient extends FavroClient {
     this.cache.removeCollection(collectionId);
   }
 
-  async deleteCollectionByName(name: string) {
-    const collection = await this.findCollectionByName(name);
-    assertBravoClaim(collection, `Could not find collection with name ${name}`);
-    await this.deleteCollectionById(collection.collectionId);
+  /**
+   * Collection names aren't required to be unique. This
+   * method will delete *all* collections matching the name
+   * provided. **Warning** case insensitive matching is used!
+   */
+  async deleteCollectionsByName(name: string) {
+    const collections = await this.findCollectionsByName(name);
+    for (const collection of collections) {
+      await this.deleteCollectionById(collection.collectionId);
+    }
   }
 
   /**
@@ -213,14 +223,16 @@ export class BravoClient extends FavroClient {
   }
 
   /**
-   * Look for a specific collection by name, which requires
-   * fetching *all* collections. Checks the cache first.
+   * Find collections by name. Names are not required to be unique
+   * for Favro Collections, so *all* matching Collections are returned.
    * {@link https://favro.com/developer/#get-a-collection}
    */
-  async findCollectionByName(name: string) {
-    return findRequiredByField(await this.listCollections(), 'name', name, {
-      ignoreCase: true,
-    });
+  async findCollectionsByName(name: string) {
+    const collections = await this.listCollections();
+    const matching = collections.filter((c) =>
+      stringsMatchIgnoringCase(name, c.name),
+    );
+    return matching;
   }
 
   /**
@@ -253,4 +265,13 @@ export class BravoClient extends FavroClient {
   }
 
   //#endregion
+
+  /**
+   * Clear all cached data. This is useful if you need to
+   * ensure that data from your next requests are completely
+   * up-to-date.
+   */
+  clearCache() {
+    this.cache.clear();
+  }
 }

@@ -99,6 +99,12 @@ describe('BravoClient', function () {
     assertBravoTestClaim(me, 'Current user somehow not found in org');
   });
 
+  it('can find a specific user by email', async function () {
+    const me = await client.findUserByEmail(myUserEmail);
+    expect(me).to.exist;
+    expect(me.email).to.equal(myUserEmail);
+  });
+
   it('can list all collections', async function () {
     const collections = await client.listCollections();
     expect(
@@ -120,6 +126,8 @@ describe('BravoClient', function () {
       assertBravoTestClaim(false, 'Should have had an error!');
     } catch {}
   });
+
+  // it('can ');
 
   after(function () {
     resetSandbox();
