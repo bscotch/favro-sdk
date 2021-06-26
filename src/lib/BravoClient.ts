@@ -58,12 +58,16 @@ export class BravoClient {
       options?.organizationId || process.env.FAVRO_ORGANIZATION_ID;
   }
 
-  get organizationId() {
+  // @ts-expect-error
+  get organizationId(): string | undefined {
     return this._organizationId;
   }
-  set organizationId(organizationId: string | undefined) {
+  /**
+   * Set the organizationID **if it isn't already set**
+   */
+  set organizationId(organizationId: string) {
     if (this._organizationId && this._organizationId != organizationId) {
-      this.clearCache();
+      throw new BravoError(`Cannot reset clientId once it has been set.`);
     }
     this._organizationId = organizationId;
   }
@@ -167,7 +171,7 @@ export class BravoClient {
     if (!this._organizationId) {
       return;
     }
-    return findRequiredByField(
+    return findByField(
       await this.listOrganizations(),
       'organizationId',
       this._organizationId,

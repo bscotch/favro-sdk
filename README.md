@@ -26,21 +26,24 @@ As environment variables:
 
 ## TODO
 
-- Class representing a Favro Client, connecting to a single workspace with an API token
-  - Methods
-    - ✔ List orgs
-    - ✔ Find org by name
-    - ✔ Set org by name or ID
-    - ✔ List users
-    - ✔ Find user by name, id, or email
-    - List collections
-    - Find collection by name
-    - Find collection by id
-    - Create a collection
-    - Delete a collection
-    - List widgets
-    - Find widgets by name
-    - Create a widget
+- ✔ Client class
+- ✔ List orgs
+- ✔ Find org by name
+- ✔ Set org by name or ID
+- ✔ List users
+- ✔ Find user by name, id, or email
+- ✔ List collections
+- ✔ Find collection by name
+- ✔ Find collection by id
+- Create a collection
+- Delete a collection
+- List widgets
+- Find widgets by name
+- Create a widget
+- Pass class constructors to API requests to simplify boilerplate
+  - Create a base class
+  - Have the first constructor arg be the BravoClient instance
+- Auto-page fetched results
 
 ## Usage
 
