@@ -2,12 +2,6 @@ import type { BravoClient } from '@/BravoClient.js';
 import type { FavroEntity } from '@/FavroEntity.js';
 
 export type OptionFavroHttpMethod = 'get' | 'post' | 'put' | 'delete';
-export type OptionFavroOrganizationRole =
-  | 'administrator'
-  | 'fullMember'
-  | 'externalMember'
-  | 'guest'
-  | 'disabled';
 export type OptionFavroCollectionColorBackground =
   | 'purple'
   | 'green'
@@ -26,6 +20,13 @@ export type OptionFavroCollectionVisibility =
   | 'organization'
   | 'public';
 export type OptionFavroCollectionRole = 'guest' | 'view' | 'edit' | 'admin';
+
+export type OptionFavroOrganizationRole =
+  | 'administrator'
+  | 'fullMember'
+  | 'externalMember'
+  | 'guest'
+  | 'disabled';
 
 export interface DataFavroOrganizationMember {
   userId: string;

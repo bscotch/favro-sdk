@@ -2,7 +2,7 @@ import type {
   DataFavroCollectionMember,
   DataFavroOrganizationMember,
   DataFavroUser,
-} from '../types/FavroApi';
+} from '../types/FavroApiTypes';
 import { FavroEntity } from './FavroEntity.js';
 
 export class FavroUserBase<

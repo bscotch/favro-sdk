@@ -1,4 +1,4 @@
-import type { DataFavroOrganization } from '../types/FavroApi';
+import type { DataFavroOrganization } from '../types/FavroApiTypes';
 import { FavroEntity } from './FavroEntity.js';
 import { FavroOrganizationMember } from './FavroUser.js';
 

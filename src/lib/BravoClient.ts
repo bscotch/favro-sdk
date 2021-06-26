@@ -5,7 +5,7 @@ import {
   OptionFavroCollectionVisibility,
   OptionFavroCollectionColorBackground,
   OptionFavroCollectionRole,
-} from '../types/FavroApi';
+} from '../types/FavroApiTypes';
 import {
   findByField,
   findRequiredByField,
@@ -263,6 +263,10 @@ export class BravoClient extends FavroClient {
     }
     return collection;
   }
+
+  //#endregion
+
+  //#region Widgets
 
   //#endregion
 

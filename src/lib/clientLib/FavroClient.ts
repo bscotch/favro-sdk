@@ -6,7 +6,7 @@ import type {
   ConstructorFavroEntity,
   DataFavroResponse,
   OptionFavroHttpMethod,
-} from '$/types/FavroApi';
+} from '$/types/FavroApiTypes';
 import { FavroResponse, FavroResponseEntities } from '@/FavroResponse';
 import type { BravoClient } from '@/BravoClient.js';
 import { toBase64 } from '@/utility.js';

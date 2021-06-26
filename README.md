@@ -36,8 +36,8 @@ As environment variables:
 - ✔ List collections
 - ✔ Find collection by name
 - ✔ Find collection by id
-- Create a collection
-- Delete a collection
+- ✔ Create a collection
+- ✔ Delete a collection
 - List widgets
 - Find widgets by name
 - Create a widget

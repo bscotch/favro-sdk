@@ -1,5 +1,5 @@
 import { Response } from 'node-fetch';
-import { DataFavroResponse } from '../types/FavroApi';
+import { DataFavroResponse } from '../types/FavroApiTypes';
 import type { BravoClient } from './BravoClient.js';
 import { FavroEntity } from './FavroEntity';
 
