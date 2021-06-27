@@ -27,7 +27,11 @@ As environment variables:
 
 ## TODO
 
-- ✔ Client class
+- ✔ Client classes
+- ✔ Separate request methods for those that
+  return hydratable entities and those that
+  do not.
+- ✔ Method for paging & hydrating search results
 - ✔ List orgs
 - ✔ Find org by name
 - ✔ Set org by name or ID
@@ -38,13 +42,14 @@ As environment variables:
 - ✔ Find collection by id
 - ✔ Create a collection
 - ✔ Delete a collection
+  - Delete with method on Collection instance
 - List widgets
 - Find widgets by name
 - Create a widget
-- Pass class constructors to API requests to simplify boilerplate
-  - Create a base class
-  - Have the first constructor arg be the BravoClient instance
-- Auto-page fetched results
+- List cards
+- Search cards by title
+- Create a card
+- Delete a card
 
 ## Usage
 

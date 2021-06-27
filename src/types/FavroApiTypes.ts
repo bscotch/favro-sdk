@@ -73,7 +73,7 @@ export interface DataFavroUser {
 }
 export type DataAnyEntity = Record<string, any>;
 
-interface DataFavroResponsePaged<DataEntity extends DataAnyEntity> {
+export interface DataFavroResponsePaged<DataEntity extends DataAnyEntity> {
   limit: number;
   page: number;
   pages: number;

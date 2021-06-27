@@ -1,10 +1,10 @@
 import { assertBravoClaim } from './errors.js';
 import {
-  DataFavroUser,
-  DataFavroCollection,
   OptionFavroCollectionVisibility,
   OptionFavroCollectionColorBackground,
   OptionFavroCollectionRole,
+  DataAnyEntity,
+  ConstructorFavroEntity,
 } from '../types/FavroApiTypes';
 import {
   findByField,
@@ -14,12 +14,22 @@ import {
 import { FavroCollection } from './FavroCollection';
 import { FavroUser } from './FavroUser';
 import { FavroOrganization } from './FavroOrganization';
-import { FavroClient } from './clientLib/FavroClient.js';
+import { FavroClient, OptionsFavroRequest } from './clientLib/FavroClient.js';
 import { BravoClientCache } from './clientLib/BravoClientCache.js';
+import { BravoResponse } from './clientLib/BravoResponse.js';
 
 export class BravoClient extends FavroClient {
   //#region Organizations
   private cache = new BravoClientCache();
+
+  private async requestWithReturnedEntities<EntityData extends DataAnyEntity>(
+    url: string,
+    options: OptionsFavroRequest,
+    entityClass: ConstructorFavroEntity<EntityData>,
+  ) {
+    const res = await this.request(url, options, entityClass);
+    return new BravoResponse(this, entityClass, res);
+  }
 
   async currentOrganization() {
     if (!this._organizationId) {
@@ -37,14 +47,15 @@ export class BravoClient extends FavroClient {
    */
   async listOrganizations() {
     if (!this.cache.organizations) {
-      const res = await this.request(
+      const res = await this.requestWithReturnedEntities(
         'organizations',
         {
           excludeOrganizationId: true,
         },
         FavroOrganization,
       );
-      this.cache.organizations = res.entities as FavroOrganization[];
+      this.cache.organizations =
+        (await res.getAllEntities()) as FavroOrganization[];
     }
     return this.cache.organizations;
   }
@@ -85,12 +96,12 @@ export class BravoClient extends FavroClient {
     const org = await this.currentOrganization();
     assertBravoClaim(org, 'Organization not set');
     if (!this.cache.users) {
-      const res = await this.request<DataFavroUser>(
+      const res = await this.requestWithReturnedEntities(
         'users',
         { method: 'get' },
         FavroUser,
       );
-      this.cache.users = res.entities as FavroUser[];
+      this.cache.users = (await res.getAllEntities()) as FavroUser[];
     }
     return this.cache.users;
   }
@@ -153,7 +164,7 @@ export class BravoClient extends FavroClient {
       }[];
     },
   ) {
-    const res = await this.request(
+    const res = await this.requestWithReturnedEntities(
       'collections',
       {
         method: 'post',
@@ -169,11 +180,10 @@ export class BravoClient extends FavroClient {
       },
       FavroCollection,
     );
-    const collection = res.entities[0] as FavroCollection | undefined;
-    assertBravoClaim(
-      collection,
-      `Failed to create collection with status: ${res.status}`,
-    );
+    const collection = (await res.getFetchedEntities())[0] as
+      | FavroCollection
+      | undefined;
+    assertBravoClaim(collection, `Failed to create collection`);
     this.cache.addCollection(collection);
     return collection;
   }
@@ -212,12 +222,13 @@ export class BravoClient extends FavroClient {
     const org = await this.currentOrganization();
     assertBravoClaim(org, 'Organization not set');
     if (!this.cache.collections) {
-      const res = await this.request(
+      const res = await this.requestWithReturnedEntities(
         'collections',
         { method: 'get' },
         FavroCollection,
       );
-      this.cache.collections = res.entities as FavroCollection[];
+      this.cache.collections =
+        (await res.getAllEntities()) as FavroCollection[];
     }
     return this.cache.collections;
   }
@@ -250,16 +261,17 @@ export class BravoClient extends FavroClient {
     );
     if (!collection) {
       // Then hit the API directly!
-      const res = await this.request<DataFavroCollection>(
+      const res = await this.requestWithReturnedEntities(
         `collections/${collectionId}`,
         { method: 'get' },
         FavroCollection,
       );
+      const collections = await res.getFetchedEntities();
       assertBravoClaim(
-        res.entities.length == 1,
+        collections.length == 1,
         `No collection found with id ${collectionId}`,
       );
-      collection = res.entities[0] as FavroCollection;
+      collection = collections[0] as FavroCollection;
     }
     return collection;
   }
