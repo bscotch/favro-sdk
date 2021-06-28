@@ -168,7 +168,7 @@ export class FavroClient {
     throwIfBodyAndMethodIncompatible(method, options?.body);
     // Ensure initial slash
     url = createFavroApiUrl(url, options?.query);
-    const { contentType, body } = computeBodyProps(options);
+    const { contentType, body } = computeBodyProps(options?.body);
     const headers = cleanHeaders({
       Host: 'favro.com', // Required by API (otherwise fails without explanation)
       'Content-Type': contentType!,
