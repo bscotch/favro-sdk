@@ -2,7 +2,7 @@ import { BravoClient } from '@/BravoClient.js';
 import { expect } from 'chai';
 import fs from 'fs-extra';
 import dotenv from 'dotenv';
-import { FavroCollection } from '@/FavroCollection.js';
+import { BravoCollection } from '@/BravoCollection.js';
 
 /**
  * @note A root .env file must be populated with the required
@@ -121,7 +121,7 @@ describe('BravoClient', function () {
   describe('Collections', function () {
     this.bail(true);
 
-    let testCollection: FavroCollection;
+    let testCollection: BravoCollection;
 
     it('can list all collections', async function () {
       const collections = await client.listCollections();

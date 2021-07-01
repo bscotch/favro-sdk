@@ -1,13 +1,13 @@
-import { FavroOrganization } from '@/FavroOrganization.js';
-import { FavroUser } from '@/FavroUser.js';
-import { FavroCollection } from '@/FavroCollection.js';
+import { BravoOrganization } from '@/BravoOrganization.js';
+import { BravoUser } from '@/users.js';
+import { BravoCollection } from '@/BravoCollection.js';
 import type { BravoResponseWidgets } from './BravoResponse.js';
 import { assertBravoClaim } from '@/errors.js';
 
 export class BravoClientCache {
-  protected _organizations?: FavroOrganization[];
-  protected _users?: FavroUser[];
-  protected _collections?: FavroCollection[];
+  protected _organizations?: BravoOrganization[];
+  protected _users?: BravoUser[];
+  protected _collections?: BravoCollection[];
   /**
    * Widget paging results keyed by collectionId, with the empty string `''`
    * used to key the paging result from not using a collectionId (global).
@@ -18,7 +18,7 @@ export class BravoClientCache {
     // @ts-expect-error
     return this._collections ? [...this._collections] : undefined;
   }
-  set collections(collections: FavroCollection[]) {
+  set collections(collections: BravoCollection[]) {
     this._collections = collections;
   }
 
@@ -26,7 +26,7 @@ export class BravoClientCache {
     // @ts-expect-error
     return this._users ? [...this._users] : undefined;
   }
-  set users(users: FavroUser[]) {
+  set users(users: BravoUser[]) {
     this._users = users;
   }
 
@@ -34,7 +34,7 @@ export class BravoClientCache {
     // @ts-expect-error
     return this._organizations ? [...this._organizations] : undefined;
   }
-  set organizations(orgs: FavroOrganization[]) {
+  set organizations(orgs: BravoOrganization[]) {
     this._organizations = orgs;
   }
 
@@ -65,7 +65,7 @@ export class BravoClientCache {
    * will be replaced by the one provided in this call (e.g. for
    * replacing the cached copy with an updated one).
    */
-  addCollection(collection: FavroCollection) {
+  addCollection(collection: BravoCollection) {
     if (!this._collections) {
       return;
     }

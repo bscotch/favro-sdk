@@ -1,7 +1,7 @@
 import { DataFavroWidget } from '$/types/FavroWidgetTypes.js';
-import { FavroEntity } from './FavroEntity';
+import { BravoEntity } from './BravoEntity';
 
-export class FavroWidget extends FavroEntity<DataFavroWidget> {
+export class BravoWidget extends BravoEntity<DataFavroWidget> {
   get widgetCommonId() {
     return this._data.widgetCommonId;
   }

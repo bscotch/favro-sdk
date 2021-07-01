@@ -3,7 +3,6 @@ import fetch from 'node-fetch';
 import { URL } from 'url';
 import type {
   DataAnyEntity,
-  ConstructorFavroEntity,
   OptionFavroHttpMethod,
 } from '$/types/FavroApiTypes';
 import { FavroResponse } from '@/clientLib/FavroResponse';

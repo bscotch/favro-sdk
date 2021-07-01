@@ -1,12 +1,12 @@
 import type { DataFavroWidget } from '$/types/FavroWidgetTypes.js';
-import type { FavroWidget } from '@/FavroWidget.js';
+import type { BravoWidget } from '@/BravoWidget.js';
 import { BravoClient } from '@/BravoClient';
-import { FavroEntity } from '@/FavroEntity';
+import { BravoEntity } from '@/BravoEntity';
 import { FavroResponse } from './FavroResponse';
 
 export type BravoResponseWidgets = BravoResponseEntities<
   DataFavroWidget,
-  FavroWidget
+  BravoWidget
 >;
 
 /**
@@ -15,7 +15,7 @@ export type BravoResponseWidgets = BravoResponseEntities<
  */
 export class BravoResponseEntities<
   EntityData,
-  Entity extends FavroEntity<EntityData>,
+  Entity extends BravoEntity<EntityData>,
 > {
   private _entitiesCache: Entity[] = [];
   private _hydratedLatestPage = false;

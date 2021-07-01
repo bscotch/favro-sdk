@@ -3,17 +3,17 @@ import type {
   DataFavroOrganizationMember,
   DataFavroUser,
 } from '../types/FavroApiTypes';
-import { FavroEntity } from './FavroEntity.js';
+import { BravoEntity } from './BravoEntity.js';
 
-export class FavroUserBase<
+export class BravoUserBase<
   UserData extends { userId: string },
-> extends FavroEntity<UserData> {
+> extends BravoEntity<UserData> {
   get userId() {
     return this._data.userId;
   }
 }
 
-export class FavroUser extends FavroUserBase<DataFavroUser> {
+export class BravoUser extends BravoUserBase<DataFavroUser> {
   get name() {
     return this._data.name;
   }
@@ -28,14 +28,14 @@ export class FavroUser extends FavroUserBase<DataFavroUser> {
   }
 }
 
-export class FavroOrganizationMember extends FavroUserBase<DataFavroOrganizationMember> {
+export class BravoOrganizationMember extends BravoUserBase<DataFavroOrganizationMember> {
   /** Role in the organization */
   get role() {
     return this._data.role;
   }
 }
 
-export class FavroCollectionMember extends FavroUserBase<DataFavroCollectionMember> {
+export class BravoCollectionMember extends BravoUserBase<DataFavroCollectionMember> {
   /** Role in the collection */
   get role() {
     return this._data.role;

@@ -1,5 +1,5 @@
 import type { BravoClient } from '@/BravoClient.js';
-import type { FavroEntity } from '@/FavroEntity.js';
+import type { BravoEntity } from '@/BravoEntity.js';
 
 export type OptionFavroHttpMethod = 'get' | 'post' | 'put' | 'delete';
 export type OptionFavroCollectionColorBackground =
@@ -87,4 +87,4 @@ export type DataFavroResponse<DataEntity extends DataAnyEntity> =
 export type ConstructorFavroEntity<EntityData> = new (
   client: BravoClient,
   data: EntityData,
-) => FavroEntity<EntityData>;
+) => BravoEntity<EntityData>;
