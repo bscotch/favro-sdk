@@ -2,6 +2,7 @@ import { BravoClient } from '@/BravoClient.js';
 import { expect } from 'chai';
 import fs from 'fs-extra';
 import dotenv from 'dotenv';
+import { FavroCollection } from '@/FavroCollection.js';
 
 /**
  * @note A root .env file must be populated with the required
@@ -21,13 +22,25 @@ export class BravoTestError extends Error {
   }
 }
 
-export function assertBravoTestClaim(
+function assertBravoTestClaim(
   claim: any,
   message = 'Assertion failed',
 ): asserts claim {
   if (!claim) {
     throw new BravoTestError(message);
   }
+}
+
+async function expectAsyncError(
+  failingFunc: (...args: any[]) => any,
+  message = 'Expected an async error',
+) {
+  try {
+    await failingFunc();
+  } catch {
+    return;
+  }
+  throw new BravoTestError(message);
 }
 
 assertBravoTestClaim(
@@ -105,33 +118,48 @@ describe('BravoClient', function () {
     expect(me.email).to.equal(myUserEmail);
   });
 
-  it('can list all collections', async function () {
-    const collections = await client.listCollections();
-    expect(
-      collections.length,
-      'Should have found at least one collection',
-    ).to.be.greaterThan(0);
-    expect(
-      collections.every((c) => c.collectionId),
-      'Collections should have collectionIds',
-    ).to.be.true;
-  });
+  describe('Collections', function () {
+    this.bail(true);
 
-  it('can create and delete a collection', async function () {
-    const collection = await client.createCollection(testCollectionName);
-    assertBravoTestClaim(collection, 'Collection not created');
-    await client.deleteCollectionById(collection.collectionId);
-    try {
-      await client.findCollectionById(collection.collectionId);
-      assertBravoTestClaim(false, 'Should have had an error!');
-    } catch {}
-  });
+    let testCollection: FavroCollection;
 
-  it('can fetch widgets', async function () {
-    const widgetPager = await client.listWidgets();
-    const widgets = await widgetPager.getFetchedEntities();
-    expect(widgets).to.exist;
-    expect(widgets.length, 'should have some widgets').to.be.greaterThan(0);
+    it('can list all collections', async function () {
+      const collections = await client.listCollections();
+      expect(
+        collections.length,
+        'Should have found at least one collection',
+      ).to.be.greaterThan(0);
+      expect(
+        collections.every((c) => c.collectionId),
+        'Collections should have collectionIds',
+      ).to.be.true;
+    });
+
+    it('can create a collection', async function () {
+      testCollection = await client.createCollection(testCollectionName);
+      assertBravoTestClaim(testCollection, 'Collection not created');
+    });
+
+    // Put Widgets inside so that the heirarchical aspects are easier to test
+    // without spamming the Favro API.
+    describe('Widgets (a.k.a. "Boards")', function () {
+      this.bail(true);
+
+      xit('can create a widget', async function () {});
+      it('can fetch widgets', async function () {
+        // Grab the first widget found
+        const widget = await client.findWidget(() => true);
+        assertBravoTestClaim(widget, 'Should be able to fetch a single widget');
+      });
+    });
+
+    it('can delete a collection', async function () {
+      await testCollection.delete();
+      await expectAsyncError(
+        () => client.findCollectionById(testCollection.collectionId),
+        'Should not find deleted collection',
+      );
+    });
   });
 
   after(function () {

@@ -1,11 +1,18 @@
 import { FavroOrganization } from '@/FavroOrganization.js';
 import { FavroUser } from '@/FavroUser.js';
 import { FavroCollection } from '@/FavroCollection.js';
+import type { BravoResponseWidgets } from './BravoResponse.js';
+import { assertBravoClaim } from '@/errors.js';
 
 export class BravoClientCache {
   protected _organizations?: FavroOrganization[];
   protected _users?: FavroUser[];
   protected _collections?: FavroCollection[];
+  /**
+   * Widget paging results keyed by collectionId, with the empty string `''`
+   * used to key the paging result from not using a collectionId (global).
+   */
+  protected _widgets: Map<string, BravoResponseWidgets> = new Map();
 
   get collections() {
     // @ts-expect-error
@@ -29,6 +36,26 @@ export class BravoClientCache {
   }
   set organizations(orgs: FavroOrganization[]) {
     this._organizations = orgs;
+  }
+
+  /**
+   * Get the widget paging object from a get-all-widgets
+   * search, keyed by collectionId. If the collectionId
+   * is not provided, or set to `''`, the global all-widgets
+   * pager is returned (if in the cache).
+   */
+  getWidgets(collectionId = '') {
+    return this._widgets.get(collectionId);
+  }
+
+  /**
+   * Replace the stored widget pager (or add if there isn't one) for
+   * a given collection. If the collectionId is unset, or `''`, it's
+   * assumed the widget pager is from a
+   */
+  addWidgets(widgetPager: BravoResponseWidgets, collectionId = '') {
+    assertBravoClaim(widgetPager, 'Must provide a widget pager!');
+    this._widgets.set(collectionId, widgetPager);
   }
 
   /**
@@ -70,9 +97,11 @@ export class BravoClientCache {
    * To reduce API calls (the rate limits are tight), things
    * are generally cached. To ensure requests are up to date
    * with recent changes, you can force a cache clear.
-   */ clear() {
+   */
+  clear() {
     this._users = undefined;
     this._organizations = undefined;
     this._collections = undefined;
+    this._widgets.clear();
   }
 }

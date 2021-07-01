@@ -1,19 +1,96 @@
-import { BravoClient } from '../BravoClient';
-import { FavroEntity } from '../FavroEntity';
+import type { DataFavroWidget } from '$/types/FavroWidgetTypes.js';
+import type { FavroWidget } from '@/FavroWidget.js';
+import { BravoClient } from '@/BravoClient';
+import { FavroEntity } from '@/FavroEntity';
 import { FavroResponse } from './FavroResponse';
 
+export type BravoResponseWidgets = BravoResponseEntities<
+  DataFavroWidget,
+  FavroWidget
+>;
+
 /**
- * Pager for hydrated Favro API responses
+ * Hydrated Favro response. Can iterate over instances
+ * with `for async (const entity of this){}`
  */
-export class BravoResponse<EntityData, Entity extends FavroEntity<EntityData>> {
-  private _entities: Entity[] = [];
+export class BravoResponseEntities<
+  EntityData,
+  Entity extends FavroEntity<EntityData>,
+> {
+  private _entitiesCache: Entity[] = [];
   private _hydratedLatestPage = false;
+  private _latestPage?: FavroResponse<EntityData>;
 
   constructor(
     private _client: BravoClient,
     private EntityClass: new (client: BravoClient, data: EntityData) => Entity,
-    private _latestPage?: FavroResponse<EntityData>,
-  ) {}
+    firstPage: FavroResponse<EntityData>,
+  ) {
+    this._latestPage = firstPage;
+  }
+
+  /**
+   * A generator for iterating over the entities without having to
+   * deal with paging. Will fetch next pages from the API while behind
+   * the scenes until exhausted. Populates a cache in the process,
+   * so that subsequent iteration will not require additional API calls.
+   * @example
+   * for await (let entity of this){}
+   */
+  async *[Symbol.asyncIterator]() {
+    // Ensure everything we've got so far is properly hydrated etc
+    await this.ensureEntitiesAreHydrated();
+    // Build out the cache in front of us by grabbing next pages
+    // as needed.
+    let entityIdx = 0;
+    while (entityIdx < this._entitiesCache.length) {
+      yield this._entitiesCache[entityIdx];
+      entityIdx++;
+      if (entityIdx === this._entitiesCache.length) {
+        // Then we either need a next page, or we're done
+        const nextPage = await this.fetchNextPage();
+        if (!nextPage) {
+          return;
+        }
+      }
+    }
+  }
+
+  async findIndex(matchFunction: (entity: Entity, idx?: number) => any) {
+    let idx = 0;
+    for await (const entity of this) {
+      if (await matchFunction(entity, idx)) {
+        return idx;
+      }
+      idx++;
+    }
+    return -1;
+  }
+
+  async find(matchFunction: (entity: Entity, idx?: number) => any) {
+    const idx = await this.findIndex(matchFunction);
+    if (idx > -1) {
+      // Will be cached if we found it, so can safely index the cache
+      return this._entitiesCache[idx];
+    }
+  }
+
+  /**
+   * Exhaustively fetch all entities (including those on
+   * subsequent pages, requiring additional API calls),
+   * hydrated as Bravo Entity instances. Results are cached.
+   * **Note:** you can iterate over this object directly with
+   * an async loop, which is more appropriate for searches
+   * since you a match might be found prior to exhausting all
+   * pages.
+   */
+  async getAllEntities() {
+    const entities: Entity[] = [];
+    for await (const entity of this) {
+      entities.push(entity);
+    }
+    return entities;
+  }
 
   /**
    * For paged responses, fetch, hydrate, and add the next page of
@@ -21,34 +98,16 @@ export class BravoResponse<EntityData, Entity extends FavroEntity<EntityData>> {
    * If there is, returns *only* the hydrated entities for that page.
    * Useful for rate-limit-conscious searching.
    */
-  async fetchNextPage() {
+  private async fetchNextPage() {
     // Ensure the prior page got added!
-    await this.addLatestPageToCache();
+    await this.ensureEntitiesAreHydrated();
     if (!this._latestPage || (await this._latestPage.isLastPage())) {
       return;
     }
     this._latestPage = await this._latestPage.getNextPageResponse();
     this._hydratedLatestPage = false;
-    const newPage = await this.addLatestPageToCache();
+    const newPage = await this.ensureEntitiesAreHydrated();
     return newPage;
-  }
-
-  /**
-   * Exhaustively page all results and return all entities.
-   * Uses the cache.
-   */
-  async getAllEntities() {
-    while (await this.fetchNextPage()) {}
-    return this.getFetchedEntities();
-  }
-
-  /**
-   * Get entities paged and fetched so far, hydrated as entity class instances (based
-   * on what was provided to the constructor) */
-  async getFetchedEntities() {
-    // Ensure everything is hydrated
-    await this.addLatestPageToCache();
-    return [...this._entities];
   }
 
   /**
@@ -56,12 +115,12 @@ export class BravoResponse<EntityData, Entity extends FavroEntity<EntityData>> {
    * them to the cache. If the latest page is already hydrated, returns nothing.
    * Else returns a copy of *just that page* of hydrated entities.
    */
-  private async addLatestPageToCache() {
+  private async ensureEntitiesAreHydrated() {
     if (!this._hydratedLatestPage && this._latestPage) {
       const newEntities = (await this._latestPage.getEntitiesData()).map(
         (e) => new this.EntityClass(this._client, e),
       );
-      this._entities.push(...newEntities);
+      this._entitiesCache.push(...newEntities);
       this._hydratedLatestPage = true;
       return newEntities;
     }

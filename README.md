@@ -42,9 +42,10 @@ As environment variables:
 - ✔ Find collection by id
 - ✔ Create a collection
 - ✔ Delete a collection
-  - Delete with method on Collection instance
+  - ✔ Delete with method on Collection instance
 - ✔ List widgets
-- Find widgets by name
+- ✔ Find widget by ID
+- ✔ Find widgets by name
 - Create a widget
 - List cards
 - Search cards by title

@@ -20,6 +20,10 @@ export class FavroResponse<
 
   constructor(protected _client: Client, protected _response: Response) {}
 
+  get response() {
+    return this._response;
+  }
+
   get status() {
     return this._response.status;
   }
@@ -29,7 +33,7 @@ export class FavroResponse<
   }
 
   get failed() {
-    return this.succeeded;
+    return !this.succeeded;
   }
 
   get requestsRemaining() {

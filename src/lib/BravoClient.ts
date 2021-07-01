@@ -1,11 +1,7 @@
 import { assertBravoClaim } from './errors.js';
-import {
-  OptionFavroCollectionVisibility,
-  OptionFavroCollectionColorBackground,
-  OptionFavroCollectionRole,
-  DataAnyEntity,
-  ConstructorFavroEntity,
-} from '../types/FavroApiTypes';
+import { BravoClientCache } from './clientLib/BravoClientCache.js';
+import { BravoResponseEntities } from './clientLib/BravoResponse.js';
+import { FavroClient, OptionsFavroRequest } from './clientLib/FavroClient.js';
 import {
   findByField,
   findRequiredByField,
@@ -14,11 +10,15 @@ import {
 import { FavroCollection } from './FavroCollection';
 import { FavroUser } from './FavroUser';
 import { FavroOrganization } from './FavroOrganization';
-import { FavroClient, OptionsFavroRequest } from './clientLib/FavroClient.js';
-import { BravoClientCache } from './clientLib/BravoClientCache.js';
-import { BravoResponse } from './clientLib/BravoResponse.js';
 import { FavroWidget } from './FavroWidget.js';
-import { DataFavroWidget } from '$/types/FavroWidgetTypes.js';
+import type { DataFavroWidget } from '$/types/FavroWidgetTypes.js';
+import type {
+  OptionFavroCollectionVisibility,
+  OptionFavroCollectionColorBackground,
+  OptionFavroCollectionRole,
+  DataAnyEntity,
+  ConstructorFavroEntity,
+} from '$/types/FavroApiTypes';
 
 export class BravoClient extends FavroClient {
   //#region Organizations
@@ -30,7 +30,7 @@ export class BravoClient extends FavroClient {
     entityClass: ConstructorFavroEntity<EntityData>,
   ) {
     const res = await this.request(url, options, entityClass);
-    return new BravoResponse(this, entityClass, res);
+    return new BravoResponseEntities(this, entityClass, res);
   }
 
   async currentOrganization() {
@@ -182,7 +182,7 @@ export class BravoClient extends FavroClient {
       },
       FavroCollection,
     );
-    const collection = (await res.getFetchedEntities())[0] as
+    const collection = (await res.getAllEntities())[0] as
       | FavroCollection
       | undefined;
     assertBravoClaim(collection, `Failed to create collection`);
@@ -268,7 +268,7 @@ export class BravoClient extends FavroClient {
         { method: 'get' },
         FavroCollection,
       );
-      const collections = await res.getFetchedEntities();
+      const collections = await res.getAllEntities();
       assertBravoClaim(
         collections.length == 1,
         `No collection found with id ${collectionId}`,
@@ -283,17 +283,85 @@ export class BravoClient extends FavroClient {
   //#region Widgets
 
   /**
-   * Get the Widgets from the organization, with optional filtering.
-   * The returned object contains only the first page of results, plus
-   * methods to fetch additional (or all) pages. Results *are not* cached.
+   * Get the Widgets from the organization as an async generator,
+   * allowing you to loop over however many results you want without
+   * having to exhaustively fetch all widgets (can reduce API calls).
    */
-  async listWidgets(options?: { collectionId?: string; archived?: boolean }) {
+  private async getWidgetsAsyncGenerator(collectionId?: string) {
+    const widgets = this.cache.getWidgets(collectionId);
+    if (!widgets) {
+      const res = (await this.requestWithReturnedEntities(
+        'widgets',
+        { method: 'get', query: { collectionId } },
+        FavroWidget,
+      )) as BravoResponseEntities<DataFavroWidget, FavroWidget>;
+      this.cache.addWidgets(res, collectionId);
+    }
+    return this.cache.getWidgets(collectionId)!;
+  }
+
+  /**
+   * Get list of all widgets, globally or by collection.
+   * Specify the collection for faster results and
+   * fewer API calls. Uses the `.getWidgetsPager()` cache.
+   */
+  async listWidgets(collectionId?: string) {
+    const pager = await this.getWidgetsAsyncGenerator(collectionId);
+    const widgets = ((await pager?.getAllEntities()) || []) as FavroWidget[];
+    return widgets;
+  }
+
+  async findWidgetById(widgetCommonId: string) {
     const res = await this.requestWithReturnedEntities(
-      'widgets',
-      { method: 'get', query: options },
+      `widgets/${widgetCommonId}`,
+      { method: 'get' },
       FavroWidget,
     );
-    return res as BravoResponse<DataFavroWidget, FavroWidget>;
+    const [widget] = await res.getAllEntities();
+    return widget as FavroWidget;
+  }
+
+  /**
+   * Find the first widget for which the `matchFunction` returns a truthy value.
+   * Specifying a collection is recommended to reduce API calls. API calls caused
+   * by the search are cached.
+   */
+  async findWidget(
+    matchFunction: (widget: FavroWidget, idx?: number) => any,
+    collectionId = '',
+  ) {
+    // Reduce API calls by non-exhaustively searching (when possible)
+    const widgets = await this.getWidgetsAsyncGenerator(collectionId);
+    return await widgets.find(matchFunction);
+  }
+
+  /**
+   * Find the first widget found matching a given name.
+   * Ignores case by default.
+   *
+   * Results are cached. Specifying a collectionId is
+   * recommended to reduce API calls.
+   *
+   * *Note that Favro does not
+   * require unique Widget names: you'll need to ensure
+   * that yourself or restrict searches to collections
+   * containing only one widget matching the given name.*
+   */
+  async findWidgetByName(
+    name: string,
+    collectionId?: string,
+    options?: {
+      matchCase?: boolean;
+    },
+  ) {
+    // Reduce API calls by non-exhaustively searching (when possible)
+    return await this.findWidget(
+      (widget) =>
+        options?.matchCase
+          ? widget.name == name
+          : stringsMatchIgnoringCase(name, widget.name),
+      collectionId,
+    );
   }
 
   //#endregion

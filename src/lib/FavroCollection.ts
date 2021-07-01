@@ -13,4 +13,9 @@ export class FavroCollection extends FavroEntity<DataFavroCollection> {
   get organizationId() {
     return this._data.organizationId;
   }
+
+  /** Delete this collection from Favro. **Use with care!** */
+  async delete() {
+    await this._client.deleteCollectionById(this.collectionId);
+  }
 }
