@@ -11,7 +11,7 @@ import { toBase64 } from '@/utility.js';
 
 export interface OptionsFavroRequest {
   method?: OptionFavroHttpMethod;
-  query?: Record<string, string>;
+  query?: Record<string, any>;
   body?: any;
   headers?: Record<string, string>;
   /**
@@ -117,7 +117,7 @@ export class FavroClient {
         continue;
       }
       assertBravoClaim(value, `A Favro ${optionsName} is required.`);
-      this[`_${optionsName}`] = value;
+      this[`_${optionsName}` as const] = value;
     }
   }
 

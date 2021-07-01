@@ -127,7 +127,12 @@ describe('BravoClient', function () {
     } catch {}
   });
 
-  // it('can ');
+  it('can fetch widgets', async function () {
+    const widgetPager = await client.listWidgets();
+    const widgets = await widgetPager.getFetchedEntities();
+    expect(widgets).to.exist;
+    expect(widgets.length, 'should have some widgets').to.be.greaterThan(0);
+  });
 
   after(function () {
     resetSandbox();

@@ -17,6 +17,8 @@ import { FavroOrganization } from './FavroOrganization';
 import { FavroClient, OptionsFavroRequest } from './clientLib/FavroClient.js';
 import { BravoClientCache } from './clientLib/BravoClientCache.js';
 import { BravoResponse } from './clientLib/BravoResponse.js';
+import { FavroWidget } from './FavroWidget.js';
+import { DataFavroWidget } from '$/types/FavroWidgetTypes.js';
 
 export class BravoClient extends FavroClient {
   //#region Organizations
@@ -279,6 +281,20 @@ export class BravoClient extends FavroClient {
   //#endregion
 
   //#region Widgets
+
+  /**
+   * Get the Widgets from the organization, with optional filtering.
+   * The returned object contains only the first page of results, plus
+   * methods to fetch additional (or all) pages. Results *are not* cached.
+   */
+  async listWidgets(options?: { collectionId?: string; archived?: boolean }) {
+    const res = await this.requestWithReturnedEntities(
+      'widgets',
+      { method: 'get', query: options },
+      FavroWidget,
+    );
+    return res as BravoResponse<DataFavroWidget, FavroWidget>;
+  }
 
   //#endregion
 

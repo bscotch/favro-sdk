@@ -43,13 +43,14 @@ As environment variables:
 - ✔ Create a collection
 - ✔ Delete a collection
   - Delete with method on Collection instance
-- List widgets
+- ✔ List widgets
 - Find widgets by name
 - Create a widget
 - List cards
 - Search cards by title
 - Create a card
 - Delete a card
+- Make all tests _self-contained_ (e.g. create a board, _then_ add widgets and cards, etc)
 
 ## Usage
 
