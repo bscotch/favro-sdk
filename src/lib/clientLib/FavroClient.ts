@@ -141,20 +141,10 @@ export class FavroClient {
    *
    * @param url Relative to the base URL {@link https://favro.com/api/v1}
    */
-  async request<EntityData = null>(
+  async request<EntityData extends DataAnyEntity | null = null>(
     url: string,
     options?: OptionsFavroRequest,
-  ): Promise<FavroResponse<EntityData, this>>;
-  async request<EntityData extends DataAnyEntity>(
-    url: string,
-    options: OptionsFavroRequest,
-    entityClass: ConstructorFavroEntity<EntityData>,
-  ): Promise<FavroResponse<EntityData, this>>;
-  async request<EntityData extends DataAnyEntity>(
-    url: string,
-    options?: OptionsFavroRequest,
-    entityClass?: ConstructorFavroEntity<EntityData>,
-  ): Promise<any> {
+  ): Promise<FavroResponse<EntityData, this>> {
     assertBravoClaim(
       typeof this._requestsRemaining == 'undefined' ||
         this._requestsRemaining > 0,

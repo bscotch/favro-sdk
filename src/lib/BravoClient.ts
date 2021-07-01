@@ -29,7 +29,7 @@ export class BravoClient extends FavroClient {
     options: OptionsFavroRequest,
     entityClass: ConstructorFavroEntity<EntityData>,
   ) {
-    const res = await this.request(url, options, entityClass);
+    const res = await this.request<EntityData>(url, options);
     return new BravoResponseEntities(this, entityClass, res);
   }
 
