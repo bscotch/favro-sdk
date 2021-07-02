@@ -27,13 +27,18 @@ As environment variables:
 
 ## Roadmap
 
-| Icon | Meaning                                  |
-| ---- | ---------------------------------------- |
-| 🔜   | Intended for core functionality          |
-| ✔    | Complete                                 |
-| 😍   | Quality-of-life improvements             |
-| ❓   | Maybe... someday... if a use case arises |
+| Icon | Meaning                                           |
+| ---- | ------------------------------------------------- |
+| 🔜   | Planned for core feature set                      |
+| ✔    | Complete                                          |
+| 😍   | Quality-of-life improvements that _should_ happen |
+| ❓   | Maybe... someday... if a use case arises...       |
 
+- BravoClient
+  - 😍 Logging utility (with debug flag)
+  - 😍 Track request counts and optionally log them (for auditing API use vs. rate limits)
+  - 😍 Handle hitting the API rate limit (currently just a 403 error)
+- ❓ CLI _(no current use cases)_
 - Organizations
   - ✔ List orgs
   - ✔ Find org by name
