@@ -1,10 +1,13 @@
 import { DataFavroWidget } from '$types/FavroWidgetTypes.js';
 import { BravoEntity } from '$lib/BravoEntity.js';
 import { selectRandom } from '$lib/utility.js';
+import { BravoColumn } from './BravoColumn.js';
 
 export type OptionWidgetColor = typeof BravoWidget['colors'][number];
 
 export class BravoWidget extends BravoEntity<DataFavroWidget> {
+  private _columns?: BravoColumn[];
+
   get widgetCommonId() {
     return this._data.widgetCommonId;
   }
@@ -22,6 +25,13 @@ export class BravoWidget extends BravoEntity<DataFavroWidget> {
   }
   get editRole() {
     return this._data.editRole;
+  }
+
+  async getColumns() {
+    if (!this._columns) {
+      this._columns = await this._client.listColumns(this.widgetCommonId);
+    }
+    return [...this._columns];
   }
 
   async delete() {

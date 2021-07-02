@@ -20,6 +20,8 @@ import type {
   ConstructorFavroEntity,
 } from '$/types/FavroApiTypes';
 import type { OptionsBravoCreateWidget } from '$/types/ParameterOptions.js';
+import { BravoColumn } from './entities/BravoColumn.js';
+import { DataFavroColumn } from '$/types/FavroColumnTypes.js';
 
 export class BravoClient extends FavroClient {
   //#region Organizations
@@ -192,13 +194,7 @@ export class BravoClient extends FavroClient {
   }
 
   async deleteCollectionById(collectionId: string) {
-    const res = await this.request(`collections/${collectionId}`, {
-      method: 'delete',
-    });
-    assertBravoClaim(
-      res.succeeded,
-      `Failed to delete collection with status ${res.status}`,
-    );
+    await this.deleteEntity(`collections/${collectionId}`);
     this.cache.removeCollection(collectionId);
   }
 
@@ -389,16 +385,65 @@ export class BravoClient extends FavroClient {
   }
 
   async deleteWidgetById(widgetCommonId: string) {
-    const res = await this.request(`widgets/${widgetCommonId}`, {
+    await this.deleteEntity(`widgets/${widgetCommonId}`);
+  }
+  //#endregion
+
+  //#region COLUMNS
+
+  /**
+   * Create a new column on a Widget.
+   * {@link https://favro.com/developer/#create-a-column}
+   */
+  async createColumn(
+    widgetCommonId: string,
+    name: string,
+    options?: { position?: number },
+  ) {
+    const res = await this.requestWithReturnedEntities(
+      `columns`,
+      {
+        method: 'post',
+        body: {
+          widgetCommonId,
+          name,
+          position: options?.position,
+        },
+      },
+      BravoColumn,
+    );
+    const column = (await res.getAllEntities())[0] as BravoColumn | undefined;
+    assertBravoClaim(column, `Failed to create widget`);
+    // TODO: UPDATE CACHE
+    return column;
+  }
+
+  async listColumns(widgetCommonId: string) {
+    const res = (await this.requestWithReturnedEntities(
+      `columns`,
+      { method: 'get', query: { widgetCommonId } },
+      BravoColumn,
+    )) as BravoResponseEntities<DataFavroColumn, BravoColumn>;
+    // TODO: UPDATE CACHE
+    return await res.getAllEntities();
+  }
+
+  async deleteColumnById(columnId: string) {
+    // TODO: UPDATE CACHE
+    await this.deleteEntity(`columns/${columnId}`);
+  }
+
+  //#endregion
+
+  private async deleteEntity(url: string) {
+    const res = await this.request(url, {
       method: 'delete',
     });
     assertBravoClaim(
       res.succeeded,
-      `Failed to delete collection with status ${res.status}`,
+      `Failed to delete entity at ${url}; Status: ${res.status}`,
     );
   }
-
-  //#endregion
 
   /**
    * Clear all cached data. This is useful if you need to
