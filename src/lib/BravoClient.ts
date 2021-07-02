@@ -28,6 +28,31 @@ import { BravoColumn } from './entities/BravoColumn.js';
 import { DataFavroColumn } from '$/types/FavroColumnTypes.js';
 import { ArrayMatchFunction } from '$/types/Utility.js';
 
+/**
+ * The `BravoClient` class should be singly-instanced for a given
+ * set of credentials and a target organization. Once the organizationId
+ * is set (either out of the gate via env var or construct args, or
+ * by using `client.setOrganizationIdByName` when the org name is known
+ * but the id is not).
+ *
+ * All Favro API fetching and caching is centralized and managed in
+ * this class. "Entities" returned from Favro API endpoints are wrapped
+ * in per-type class instances, providing shortcuts to many of the methods
+ * here.
+ *
+ * Entities store their raw data, as originally fetched from Favro,
+ * available via the `.toJSON()` method (this method is automatically
+ * used by JSON.stringify(), allowing you to use that general function
+ * to get the raw data back). Note that the raw data
+ * **does not necessarily get updated** by Bravo when things are mutated.
+ *
+ * @example
+ * const client = new BravoClient();
+ * await client.setOrganizationIdByName('my-org');
+ * const newCollection = await client.createCollection('My New Collection');
+ * await newCollection.delete();
+ * // ^^ shortcut for `await client.deleteCollection(newCollection.collectionId)`
+ */
 export class BravoClient extends FavroClient {
   //#region Organizations
   private cache = new BravoClientCache();
@@ -289,7 +314,7 @@ export class BravoClient extends FavroClient {
         { method: 'get', query: { collectionId } },
         BravoWidget,
       )) as BravoResponseEntities<DataFavroWidget, BravoWidget>;
-      this.cache.addWidgets(res, collectionId);
+      this.cache.setWidgets(res, collectionId);
     }
     return this.cache.getWidgets(collectionId)!;
   }
@@ -311,7 +336,7 @@ export class BravoClient extends FavroClient {
         body: {
           collectionId,
           name,
-          type: options?.type || 'backlog',
+          type: options?.type || 'board',
           color: options?.color || 'cyan',
         },
       },
@@ -413,18 +438,21 @@ export class BravoClient extends FavroClient {
     );
     const column = (await res.getFirstEntity()) as BravoColumn;
     assertBravoClaim(column, `Failed to create widget`);
-    // TODO: UPDATE CACHE
+    this.cache.addColumn(widgetCommonId, column);
     return column;
   }
 
   async listColumns(widgetCommonId: string) {
-    const res = (await this.requestWithReturnedEntities(
-      `columns`,
-      { method: 'get', query: { widgetCommonId } },
-      BravoColumn,
-    )) as BravoResponseEntities<DataFavroColumn, BravoColumn>;
-    // TODO: UPDATE CACHE
-    return await res.getAllEntities();
+    if (!this.cache.getColumns(widgetCommonId)) {
+      const res = (await this.requestWithReturnedEntities(
+        `columns`,
+        { method: 'get', query: { widgetCommonId } },
+        BravoColumn,
+      )) as BravoResponseEntities<DataFavroColumn, BravoColumn>;
+      const columns = await res.getAllEntities();
+      this.cache.setColumns(widgetCommonId, columns);
+    }
+    return this.cache.getColumns(widgetCommonId)!;
   }
 
   /**
@@ -437,9 +465,11 @@ export class BravoClient extends FavroClient {
     return await find(await this.listColumns(widgetCommonId), matchFunction);
   }
 
-  async deleteColumnById(columnId: string) {
-    // TODO: UPDATE CACHE
+  async deleteColumn(widgetCommonId: string, columnId: string) {
+    // Note: technically we don't NEED the widgetId to delete a column,
+    // but coupling these together is useful and allows for cache management.
     await this.deleteEntity(`columns/${columnId}`);
+    this.cache.removeColumn(widgetCommonId, columnId);
   }
 
   //#endregion

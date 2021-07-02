@@ -3,6 +3,7 @@ import { BravoUser } from '$entities/users';
 import { BravoCollection } from '$entities/BravoCollection.js';
 import type { BravoResponseWidgets } from './BravoResponse.js';
 import { assertBravoClaim } from '$lib/errors.js';
+import { BravoColumn } from '../entities/BravoColumn.js';
 
 export class BravoClientCache {
   protected _organizations?: BravoOrganization[];
@@ -13,6 +14,13 @@ export class BravoClientCache {
    * used to key the paging result from not using a collectionId (global).
    */
   protected _widgets: Map<string, BravoResponseWidgets> = new Map();
+  /**
+   * Widget columns are fetched separately via the API. They can
+   * be fetched directly, but more likely will all be fetched at once
+   * for a given Widget. Caching on a per-widget basis probably
+   * makes the most sense.
+   */
+  protected _columns: Map<string, BravoColumn[]> = new Map();
 
   get collections() {
     // @ts-expect-error
@@ -53,9 +61,54 @@ export class BravoClientCache {
    * a given collection. If the collectionId is unset, or `''`, it's
    * assumed the widget pager is from a
    */
-  addWidgets(widgetPager: BravoResponseWidgets, collectionId = '') {
+  setWidgets(widgetPager: BravoResponseWidgets, collectionId = '') {
     assertBravoClaim(widgetPager, 'Must provide a widget pager!');
     this._widgets.set(collectionId, widgetPager);
+  }
+
+  getColumns(collectionId: string) {
+    const columns = this._columns.get(collectionId);
+    return columns && [...columns];
+  }
+
+  /** Set the cache for the columns of a widget */
+  setColumns(widgetCommonId: string, columns: BravoColumn[]) {
+    assertBravoClaim(widgetCommonId, 'Must provide a widget id!');
+    this._columns.set(widgetCommonId, [...columns]);
+  }
+
+  /**
+   * Replace/add a cached column for a widget.
+   * Useful for updating the cache after adding or
+   * updating a column.
+   * Does nothing if there isn't already a cached
+   * list of columns for this widget.
+   *
+   * **Use with caution:** you can create bad caches with this!
+   */
+  addColumn(widgetCommonId: string, column: BravoColumn) {
+    this.removeColumn(widgetCommonId, column.columnId);
+    // Only add if the cache already exists
+    this._columns.get(widgetCommonId)?.push(column);
+  }
+
+  /**
+   * Remove a cached column for a widget.
+   * Useful for updating the cache after deleting a column.
+   * Does nothing if there isn't already a cached
+   * list of columns for this widget.
+   *
+   * **Use with caution:** you can create bad caches with this!
+   */
+  removeColumn(widgetCommonId: string, columnId: string) {
+    const columns = this._columns.get(widgetCommonId);
+    if (!columns) {
+      return;
+    }
+    const idx = columns.findIndex((col) => col.columnId == columnId);
+    if (idx > -1) {
+      columns.splice(idx, 1);
+    }
   }
 
   /**
@@ -103,5 +156,6 @@ export class BravoClientCache {
     this._organizations = undefined;
     this._collections = undefined;
     this._widgets.clear();
+    this._columns.clear();
   }
 }
