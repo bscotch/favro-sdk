@@ -1,15 +1,12 @@
 import { DataFavroWidget } from '$types/FavroWidgetTypes.js';
 import { BravoEntity } from '$lib/BravoEntity.js';
-import { selectRandom } from '$lib/utility.js';
-import { BravoColumn } from './BravoColumn.js';
-import { ArrayMatchFunction } from '$/types/Utility.js';
+import { selectRandom, stringsMatch } from '$lib/utility.js';
+import type { BravoColumn } from './BravoColumn.js';
+import type { ArrayMatchFunction } from '$/types/Utility.js';
 
 export type OptionWidgetColor = typeof BravoWidget['colors'][number];
 
 export class BravoWidget extends BravoEntity<DataFavroWidget> {
-  /** TODO: Move to cache! */
-  private _columns?: BravoColumn[];
-
   get widgetCommonId() {
     return this._data.widgetCommonId;
   }
@@ -29,19 +26,27 @@ export class BravoWidget extends BravoEntity<DataFavroWidget> {
     return this._data.editRole;
   }
 
+  async createColumn(name: string, options?: { position?: number }) {
+    return await this._client.createColumn(this.widgetCommonId, name, options);
+  }
+
   async listColumns() {
-    if (!this._columns) {
-      this._columns = await this._client.listColumns(this.widgetCommonId);
-    }
-    return [...this._columns];
+    return await this._client.listColumns(this.widgetCommonId);
   }
 
   async findColumn(matchFunction: ArrayMatchFunction<BravoColumn>) {
     return await this._client.findColumn(this.widgetCommonId, matchFunction);
   }
 
-  async deleteColumnById(columnId: string) {
-    return await this.findColumn((col) => col.columnId == columnId);
+  async findColumnByName(name: string, options?: { ignoreCase?: boolean }) {
+    const column = await this.findColumn((col) => {
+      return stringsMatch(col.name, name, options);
+    });
+    return column;
+  }
+
+  async deleteColumn(columnId: string) {
+    return await this._client.deleteColumn(this.widgetCommonId, columnId);
   }
 
   async delete() {

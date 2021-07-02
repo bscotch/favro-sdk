@@ -2,8 +2,9 @@ import { BravoClient } from '$lib/BravoClient.js';
 import { expect } from 'chai';
 import fs from 'fs-extra';
 import dotenv from 'dotenv';
-import { BravoCollection } from '$entities/BravoCollection.js';
-import { BravoWidget } from '$entities/BravoWidget.js';
+import type { BravoCollection } from '$entities/BravoCollection.js';
+import type { BravoWidget } from '$entities/BravoWidget.js';
+import type { BravoColumn } from '$/lib/entities/BravoColumn.js';
 
 /**
  * @note A root .env file must be populated with the required
@@ -12,9 +13,12 @@ import { BravoWidget } from '$entities/BravoWidget.js';
 dotenv.config();
 const organizationName = process.env.FAVRO_ORGANIZATION_NAME!;
 const myUserEmail = process.env.FAVRO_USER_EMAIL!;
+
 const testCollectionName =
   process.env.BRAVO_TEST_COLLECTION_NAME || '___BRAVO_TEST_COLLECTION';
 const testWidgetName = '___BRAVO_TEST_WIDGET';
+const testColumnName = '___BRAVO_TEST_COLUMN';
+
 const sandboxRoot = './sandbox';
 const samplesRoot = './samples';
 
@@ -82,6 +86,7 @@ describe('BravoClient', function () {
   const client = new BravoClient();
   let testWidget: BravoWidget;
   let testCollection: BravoCollection;
+  let testColumn: BravoColumn;
 
   // !!!
   // Tests are in a specific order to ensure that dependencies
@@ -89,8 +94,27 @@ describe('BravoClient', function () {
   // do with good test design -- to minimize API calls (the limits
   // are low) the tests become dependent on the outcomes of prior tests.
 
-  before(function () {
+  before(async function () {
+    await client.setOrganizationIdByName(organizationName);
+
     resetSandbox();
+    // Clean up any leftover remote testing content
+    // (Since names aren't required to be unique, there could be quite a mess!)
+    // NOTE:
+    while (true) {
+      const collection = await client.findCollectionByName(testCollectionName);
+      if (!collection) {
+        break;
+      }
+      for (const widget of await collection.listWidgets()) {
+        if (!widget) {
+          break;
+        }
+        // TODO: delete cards
+        await widget.delete();
+      }
+      await collection.delete();
+    }
   });
 
   it('can list organizations', async function () {
@@ -112,7 +136,6 @@ describe('BravoClient', function () {
   });
 
   it('can find all users for an organization, including self', async function () {
-    await client.setOrganizationIdByName(organizationName);
     const partialUsers = await client.listOrganizationMembers();
     expect(partialUsers.length, 'has partial users').to.be.greaterThan(0);
     const fullUsers = await client.listFullUsers();
@@ -165,7 +188,29 @@ describe('BravoClient', function () {
       ).to.be.true;
     });
 
+    it('can create a column', async function () {
+      testColumn = await testWidget.createColumn(testColumnName);
+      expect(testColumn).to.exist;
+    });
+    it('can find a created column', async function () {
+      const foundColumn = await testWidget.findColumnByName(testColumnName);
+      assertBravoTestClaim(foundColumn);
+      expect(foundColumn!.equals(testColumn)).to.be.true;
+    });
+
     // TODO: NEXT HEIRARCHY LEVEL
+
+    it('can delete a created column', async function () {
+      // Can't delete the last column, so we need to make another to delete!
+      const deletableName = 'DELETE ME';
+      const deletableColumn = await testWidget.createColumn(deletableName);
+      assertBravoTestClaim(deletableColumn);
+      await deletableColumn.delete();
+      expect(
+        await testWidget.findColumnByName(deletableName),
+        'Should not find deleted column',
+      ).to.be.undefined;
+    });
 
     it('can delete a created widget', async function () {
       await testWidget.delete();

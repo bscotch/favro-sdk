@@ -29,4 +29,11 @@ export class BravoColumn extends BravoEntity<DataFavroColumn> {
   equals(column: BravoColumn) {
     return this.hasSameConstructor(column) && this.columnId === column.columnId;
   }
+
+  async delete() {
+    if (!this.deleted) {
+      await this._client.deleteColumn(this.widgetCommonId, this.columnId);
+    }
+    this._deleted = true;
+  }
 }

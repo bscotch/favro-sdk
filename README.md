@@ -47,10 +47,15 @@ As environment variables:
 - ✔ Find widgets by name
 - ✔ Create a widget
 - ✔ Delete a widget
+- ✔ List columns
+- ✔ Find columns
+- ✔ Create columns
+- ✔ Delete columns
 - List cards
 - Search cards by title
 - Create a card
 - Delete a card
+- Add some sort of warning when a user tries to delete the LAST column on a Widget, since that's guaranteed to throw a 403.
 
 ## Usage
 
