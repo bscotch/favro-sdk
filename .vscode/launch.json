@@ -16,7 +16,7 @@
         "--timeout",
         "999999",
         "--colors",
-        "${workspaceFolder}/build/test/index.js"
+        "${workspaceFolder}/build/test/"
       ],
       "console": "internalConsole",
       "internalConsoleOptions": "neverOpen",
