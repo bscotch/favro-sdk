@@ -9,6 +9,11 @@ export type BravoResponseWidgets = BravoResponseEntities<
   BravoWidget
 >;
 
+export type BravoResponseEntitiesMatchFunction<Entity> = (
+  entity: Entity,
+  idx?: number,
+) => any | Promise<Entity>;
+
 /**
  * Hydrated Favro response. Can iterate over instances
  * with `for async (const entity of this){}`
@@ -56,7 +61,7 @@ export class BravoResponseEntities<
     }
   }
 
-  async findIndex(matchFunction: (entity: Entity, idx?: number) => any) {
+  async findIndex(matchFunction: BravoResponseEntitiesMatchFunction<Entity>) {
     let idx = 0;
     for await (const entity of this) {
       if (await matchFunction(entity, idx)) {
@@ -67,7 +72,7 @@ export class BravoResponseEntities<
     return -1;
   }
 
-  async find(matchFunction: (entity: Entity, idx?: number) => any) {
+  async find(matchFunction: BravoResponseEntitiesMatchFunction<Entity>) {
     const idx = await this.findIndex(matchFunction);
     if (idx > -1) {
       // Will be cached if we found it, so can safely index the cache
@@ -90,6 +95,16 @@ export class BravoResponseEntities<
       entities.push(entity);
     }
     return entities;
+  }
+
+  /**
+   * Some requests only return one item,
+   * and there may be other reasons you just
+   * want the first item obtained.
+   */
+  async getFirstEntity() {
+    await this.ensureEntitiesAreHydrated();
+    return this._entitiesCache[0];
   }
 
   /**
