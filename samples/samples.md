@@ -1,7 +1,3 @@
-# Test samples
+# Sample Data
 
-Any files you place in the `./samples` folder will
-(by default) be cloned into a `./sandbox` folder
-when you run tests (with `npm test`). This allows
-you to create reference content that will not be
-changed by your running tests.
+Documentation is great and all, but REAL DATA is better. This folder contains samples obtained from Favro and related sources. It can be used as reference material for types, and for sample payloads for tests.
