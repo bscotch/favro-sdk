@@ -49,3 +49,7 @@ export function findRequiredByField<
 export function toBase64(string: string) {
   return Buffer.from(string).toString('base64');
 }
+
+export function selectRandom<T>(array: T[] | Readonly<T[]>): T {
+  return array[Math.floor(Math.random() * array.length)];
+}

@@ -7,10 +7,10 @@ import {
   findRequiredByField,
   stringsMatchIgnoringCase,
 } from './utility.js';
-import { BravoCollection } from './BravoCollection';
-import { BravoUser } from './users';
-import { BravoOrganization } from './BravoOrganization';
-import { BravoWidget } from './BravoWidget.js';
+import { BravoCollection } from './entities/BravoCollection';
+import { BravoUser } from '$entities/users';
+import { BravoOrganization } from '$entities/BravoOrganization';
+import { BravoWidget } from '$entities/BravoWidget.js';
 import type { DataFavroWidget } from '$/types/FavroWidgetTypes.js';
 import type {
   OptionFavroCollectionVisibility,
@@ -19,6 +19,7 @@ import type {
   DataAnyEntity,
   ConstructorFavroEntity,
 } from '$/types/FavroApiTypes';
+import type { OptionsBravoCreateWidget } from '$/types/ParameterOptions.js';
 
 export class BravoClient extends FavroClient {
   //#region Organizations
@@ -298,6 +299,34 @@ export class BravoClient extends FavroClient {
       this.cache.addWidgets(res, collectionId);
     }
     return this.cache.getWidgets(collectionId)!;
+  }
+
+  /**
+   * Create a new widget in a collection.
+   *
+   * {@link https://favro.com/developer/#create-a-widget}
+   */
+  async createWidget(
+    collectionId: string,
+    name: string,
+    options?: OptionsBravoCreateWidget,
+  ) {
+    const res = await this.requestWithReturnedEntities(
+      `widgets`,
+      {
+        method: 'post',
+        body: {
+          collectionId,
+          name,
+          type: options?.type || 'backlog',
+          color: options?.color || 'cyan',
+        },
+      },
+      BravoWidget,
+    );
+    const widget = (await res.getAllEntities())[0] as BravoWidget | undefined;
+    assertBravoClaim(widget, `Failed to create widget`);
+    return widget;
   }
 
   /**

@@ -1,6 +1,7 @@
-import { DataFavroCollection } from '../types/FavroApiTypes';
-import { BravoEntity } from './BravoEntity.js';
-import { BravoWidget } from './BravoWidget.js';
+import { BravoEntity } from '../BravoEntity.js';
+import type { BravoWidget } from './BravoWidget.js';
+import type { DataFavroCollection } from '$/types/FavroApiTypes';
+import type { OptionsBravoCreateWidget } from '$/types/ParameterOptions.js';
 
 export class BravoCollection extends BravoEntity<DataFavroCollection> {
   get name() {
@@ -13,6 +14,10 @@ export class BravoCollection extends BravoEntity<DataFavroCollection> {
 
   get organizationId() {
     return this._data.organizationId;
+  }
+
+  async createWidget(name: string, options?: OptionsBravoCreateWidget) {
+    return await this._client.createWidget(this.collectionId, name, options);
   }
 
   /**

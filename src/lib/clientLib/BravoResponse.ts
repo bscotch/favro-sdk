@@ -1,7 +1,7 @@
 import type { DataFavroWidget } from '$/types/FavroWidgetTypes.js';
-import type { BravoWidget } from '@/BravoWidget.js';
-import { BravoClient } from '@/BravoClient';
-import { BravoEntity } from '@/BravoEntity';
+import type { BravoWidget } from '$entities/BravoWidget.js';
+import { BravoClient } from '$lib/BravoClient';
+import { BravoEntity } from '$lib/BravoEntity';
 import { FavroResponse } from './FavroResponse';
 
 export type BravoResponseWidgets = BravoResponseEntities<

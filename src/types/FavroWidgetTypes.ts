@@ -1,18 +1,9 @@
 /** Which pane its in: backlog (left) or board (right) */
 
+import { OptionWidgetColor } from '$entities/BravoWidget.js';
+
 export type OptionWidgetType = 'backlog' | 'board';
 export type OptionWidgetRole = 'owners' | 'fullMembers' | 'guests';
-export type OptionWidgetColor =
-  | 'blue'
-  | 'lightgreen'
-  | 'brown'
-  | 'purple'
-  | 'orange'
-  | 'yellow'
-  | 'gray'
-  | 'red'
-  | 'cyan'
-  | 'green';
 
 export interface DataFavroWidget {
   /** The shared id of the widget. */

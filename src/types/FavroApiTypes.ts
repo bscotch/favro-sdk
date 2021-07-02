@@ -1,5 +1,5 @@
-import type { BravoClient } from '@/BravoClient.js';
-import type { BravoEntity } from '@/BravoEntity.js';
+import type { BravoClient } from '$lib/BravoClient.js';
+import type { BravoEntity } from '$lib/BravoEntity.js';
 
 export type OptionFavroHttpMethod = 'get' | 'post' | 'put' | 'delete';
 export type OptionFavroCollectionColorBackground =

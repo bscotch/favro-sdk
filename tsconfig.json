@@ -31,8 +31,10 @@
         (Note that using a "$" instead of "@" makes it less ambiguous if you are referring
         to a local or npm module.)
       */
-      "@/*": ["src/lib/*"],
       "$/*": ["src/*"],
+      "$lib/*": ["src/lib/*"],
+      "$entities/*": ["src/lib/entities/*"],
+      "$types/*": ["src/types/*"],
       "$cli/*": ["src/cli/*"],
       "$test/*": ["src/test/*"]
     }

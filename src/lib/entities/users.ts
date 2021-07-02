@@ -2,8 +2,8 @@ import type {
   DataFavroCollectionMember,
   DataFavroOrganizationMember,
   DataFavroUser,
-} from '../types/FavroApiTypes';
-import { BravoEntity } from './BravoEntity.js';
+} from '$types/FavroApiTypes';
+import { BravoEntity } from '$lib/BravoEntity.js';
 
 export class BravoUserBase<
   UserData extends { userId: string },

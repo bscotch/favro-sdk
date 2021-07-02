@@ -1,12 +1,12 @@
-import { assertBravoClaim, BravoError } from '@/errors.js';
+import { assertBravoClaim, BravoError } from '$lib/errors.js';
 import fetch from 'node-fetch';
 import { URL } from 'url';
 import type {
   DataAnyEntity,
   OptionFavroHttpMethod,
 } from '$/types/FavroApiTypes';
-import { FavroResponse } from '@/clientLib/FavroResponse';
-import { toBase64 } from '@/utility.js';
+import { FavroResponse } from '$lib/clientLib/FavroResponse';
+import { toBase64 } from '$lib/utility.js';
 
 export interface OptionsFavroRequest {
   method?: OptionFavroHttpMethod;

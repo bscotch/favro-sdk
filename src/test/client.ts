@@ -1,8 +1,9 @@
-import { BravoClient } from '@/BravoClient.js';
+import { BravoClient } from '$lib/BravoClient.js';
 import { expect } from 'chai';
 import fs from 'fs-extra';
 import dotenv from 'dotenv';
-import { BravoCollection } from '@/BravoCollection.js';
+import { BravoCollection } from '$entities/BravoCollection.js';
+import { BravoWidget } from '$entities/BravoWidget.js';
 
 /**
  * @note A root .env file must be populated with the required
@@ -13,6 +14,9 @@ const organizationName = process.env.FAVRO_ORGANIZATION_NAME!;
 const myUserEmail = process.env.FAVRO_USER_EMAIL!;
 const testCollectionName =
   process.env.BRAVO_TEST_COLLECTION_NAME || '___BRAVO_TEST_COLLECTION';
+const testWidgetName = '___BRAVO_TEST_WIDGET';
+const sandboxRoot = './sandbox';
+const samplesRoot = './samples';
 
 export class BravoTestError extends Error {
   constructor(message: string) {
@@ -51,9 +55,6 @@ assertBravoTestClaim(
   organizationName,
   `For testing, you must include FAVRO_USER_EMAIL in your .env file`,
 );
-
-const sandboxRoot = './sandbox';
-const samplesRoot = './samples';
 
 /**
  * Clone any files in a "./samples" folder into
@@ -144,11 +145,21 @@ describe('BravoClient', function () {
     // without spamming the Favro API.
     describe('Widgets (a.k.a. "Boards")', function () {
       this.bail(true);
+      let testWidget: BravoWidget;
 
-      xit('can create a widget', async function () {});
+      it('can create a widget', async function () {
+        testWidget = await testCollection.createWidget(testWidgetName, {
+          color: 'cyan',
+        });
+        assertBravoTestClaim(testWidget);
+      });
+
       it('can fetch widgets', async function () {
         // Grab the first widget found
-        const widget = await client.findWidget(() => true);
+        const widget = await testCollection.findWidgetByName(
+          testWidgetName.toLocaleLowerCase(),
+        );
+
         assertBravoTestClaim(widget, 'Should be able to fetch a single widget');
       });
     });

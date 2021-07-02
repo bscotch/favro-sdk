@@ -1,5 +1,5 @@
-import type { DataFavroOrganization } from '../types/FavroApiTypes';
-import { BravoEntity } from './BravoEntity.js';
+import type { DataFavroOrganization } from '$types/FavroApiTypes';
+import { BravoEntity } from '$lib/BravoEntity.js';
 import { BravoOrganizationMember } from './users.js';
 
 export class BravoOrganization extends BravoEntity<DataFavroOrganization> {
