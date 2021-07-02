@@ -2,10 +2,12 @@ import { DataFavroWidget } from '$types/FavroWidgetTypes.js';
 import { BravoEntity } from '$lib/BravoEntity.js';
 import { selectRandom } from '$lib/utility.js';
 import { BravoColumn } from './BravoColumn.js';
+import { ArrayMatchFunction } from '$/types/Utility.js';
 
 export type OptionWidgetColor = typeof BravoWidget['colors'][number];
 
 export class BravoWidget extends BravoEntity<DataFavroWidget> {
+  /** TODO: Move to cache! */
   private _columns?: BravoColumn[];
 
   get widgetCommonId() {
@@ -27,11 +29,19 @@ export class BravoWidget extends BravoEntity<DataFavroWidget> {
     return this._data.editRole;
   }
 
-  async getColumns() {
+  async listColumns() {
     if (!this._columns) {
       this._columns = await this._client.listColumns(this.widgetCommonId);
     }
     return [...this._columns];
+  }
+
+  async findColumn(matchFunction: ArrayMatchFunction<BravoColumn>) {
+    return await this._client.findColumn(this.widgetCommonId, matchFunction);
+  }
+
+  async deleteColumnById(columnId: string) {
+    return await this.findColumn((col) => col.columnId == columnId);
   }
 
   async delete() {
