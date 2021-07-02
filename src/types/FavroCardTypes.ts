@@ -1,5 +1,4 @@
-import type { DataFavroCardField } from './FavroCustomFieldTypes.js';
-import type { OptionFavroTagColor } from './FavroTagTypes.js';
+import type { DataFavroCustomFieldLink } from './FavroCustomFieldTypes.js';
 import type { OptionWidgetType } from './FavroWidgetTypes.js';
 
 /** {@link https://favro.com/developer/#card-assignment} */
@@ -8,39 +7,20 @@ interface DataFavroCardAssignment {
   completed: boolean;
 }
 
-/** {@link https://favro.com/developer/#card-task} */
-interface DataFavroCardTask {
-  name: string;
-  completed: boolean;
-}
-
 /** {@link https://favro.com/developer/#card-custom-fields} */
 interface DataFavroCardCustomField {
   customFieldId: string;
-  value: DataFavroCardField;
-}
-
-/**
- * @note This type has no clear reference in the docs
- *
- * {@link https://favro.com/developer/#card-tasklist}
- */
-interface DataFavroCardTasklist {
-  name: string;
-  tasks: (DataFavroCardTask | string)[];
-}
-
-/** {@link https://favro.com/developer/#card-tag} */
-interface DataFavroCardTag {
-  name: string;
-  color: OptionFavroTagColor;
+  /** A lot of types seem to just use an ID or array of IDs */
+  value?: string | string[];
+  /** If a Link type */
+  link?: DataFavroCustomFieldLink;
 }
 
 /** {@link https://favro.com/developer/#card-attachment} */
 interface DataFavroCardAttachment {
   name: string;
   fileURL: string;
-  thumbnailURL: string;
+  thumbnailURL?: string;
 }
 
 /** {@link https://favro.com/developer/#card-time-on-board} */
@@ -61,7 +41,16 @@ interface DataFavroCardFavroAttachment {
   type: 'card' | OptionWidgetType;
 }
 
-/** {@link https://favro.com/developer/#card} */
+/**
+ * Cards are the key data unit in Favro. The docs are unclear
+ * about which fields are available in what contexts (they
+ * refer to "these optional fields" in the docs prior to all
+ * the params captured below as an interface).
+ *
+ * Trial and error will be required to figure it all out!
+ *
+ * {@link https://favro.com/developer/#card}
+ */
 export interface DataFavroCard {
   /**
    * The id of the card. */
@@ -72,16 +61,16 @@ export interface DataFavroCard {
   /**
    * The shared id of the widget that this card exists on.
    * Only returned if the card does not exist in a todo list. */
-  widgetCommonId: string;
+  widgetCommonId?: string;
   /**
    * The user id of the user of the todo list that this card exists in.
    * Only returned if the card exists in a todo list. Otherwise
    * widgetCommonId will be returned. */
-  todoListUserId: string;
+  todoListUserId?: string;
   /**
    * Returns 'true' if the card exists in a todo list and has
    * been completed by that user. */
-  todoListCompleted: boolean;
+  todoListCompleted?: boolean;
   /**
    * The id of the Kanban column that this card exists in.
    * Only returned if the card exists on a widget. */
@@ -124,7 +113,7 @@ export interface DataFavroCard {
    * The tags that are set on the card.
    * TODO: Find out if these are strings or objects
    */
-  tags: DataFavroCardTag[];
+  tags: string[];
   /**
    * The sequentialId of the card. Useful for creating human readable links. */
   sequentialId: number;
