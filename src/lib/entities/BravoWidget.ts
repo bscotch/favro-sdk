@@ -24,6 +24,20 @@ export class BravoWidget extends BravoEntity<DataFavroWidget> {
     return this._data.editRole;
   }
 
+  async delete() {
+    if (!this.deleted) {
+      await this._client.deleteWidgetById(this.widgetCommonId);
+    }
+    this._deleted = true;
+  }
+
+  equals(widget: BravoWidget) {
+    return (
+      this.hasSameConstructor(widget) &&
+      this.widgetCommonId === widget.widgetCommonId
+    );
+  }
+
   /** Allowed colors for Widgets */
   static get colors() {
     return [

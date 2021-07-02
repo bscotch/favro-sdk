@@ -11,6 +11,11 @@ export class BravoUserBase<
   get userId() {
     return this._data.userId;
   }
+  equals<User extends BravoUserBase<any>>(otherUser: User) {
+    return (
+      this.hasSameConstructor(otherUser) && this.userId === otherUser.userId
+    );
+  }
 }
 
 export class BravoUser extends BravoUserBase<DataFavroUser> {

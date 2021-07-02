@@ -44,7 +44,7 @@ export class BravoCollection extends BravoEntity<DataFavroCollection> {
   async findWidgetByName(
     name: string,
     options?: {
-      matchCase?: boolean;
+      ignoreCase?: boolean;
     },
   ) {
     return await this._client.findWidgetByName(
@@ -56,6 +56,17 @@ export class BravoCollection extends BravoEntity<DataFavroCollection> {
 
   /** Delete this collection from Favro. **Use with care!** */
   async delete() {
+    if (this.deleted) {
+      return;
+    }
     await this._client.deleteCollectionById(this.collectionId);
+    this._deleted = true;
+  }
+
+  equals(collection: BravoCollection) {
+    return (
+      this.hasSameConstructor(collection) &&
+      this.collectionId === collection.collectionId
+    );
   }
 }

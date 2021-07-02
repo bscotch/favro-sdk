@@ -3,7 +3,6 @@ import { BravoUser } from '$entities/users';
 import { BravoCollection } from '$entities/BravoCollection.js';
 import type { BravoResponseWidgets } from './BravoResponse.js';
 import { assertBravoClaim } from '$lib/errors.js';
-import { BravoWidget } from '$entities/BravoWidget.js';
 
 export class BravoClientCache {
   protected _organizations?: BravoOrganization[];

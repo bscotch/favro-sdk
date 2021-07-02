@@ -16,4 +16,10 @@ export class BravoOrganization extends BravoEntity<DataFavroOrganization> {
   get organizationId() {
     return this._data.organizationId;
   }
+
+  equals(org: BravoOrganization) {
+    return (
+      this.hasSameConstructor(org) && this.organizationId === org.organizationId
+    );
+  }
 }

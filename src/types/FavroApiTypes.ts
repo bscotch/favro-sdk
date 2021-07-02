@@ -80,11 +80,11 @@ export interface DataFavroResponsePaged<DataEntity extends DataAnyEntity> {
   requestId: string;
   entities: DataEntity[];
 }
-export type DataFavroResponse<DataEntity extends DataAnyEntity> =
-  | DataFavroResponsePaged<DataEntity>
-  | DataEntity;
+export type DataFavroResponse<EntityData extends DataAnyEntity> =
+  | DataFavroResponsePaged<EntityData>
+  | EntityData;
 
-export type ConstructorFavroEntity<EntityData> = new (
+export type ConstructorFavroEntity<EntityData extends DataAnyEntity> = new (
   client: BravoClient,
   data: EntityData,
 ) => BravoEntity<EntityData>;

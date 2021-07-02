@@ -80,6 +80,14 @@ describe('BravoClient', function () {
   // rate limits.
 
   const client = new BravoClient();
+  let testWidget: BravoWidget;
+  let testCollection: BravoCollection;
+
+  // !!!
+  // Tests are in a specific order to ensure that dependencies
+  // happen first, and cleanup happens last. This is tricky to
+  // do with good test design -- to minimize API calls (the limits
+  // are low) the tests become dependent on the outcomes of prior tests.
 
   before(function () {
     resetSandbox();
@@ -120,51 +128,54 @@ describe('BravoClient', function () {
   });
 
   describe('Collections', function () {
-    this.bail(true);
-
-    let testCollection: BravoCollection;
-
-    it('can list all collections', async function () {
-      const collections = await client.listCollections();
-      expect(
-        collections.length,
-        'Should have found at least one collection',
-      ).to.be.greaterThan(0);
-      expect(
-        collections.every((c) => c.collectionId),
-        'Collections should have collectionIds',
-      ).to.be.true;
-    });
-
     it('can create a collection', async function () {
       testCollection = await client.createCollection(testCollectionName);
       assertBravoTestClaim(testCollection, 'Collection not created');
     });
 
-    // Put Widgets inside so that the heirarchical aspects are easier to test
-    // without spamming the Favro API.
-    describe('Widgets (a.k.a. "Boards")', function () {
-      this.bail(true);
-      let testWidget: BravoWidget;
-
-      it('can create a widget', async function () {
-        testWidget = await testCollection.createWidget(testWidgetName, {
-          color: 'cyan',
-        });
-        assertBravoTestClaim(testWidget);
-      });
-
-      it('can fetch widgets', async function () {
-        // Grab the first widget found
-        const widget = await testCollection.findWidgetByName(
-          testWidgetName.toLocaleLowerCase(),
-        );
-
-        assertBravoTestClaim(widget, 'Should be able to fetch a single widget');
-      });
+    it('can find created collection', async function () {
+      const foundCollection = await client.findCollectionByName(
+        testCollectionName.toLocaleLowerCase(),
+        { ignoreCase: true },
+      );
+      assertBravoTestClaim(foundCollection, 'Collection not created');
+      expect(
+        foundCollection.equals(testCollection),
+        'Found and created collections should match',
+      ).to.be.true;
     });
 
-    it('can delete a collection', async function () {
+    it('can create a widget', async function () {
+      testWidget = await testCollection.createWidget(testWidgetName, {
+        color: 'cyan',
+      });
+      expect(testWidget, 'Should be able to create widget').to.exist;
+    });
+
+    it('can find created widget', async function () {
+      // Grab the first widget found
+      const widget = await testCollection.findWidgetByName(
+        testWidgetName.toLocaleLowerCase(),
+        { ignoreCase: true },
+      );
+      assertBravoTestClaim(widget, 'Should be able to fetch created widget');
+      expect(
+        widget.equals(testWidget),
+        'Found widget should match created widget',
+      ).to.be.true;
+    });
+
+    // TODO: NEXT HEIRARCHY LEVEL
+
+    it('can delete a created widget', async function () {
+      await testWidget.delete();
+      await expectAsyncError(
+        () => client.findWidgetById(testWidget.widgetCommonId),
+        'Should not find deleted widget',
+      );
+    });
+
+    it('can delete a created collection', async function () {
       await testCollection.delete();
       await expectAsyncError(
         () => client.findCollectionById(testCollection.collectionId),
@@ -176,4 +187,6 @@ describe('BravoClient', function () {
   after(function () {
     resetSandbox();
   });
+
+  after(function () {});
 });

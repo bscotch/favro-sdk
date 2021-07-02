@@ -203,15 +203,14 @@ export class BravoClient extends FavroClient {
   }
 
   /**
-   * Collection names aren't required to be unique. This
-   * method will delete *all* collections matching the name
-   * provided. **Warning** case insensitive matching is used!
+   * Delete the first collection found by matching against
+   * a name.
    */
-  async deleteCollectionsByName(name: string) {
-    const collections = await this.findCollectionsByName(name);
-    for (const collection of collections) {
-      await this.deleteCollectionById(collection.collectionId);
-    }
+  async deleteCollectionByName(
+    ...args: Parameters<BravoClient['findCollectionByName']>
+  ) {
+    const collection = await this.findCollectionByName(...args);
+    return await collection?.delete();
   }
 
   /**
@@ -237,16 +236,12 @@ export class BravoClient extends FavroClient {
   }
 
   /**
-   * Find collections by name. Names are not required to be unique
-   * for Favro Collections, so *all* matching Collections are returned.
+   * Find a collection by name. Names are not required to be unique
+   * by Favro -- only the first match is returned.
    * {@link https://favro.com/developer/#get-a-collection}
    */
-  async findCollectionsByName(name: string) {
-    const collections = await this.listCollections();
-    const matching = collections.filter((c) =>
-      stringsMatchIgnoringCase(name, c.name),
-    );
-    return matching;
+  async findCollectionByName(name: string, options?: { ignoreCase?: boolean }) {
+    return findByField(await this.listCollections(), 'name', name, options);
   }
 
   /**
@@ -380,16 +375,26 @@ export class BravoClient extends FavroClient {
     name: string,
     collectionId?: string,
     options?: {
-      matchCase?: boolean;
+      ignoreCase?: boolean;
     },
   ) {
     // Reduce API calls by non-exhaustively searching (when possible)
     return await this.findWidget(
       (widget) =>
-        options?.matchCase
+        !options?.ignoreCase
           ? widget.name == name
           : stringsMatchIgnoringCase(name, widget.name),
       collectionId,
+    );
+  }
+
+  async deleteWidgetById(widgetCommonId: string) {
+    const res = await this.request(`widgets/${widgetCommonId}`, {
+      method: 'delete',
+    });
+    assertBravoClaim(
+      res.succeeded,
+      `Failed to delete collection with status ${res.status}`,
     );
   }
 
