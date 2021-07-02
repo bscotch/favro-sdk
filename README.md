@@ -25,37 +25,57 @@ As environment variables:
 - `FAVRO_USER_EMAIL`
 - `FAVRO_ORGANIZATION_ID` (optional, can by found with Bravo)
 
-## TODO
+## Roadmap
 
-- ✔ Client classes
-- ✔ Separate request methods for those that
-  return hydratable entities and those that
-  do not.
-- ✔ Method for paging & hydrating search results
-- ✔ List orgs
-- ✔ Find org by name
-- ✔ Set org by name or ID
-- ✔ List users
-- ✔ Find user by name, id, or email
-- ✔ List collections
-- ✔ Find collection by name
-- ✔ Find collection by id
-- ✔ Create a collection
-- ✔ Delete a collection
-- ✔ List widgets
-- ✔ Find widget by ID
-- ✔ Find widgets by name
-- ✔ Create a widget
-- ✔ Delete a widget
-- ✔ List columns
-- ✔ Find columns
-- ✔ Create columns
-- ✔ Delete columns
-- List cards
-- Search cards by title
-- Create a card
-- Delete a card
-- Add some sort of warning when a user tries to delete the LAST column on a Widget, since that's guaranteed to throw a 403.
+| Icon | Meaning                                  |
+| ---- | ---------------------------------------- |
+| 🔜   | Intended for core functionality          |
+| ✔    | Complete                                 |
+| 😍   | Quality-of-life improvements             |
+| ❓   | Maybe... someday... if a use case arises |
+
+- Organizations
+  - ✔ List orgs
+  - ✔ Find org by name
+  - ✔ Set org by name or ID
+- Users
+  - ✔ List users
+  - ✔ Find user by name, id, or email
+- Collections
+  - ✔ List collections
+  - ✔ Find collection by name
+  - ✔ Find collection by id
+  - ✔ Create a collection
+  - ✔ Delete a collection
+- Widgets
+  - ✔ List widgets
+  - ✔ Find widget by ID
+  - ✔ Find widgets by name
+  - ✔ Create a widget
+  - ✔ Delete a widget
+- Columns
+  - ✔ List columns
+  - ✔ Find columns
+  - ✔ Create columns
+  - ✔ Delete columns
+  - 😍 Add some sort of warning when a user tries to delete the LAST column on a Widget, since that's guaranteed to throw a 403.
+- Cards
+  - 🔜 Create a card
+  - 🔜 List cards
+  - 🔜 Find card by title or ID
+  - 🔜 Delete a card
+  - 🔜 Find card by field value (very tricky, requires handling "Custom Fields")
+  - 🔜 Add an attachment
+- Custom Fields
+  - 🔜 Fetch and cache Custom Fields
+  - ❓ Create Custom Field
+  - ❓ Delete Custom Field
+  - ❓ Update a Custom Field
+- Comments
+  - 🔜 Create a comment
+  - 🔜 List comments
+  - 🔜 Delete a comment
+  - ❓ Update a comment
 
 ## Usage
 
