@@ -51,7 +51,6 @@ As environment variables:
 - Search cards by title
 - Create a card
 - Delete a card
-- Make all tests _self-contained_ (e.g. create a board, _then_ add widgets and cards, etc)
 
 ## Usage
 
