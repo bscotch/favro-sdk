@@ -1,11 +1,15 @@
 import { assertBravoClaim } from './errors.js';
 import { BravoClientCache } from './clientLib/BravoClientCache.js';
-import { BravoResponseEntities } from './clientLib/BravoResponse.js';
+import {
+  BravoResponseEntities,
+  BravoResponseEntitiesMatchFunction,
+} from './clientLib/BravoResponse.js';
 import { FavroClient, OptionsFavroRequest } from './clientLib/FavroClient.js';
 import {
+  find,
   findByField,
   findRequiredByField,
-  stringsMatchIgnoringCase,
+  stringsMatch,
 } from './utility.js';
 import { BravoCollection } from './entities/BravoCollection';
 import { BravoUser } from '$entities/users';
@@ -22,6 +26,7 @@ import type {
 import type { OptionsBravoCreateWidget } from '$/types/ParameterOptions.js';
 import { BravoColumn } from './entities/BravoColumn.js';
 import { DataFavroColumn } from '$/types/FavroColumnTypes.js';
+import { ArrayMatchFunction } from '$/types/Utility.js';
 
 export class BravoClient extends FavroClient {
   //#region Organizations
@@ -185,9 +190,7 @@ export class BravoClient extends FavroClient {
       },
       BravoCollection,
     );
-    const collection = (await res.getAllEntities())[0] as
-      | BravoCollection
-      | undefined;
+    const collection = (await res.getFirstEntity()) as BravoCollection;
     assertBravoClaim(collection, `Failed to create collection`);
     this.cache.addCollection(collection);
     return collection;
@@ -260,12 +263,11 @@ export class BravoClient extends FavroClient {
         { method: 'get' },
         BravoCollection,
       );
-      const collections = await res.getAllEntities();
+      collection = (await res.getFirstEntity()) as BravoCollection;
       assertBravoClaim(
-        collections.length == 1,
+        collection,
         `No collection found with id ${collectionId}`,
       );
-      collection = collections[0] as BravoCollection;
     }
     return collection;
   }
@@ -315,7 +317,7 @@ export class BravoClient extends FavroClient {
       },
       BravoWidget,
     );
-    const widget = (await res.getAllEntities())[0] as BravoWidget | undefined;
+    const widget = (await res.getFirstEntity()) as BravoWidget;
     assertBravoClaim(widget, `Failed to create widget`);
     return widget;
   }
@@ -347,7 +349,7 @@ export class BravoClient extends FavroClient {
    * by the search are cached.
    */
   async findWidget(
-    matchFunction: (widget: BravoWidget, idx?: number) => any,
+    matchFunction: BravoResponseEntitiesMatchFunction<BravoWidget>,
     collectionId = '',
   ) {
     // Reduce API calls by non-exhaustively searching (when possible)
@@ -376,10 +378,7 @@ export class BravoClient extends FavroClient {
   ) {
     // Reduce API calls by non-exhaustively searching (when possible)
     return await this.findWidget(
-      (widget) =>
-        !options?.ignoreCase
-          ? widget.name == name
-          : stringsMatchIgnoringCase(name, widget.name),
+      (widget) => stringsMatch(name, widget.name, options),
       collectionId,
     );
   }
@@ -412,7 +411,7 @@ export class BravoClient extends FavroClient {
       },
       BravoColumn,
     );
-    const column = (await res.getAllEntities())[0] as BravoColumn | undefined;
+    const column = (await res.getFirstEntity()) as BravoColumn;
     assertBravoClaim(column, `Failed to create widget`);
     // TODO: UPDATE CACHE
     return column;
@@ -426,6 +425,16 @@ export class BravoClient extends FavroClient {
     )) as BravoResponseEntities<DataFavroColumn, BravoColumn>;
     // TODO: UPDATE CACHE
     return await res.getAllEntities();
+  }
+
+  /**
+   * Find a column on a widget
+   */
+  async findColumn(
+    widgetCommonId: string,
+    matchFunction: ArrayMatchFunction<BravoColumn>,
+  ) {
+    return await find(await this.listColumns(widgetCommonId), matchFunction);
   }
 
   async deleteColumnById(columnId: string) {
