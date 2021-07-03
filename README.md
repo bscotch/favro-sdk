@@ -73,14 +73,15 @@ As environment variables:
   - ✔ List cards
   - ✔ Find card by name
   - ✔ Delete a card (from a board or from EVERYWHERE)
-  - 🔜 Find card by field value (tricky, requires handling "Custom Fields")
-  - 🔜 Add an attachment
+  - 🔜 Change field values on a card, including Custom Fields
+  - 🔜 Find card by field value, including Custom Fields
+  - ❓ Add an attachment
   - ❓ Cache cards to reduce API calls (cards change frequently, so this might be a bad idea anyway)
 - Custom Fields
-  - 🔜 Fetch and cache Custom Fields
-  - ❓ Create Custom Field
-  - ❓ Delete Custom Field
-  - ❓ Update a Custom Field
+  - ✔ Fetch and cache Custom Field definitions
+  - ~~Create Custom Field~~ (No API endpoint for this)
+  - ~~Delete Custom Field~~ (No API endpoint for this)
+  - ~~Update a Custom Field~~ (No API endpoint for this)
 - Comments
   - 🔜 Create a comment
   - 🔜 List comments

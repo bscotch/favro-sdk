@@ -44,8 +44,8 @@ export interface DataFavroCollection {
   /** The id of the collection. */
   collectionId: string;
   /** The id of the organization that this collection exists in. */
-  /** The name of the collection. */
   organizationId: string;
+  /** The name of the collection. */
   name: string;
   /** The array of collection members that the collection is shared to. */
   sharedToUsers: DataFavroCollectionMember[];

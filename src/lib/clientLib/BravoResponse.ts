@@ -1,12 +1,19 @@
-import type { DataFavroWidget } from '$/types/FavroWidgetTypes.js';
-import type { BravoWidget } from '$entities/BravoWidget.js';
 import { BravoClient } from '$lib/BravoClient';
 import { BravoEntity } from '$lib/BravoEntity';
-import { FavroResponse } from './FavroResponse';
+import type { FavroResponse } from './FavroResponse';
+import type { DataFavroCustomField } from '$/types/FavroCustomFieldTypes.js';
+import type { DataFavroWidget } from '$/types/FavroWidgetTypes.js';
+import type { BravoWidget } from '$entities/BravoWidget.js';
+import type { BravoCustomField } from '../entities/BravoCustomField.js';
 
 export type BravoResponseWidgets = BravoResponseEntities<
   DataFavroWidget,
   BravoWidget
+>;
+
+export type BravoResponseCustomFields = BravoResponseEntities<
+  DataFavroCustomField,
+  BravoCustomField
 >;
 
 export type BravoResponseEntitiesMatchFunction<Entity> = (

@@ -1,19 +1,24 @@
-import { BravoOrganization } from '$entities/BravoOrganization.js';
-import { BravoUser } from '$entities/users';
-import { BravoCollection } from '$entities/BravoCollection.js';
-import type { BravoResponseWidgets } from './BravoResponse.js';
 import { assertBravoClaim } from '$lib/errors.js';
-import { BravoColumn } from '../entities/BravoColumn.js';
+import type { BravoOrganization } from '$entities/BravoOrganization.js';
+import type { BravoUser } from '$entities/users';
+import type { BravoCollection } from '$entities/BravoCollection.js';
+import type {
+  BravoResponseCustomFields,
+  BravoResponseWidgets,
+} from './BravoResponse.js';
+import type { BravoColumn } from '../entities/BravoColumn.js';
 
 export class BravoClientCache {
   protected _organizations?: BravoOrganization[];
   protected _users?: BravoUser[];
   protected _collections?: BravoCollection[];
+
   /**
    * Widget paging results keyed by collectionId, with the empty string `''`
    * used to key the paging result from not using a collectionId (global).
    */
   protected _widgets: Map<string, BravoResponseWidgets> = new Map();
+
   /**
    * Widget columns are fetched separately via the API. They can
    * be fetched directly, but more likely will all be fetched at once
@@ -21,6 +26,13 @@ export class BravoClientCache {
    * makes the most sense.
    */
   protected _columns: Map<string, BravoColumn[]> = new Map();
+
+  /**
+   * Custom Field definitions are needed to get actual values and
+   * field names (plus possible values) from cards. Favro has no
+   * filtering options for Custom Fields
+   */
+  protected _customFields?: BravoResponseCustomFields;
 
   get collections() {
     // @ts-expect-error
@@ -44,6 +56,14 @@ export class BravoClientCache {
   }
   set organizations(orgs: BravoOrganization[]) {
     this._organizations = orgs;
+  }
+
+  get customFields() {
+    // @ts-expect-error
+    return this._customFields;
+  }
+  set customFields(customFields: BravoResponseCustomFields) {
+    this._customFields = customFields;
   }
 
   /**

@@ -33,6 +33,8 @@ import {
   FavroApiPostCard,
 } from '$/types/FavroCardTypes.js';
 import { BravoCard } from './entities/BravoCard.js';
+import { BravoCustomField } from './entities/BravoCustomField.js';
+import { DataFavroCustomField } from '$/types/FavroCustomFieldTypes.js';
 
 /**
  * The `BravoClient` class should be singly-instanced for a given
@@ -502,7 +504,8 @@ export class BravoClient extends FavroClient {
   }
 
   /**
-   * Fetch cards. **Note**: not cached!
+   * Fetch cards. **Note**: not cached! Cards are lazy-loaded
+   * to reduce API calls.
    *
    * {@link https://favro.com/developer/#get-all-cards}
    */
@@ -536,6 +539,31 @@ export class BravoClient extends FavroClient {
       url += `?everywhere=true`;
     }
     await this.deleteEntity(url);
+  }
+
+  //#endregion
+
+  //#region CUSTOM FIELDS
+
+  /**
+   * Get and cache *all* Custom Fields. Lazy-loaded to reduce
+   * API calls.
+   *
+   * (The Favro API does not provide any filter options, so
+   * Custom Fields can be obtained 1 at a time or 1 page at a time.)
+   *
+   * {@link https://favro.com/developer/#get-all-custom-fields}
+   */
+  async listCustomFields() {
+    if (!this.cache.customFields) {
+      const res = (await this.requestWithReturnedEntities(
+        `customfields`,
+        { method: 'get' },
+        BravoCustomField,
+      )) as BravoResponseEntities<DataFavroCustomField, BravoCustomField>;
+      this.cache.customFields = res;
+    }
+    return this.cache.customFields!;
   }
 
   //#endregion
