@@ -1,6 +1,52 @@
 import type { DataFavroCustomFieldLink } from './FavroCustomFieldTypes.js';
 import type { OptionWidgetType } from './FavroWidgetTypes.js';
 
+export type OptionFavroDescriptionFormat = 'plaintext' | 'markdown';
+
+export type FavroApiPostCard = Partial<
+  Omit<DataFavroCard, 'cardId' | 'organizationId'>
+> & {
+  name: string;
+  /**
+   * Require posting a card to a Widget (the API allows *not* doing
+   * that, but that seems like it would create more trouble than it's worth) */
+  widgetCommonId: string;
+  descriptionFormat?: OptionFavroDescriptionFormat;
+};
+
+export interface FavroApiGetCardsBase {
+  /** Limit the search scope to a specific column */
+  columnId?: string;
+  /**
+   * Apparently cards can be returned multiple times
+   * in a single request, since they can live in multiple
+   * places depending on scope of the search. The API
+   * defaults to `false`.
+   */
+  unique?: boolean;
+  /**
+   * The API defaults to `'plaintext'` for some reason...
+   */
+  descriptionFormat?: OptionFavroDescriptionFormat;
+}
+
+export interface FavroApiGetCardsByCardCommonId extends FavroApiGetCardsBase {
+  cardCommonId: string;
+}
+
+export interface FavroApiGetCardsByWidgetCommonId extends FavroApiGetCardsBase {
+  widgetCommonId: string;
+}
+
+export interface FavroApiGetCardsByCollectionId extends FavroApiGetCardsBase {
+  collectionId: string;
+}
+
+export type FavroApiGetCardsParams =
+  | FavroApiGetCardsByCardCommonId
+  | FavroApiGetCardsByWidgetCommonId
+  | FavroApiGetCardsByCollectionId;
+
 /** {@link https://favro.com/developer/#card-assignment} */
 interface DataFavroCardAssignment {
   userId: string;
@@ -17,7 +63,7 @@ interface DataFavroCardCustomField {
 }
 
 /** {@link https://favro.com/developer/#card-attachment} */
-interface DataFavroCardAttachment {
+export interface DataFavroCardAttachment {
   name: string;
   fileURL: string;
   thumbnailURL?: string;
