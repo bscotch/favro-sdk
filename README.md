@@ -97,7 +97,26 @@ As environment variables:
 
 ## Development
 
-Env vars:
-
 - `FAVRO_TOKEN`
 - `FAVRO_USER_EMAIL`
+
+## Complications
+
+The public Favro API has a limited set of functionality compared to private, websocket-based API used by the official application. In general, it seems that creating all the collections, boards, views, etc (everything but cards) manually via the application will lead to less confusion and limitation.
+
+### Custom Fields
+
+All fields except for the ones every card has (the default Tags and Members fields) are "Custom Fields". In the app you can change a Custom Field's visibility and scope, and cards are shown with all in-scope fields even if those are unset. This makes it easy to figure out which field is which when using the app.
+
+When using webhooks or the public API, however, _all custom fields are global_ and they contain no information to help determine their scope. In other words, if any two of your (likely hundreds of) custom fields have the same name, you will not be able to tell them apart!
+
+This problem is exacerbated by the facts that:
+
+- Cards can move around to different Widgets, causing them to inherit additional custom fields.
+- Custom fields can be sparse on a given Widget.
+
+Collectively, these prevent you from using existing Cards (fetched while narrowing the search scope to a specific Widget) to infer what fields are associated with a given Widget.
+
+Identifiers can currently be found by using a browser's dev tools in the web-app. E.g. by using "Inspect element" on an item shown inside a card, you can find its ID in an HTML element's `id` field (among other attribute fields).
+
+[Feature reqeust](https://favro.canny.io/feature-requests/p/webhooks-api-custom-fields-visibilityscope-information)
