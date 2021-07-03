@@ -1,8 +1,13 @@
-import { DataFavroWidget } from '$types/FavroWidgetTypes.js';
 import { BravoEntity } from '$lib/BravoEntity.js';
 import { selectRandom, stringsMatch } from '$lib/utility.js';
+import type { DataFavroWidget } from '$types/FavroWidgetTypes.js';
 import type { BravoColumn } from './BravoColumn.js';
 import type { ArrayMatchFunction } from '$/types/Utility.js';
+import type {
+  FavroApiGetCardsBase,
+  FavroApiPostCard,
+} from '$/types/FavroCardTypes.js';
+import type { BravoCard } from './BravoCard.js';
 
 export type OptionWidgetColor = typeof BravoWidget['colors'][number];
 
@@ -26,6 +31,8 @@ export class BravoWidget extends BravoEntity<DataFavroWidget> {
     return this._data.editRole;
   }
 
+  //#region COLUMNS
+
   async createColumn(name: string, options?: { position?: number }) {
     return await this._client.createColumn(this.widgetCommonId, name, options);
   }
@@ -48,6 +55,49 @@ export class BravoWidget extends BravoEntity<DataFavroWidget> {
   async deleteColumn(columnId: string) {
     return await this._client.deleteColumn(this.widgetCommonId, columnId);
   }
+
+  //#endregion
+
+  //#region CARDS
+
+  /**
+   * Get all cards on this Widget, with optional
+   * additional filter parameters. **Note:** makes
+   * an API request on *every call* (no caching),
+   * so prefer re-use of the results to re-fetching.
+   */
+  async listCards(options?: FavroApiGetCardsBase) {
+    return await this._client.listCards({
+      ...options,
+      widgetCommonId: this.widgetCommonId,
+    });
+  }
+
+  async findCard(
+    matchFunc: ArrayMatchFunction<BravoCard>,
+    options?: FavroApiGetCardsBase,
+  ) {
+    const cards = await this.listCards(options);
+    return await cards.find(matchFunc);
+  }
+
+  async findCardByName(
+    name: string,
+    options?: FavroApiGetCardsBase & { ignoreCase?: boolean },
+  ) {
+    return await this.findCard((card) => {
+      return stringsMatch(card.name, name, options);
+    }, options);
+  }
+
+  async createCard(data: Omit<FavroApiPostCard, 'widgetCommonId'>) {
+    return await this._client.createCard({
+      ...data,
+      widgetCommonId: this.widgetCommonId,
+    });
+  }
+
+  //#endregion
 
   async delete() {
     if (!this.deleted) {

@@ -27,6 +27,12 @@ import type { OptionsBravoCreateWidget } from '$/types/ParameterOptions.js';
 import { BravoColumn } from './entities/BravoColumn.js';
 import { DataFavroColumn } from '$/types/FavroColumnTypes.js';
 import { ArrayMatchFunction } from '$/types/Utility.js';
+import {
+  DataFavroCard,
+  FavroApiGetCardsParams,
+  FavroApiPostCard,
+} from '$/types/FavroCardTypes.js';
+import { BravoCard } from './entities/BravoCard.js';
 
 /**
  * The `BravoClient` class should be singly-instanced for a given
@@ -437,7 +443,7 @@ export class BravoClient extends FavroClient {
       BravoColumn,
     );
     const column = (await res.getFirstEntity()) as BravoColumn;
-    assertBravoClaim(column, `Failed to create widget`);
+    assertBravoClaim(column, `Failed to create column`);
     this.cache.addColumn(widgetCommonId, column);
     return column;
   }
@@ -470,6 +476,66 @@ export class BravoClient extends FavroClient {
     // but coupling these together is useful and allows for cache management.
     await this.deleteEntity(`columns/${columnId}`);
     this.cache.removeColumn(widgetCommonId, columnId);
+  }
+
+  //#endregion
+
+  //#region
+
+  /**
+   * Create a new card
+   *
+   * {@link https://favro.com/developer/#create-a-card}
+   */
+  async createCard(data: FavroApiPostCard) {
+    const res = await this.requestWithReturnedEntities(
+      `cards`,
+      {
+        method: 'post',
+        body: data,
+      },
+      BravoCard,
+    );
+    const card = (await res.getFirstEntity()) as BravoCard;
+    assertBravoClaim(card, `Failed to create card`);
+    return card;
+  }
+
+  /**
+   * Fetch cards. **Note**: not cached!
+   *
+   * {@link https://favro.com/developer/#get-all-cards}
+   */
+  async listCards(options?: FavroApiGetCardsParams) {
+    const res = (await this.requestWithReturnedEntities(
+      `cards`,
+      {
+        method: 'get',
+        query: {
+          unique: true,
+          descriptionFormat: 'markdown',
+          ...options,
+        } as FavroApiGetCardsParams,
+      },
+      BravoCard,
+    )) as BravoResponseEntities<DataFavroCard, BravoCard>;
+    return res;
+  }
+
+  /**
+   * Delete a card by its *cardId* (not its *cardCommonId*!).
+   * The cardId is associated with a single Widget. Optionally
+   * delete the card *everywhere* instead of only the widget
+   * in which it it has the given `cardId`
+   *
+   * {@link https://favro.com/developer/#delete-a-card}
+   */
+  async deleteCard(cardId: string, everywhere = false) {
+    let url = `cards/${cardId}`;
+    if (everywhere) {
+      url += `?everywhere=true`;
+    }
+    await this.deleteEntity(url);
   }
 
   //#endregion

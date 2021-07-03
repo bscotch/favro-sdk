@@ -42,7 +42,8 @@ As environment variables:
 - Organizations
   - ✔ List orgs
   - ✔ Find org by name
-  - ✔ Set org by name or ID
+  - ✔ Set active org by name or ID
+  - ❓ Update an org
 - Users
   - ✔ List users
   - ✔ Find user by name, id, or email
@@ -52,25 +53,29 @@ As environment variables:
   - ✔ Find collection by id
   - ✔ Create a collection
   - ✔ Delete a collection
+  - ❓ Update a collection
 - Widgets
   - ✔ List widgets
   - ✔ Find widget by ID
   - ✔ Find widgets by name
   - ✔ Create a widget
   - ✔ Delete a widget
+  - ❓ Update a widget
 - Columns
   - ✔ List columns
   - ✔ Find columns
   - ✔ Create columns
   - ✔ Delete columns
   - 😍 Add some sort of warning when a user tries to delete the LAST column on a Widget, since that's guaranteed to throw a 403.
+  - ❓ Update a column
 - Cards
-  - 🔜 Create a card
-  - 🔜 List cards
-  - 🔜 Find card by title or ID
-  - 🔜 Delete a card
-  - 🔜 Find card by field value (very tricky, requires handling "Custom Fields")
+  - ✔ Create a card
+  - ✔ List cards
+  - ✔ Find card by name
+  - ✔ Delete a card (from a board or from EVERYWHERE)
+  - 🔜 Find card by field value (tricky, requires handling "Custom Fields")
   - 🔜 Add an attachment
+  - ❓ Cache cards to reduce API calls (cards change frequently, so this might be a bad idea anyway)
 - Custom Fields
   - 🔜 Fetch and cache Custom Fields
   - ❓ Create Custom Field
@@ -81,6 +86,7 @@ As environment variables:
   - 🔜 List comments
   - 🔜 Delete a comment
   - ❓ Update a comment
+- ❓ Activities
 
 ## Usage
 

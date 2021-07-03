@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import type { BravoCollection } from '$entities/BravoCollection.js';
 import type { BravoWidget } from '$entities/BravoWidget.js';
 import type { BravoColumn } from '$/lib/entities/BravoColumn.js';
+import { BravoCard } from '$/lib/entities/BravoCard.js';
 
 /**
  * @note A root .env file must be populated with the required
@@ -18,6 +19,7 @@ const testCollectionName =
   process.env.BRAVO_TEST_COLLECTION_NAME || '___BRAVO_TEST_COLLECTION';
 const testWidgetName = '___BRAVO_TEST_WIDGET';
 const testColumnName = '___BRAVO_TEST_COLUMN';
+const testCardName = '___BRAVO_TEST_CARD';
 
 const sandboxRoot = './sandbox';
 const samplesRoot = './samples';
@@ -87,6 +89,7 @@ describe('BravoClient', function () {
   let testWidget: BravoWidget;
   let testCollection: BravoCollection;
   let testColumn: BravoColumn;
+  let testCard: BravoCard;
 
   // !!!
   // Tests are in a specific order to ensure that dependencies
@@ -198,7 +201,24 @@ describe('BravoClient', function () {
       expect(foundColumn!.equals(testColumn)).to.be.true;
     });
 
+    it('can create a card', async function () {
+      testCard = await testWidget.createCard({ name: testCardName });
+      expect(testCard).to.exist;
+    });
+    it('can fetch a created card', async function () {
+      const foundCard = await testWidget.findCardByName(testCardName);
+      assertBravoTestClaim(foundCard);
+      expect(foundCard!.equals(testCard)).to.be.true;
+    });
     // TODO: NEXT HEIRARCHY LEVEL
+    it('can delete a created card', async function () {
+      // Can't delete the last column, so we need to make another to delete!
+      await testCard.delete();
+      expect(
+        await testWidget.findCardByName(testCardName),
+        'Should not find deleted card',
+      ).to.be.undefined;
+    });
 
     it('can delete a created column', async function () {
       // Can't delete the last column, so we need to make another to delete!
