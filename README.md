@@ -4,10 +4,9 @@
 <h2 align="center">The <i>(Unofficial)</i> Node.js SDK for Favro</h2>
 
 [Favro](https://www.favro.com/) is an amazing project management tool
-and a great way to centralize all kinds of workflows. Favro provides a
-robust HTTP API and webhooks to connect external events and data sources
-to Favro Workflows, but raw HTTP APIs are a pain to use. That's what Bravo
-is for!
+and a great way to centralize all kinds of workflows. However, Favro's integrations with external tools, and its own internal automations, are limited. Favro provides a limited [HTTP API and Webhooks](https://favro.com/developer), allowing us to extend Favro's internal automations and external integrations. However, working with raw web APIs & Webhooks is a pain. That's where Bravo comes in!
+
+Bravo is a Node.js toolkit (or, if we want to get fancy, a "Software Development Toolkit") meant to make working with the Favro API a breeze. Within [its limitations](#tips-tricks-and-limitations), anyway!
 
 _Butterscotch Shenanigans&reg; and Bravo are not affiliated with Favro._
 
@@ -100,11 +99,41 @@ As environment variables:
 - `FAVRO_TOKEN`
 - `FAVRO_USER_EMAIL`
 
-## Complications
+## Tips, Tricks, and Limitations
 
-The public Favro API has a limited set of functionality compared to private, websocket-based API used by the official application. In general, it seems that creating all the collections, boards, views, etc (everything but cards) manually via the application will lead to less confusion and limitation.
+The public Favro API has a limited set of functionality compared to private, websocket-based API used by the official application. There are certain things you can only do via the app, and others that you _should_ only do via the app.
+
+This section provides guidance for using the Favro API (and therefore Bravo), including explanations for what _cannot_ be done with it. I've provided links to feature request/bug reports to the Favro team where appropriate -- please upvote those to let their team know these features/fixes are worth making!
+
+### Searching
+
+> ⚠ The Favro API has extremely limited search functionality. **[Upvote the feature request!](https://favro.canny.io/feature-requests/p/api-filter-by-field-title-tags-status-custom-fields)**
+
+The Favro API has essentially no search functionality. It does provide some filtering options, e.g. to restrict the "get Cards" endpoint to a specific Widget, but there is no way to further restrict by any content of the cards themselves (e.g. no text search on the name/description fields, nor filtering by assigned user, nor tags, etc).
+
+To _find_ something via the API then requires an exhaustive search with filtering doing locally. Bravo adds some convenience methods for things like finding a card by name, but it does so by doing this sort of exhaustive search behind the scenes. Bravo also does a lot of caching and lazy-loading to reduce the impact of this on the number of API requests it makes, but the end result is always going to be that search functionality in Bravo has to consume a lot of API requests, especially if you have a lot of stuff in Favro.
+
+### Markdown
+
+> ⚠ Webhooks do not send Markdown. **[Upvote the feature request!](https://favro.canny.io/bugs/p/webhooks-no-way-to-get-correct-description)**
+
+Favro implements a limited subset of Markdown. Which subset seems to differ based on context (e.g. a Card description vs. a Comment), though I don't know all the differences. Despite having some Markdown support, the API and Webhook data typically defaults to a "plaintext" format, which apparently means "strip out all Markdown". You may have to plan functionality around such limits.
+
+### Identifiers
+
+> 💡 Use HTML inspectors in the Favro webapp to find unique identifiers.
+
+> ⚠ The short, numeric identifers in the top-left of a card are _not visible or useable_ by the Favro API. **[Upvote the feature request!](https://favro.canny.io/feature-requests/p/webhooks-api-expose-card-short-ids)**
+
+Items in Favro (cards, boards, comments, custom fields, etc) are all identified by unique identifiers. Different types of items are fetched independently, with relationships indicated by identifiers for other types of items.
+
+For example, if you fetch a Card from the API (or a webhook) you'll also get a list of Widget identifiers in that card, but not the data about those widgets. Similarly, a Card contains a list of its Custom Fields and corresponding values, but most of the information is in the form of Custom Field identifiers. In both cases, if you wanted to see the _names_ or other information those associated items, you'll need to make API requests for those specific items using their IDs.
+
+You'll find that some items have multiple unique identifiers. Cards, in particular, have a `cardId` and `cardCommonId`. The former is a unique identifier for that Card _on a specific Widget_. The latter is a global identifier for that card
 
 ### Custom Fields
+
+> ⚠ There is no way to programmatically differentiate Custom Fields via the Favro API. **[Upvote the feature request!](https://favro.canny.io/feature-requests/p/webhooks-api-custom-fields-visibilityscope-information)**
 
 All fields except for the ones every card has (the default Tags and Members fields) are "Custom Fields". In the app you can change a Custom Field's visibility and scope, and cards are shown with all in-scope fields even if those are unset. This makes it easy to figure out which field is which when using the app.
 
@@ -120,3 +149,11 @@ Collectively, these prevent you from using existing Cards (fetched while narrowi
 Identifiers can currently be found by using a browser's dev tools in the web-app. E.g. by using "Inspect element" on an item shown inside a card, you can find its ID in an HTML element's `id` field (among other attribute fields).
 
 [Feature reqeust](https://favro.canny.io/feature-requests/p/webhooks-api-custom-fields-visibilityscope-information)
+
+### Creating Boards
+
+> 💡 Create boards manually via the app to get all the features you expect from Favro.
+
+When creating a board via the Favro API, there appears to be no way to have the resulting board work the same way as one created via the app. In particular, when creating a kanban board the columns are not linked to a "Status" type Custom Field and there does not seem to be a way to create such a connection after the fact.
+
+There is also no way to create views using the Favro API.
