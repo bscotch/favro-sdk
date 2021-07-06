@@ -25,7 +25,7 @@
       }
     ],
     "@typescript-eslint/adjacent-overload-signatures": "error",
-    "@typescript-eslint/ban-types": "error",
+    "@typescript-eslint/ban-types": "off",
     "@typescript-eslint/consistent-type-assertions": "error",
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/no-array-constructor": "error",

@@ -1,3 +1,31 @@
+/**
+ * @file Test suite for the Bravo client.
+ *
+ * In order for tests to be successful, the developer must
+ * ensure some things:
+ *
+ *  - A root .env file must be added and include vars:
+ *    - FAVRO_TOKEN (obtained from the Favro app)
+ *    - FAVRO_USER_EMAIL (email matching the user who owns the token)
+ *    - FAVRO_ORGANIZATION_NAME (exact name of target org
+ *     (**Testing-only org highly recommended!**))
+ *  - The target Favro organization (again, make a separate one for testing!)
+ *    must have one custom field per custom field type. Custom fields are
+ *    always globally available to the API, so these can be created on any
+ *    board with any scope. The test suite will dynamically discover and use
+ *    these fields, so there is no need to worry about names or values.
+ *    Currently supported field types (at least one of each must be in your test org):
+ *    - Members (regular and custom)
+ *    - Tags (regular and custom)
+ *    - Text
+ *    - Number
+ *    - Status
+ *    - Multiple Select
+ *    - Link
+ *    - Date
+ *
+ */
+
 import { BravoClient } from '$lib/BravoClient.js';
 import { expect } from 'chai';
 import fs from 'fs-extra';
@@ -15,8 +43,7 @@ dotenv.config();
 const organizationName = process.env.FAVRO_ORGANIZATION_NAME!;
 const myUserEmail = process.env.FAVRO_USER_EMAIL!;
 
-const testCollectionName =
-  process.env.BRAVO_TEST_COLLECTION_NAME || '___BRAVO_TEST_COLLECTION';
+const testCollectionName = '___BRAVO_TEST_COLLECTION';
 const testWidgetName = '___BRAVO_TEST_WIDGET';
 const testColumnName = '___BRAVO_TEST_COLUMN';
 const testCardName = '___BRAVO_TEST_CARD';
@@ -210,6 +237,31 @@ describe('BravoClient', function () {
       assertBravoTestClaim(foundCard);
       expect(foundCard!.equals(testCard)).to.be.true;
     });
+    xit('can update a card description', async function () {});
+    xit('can add and remove card attachments', async function () {});
+    xit('can assign and unassign card members', async function () {});
+    xit('can add and remove card Custom Field members', async function () {});
+    xit('can add and remove card tags', async function () {});
+    xit('can add and remove card Custom Field tags', async function () {});
+    xit('can add and remove card Favro attachments', async function () {});
+
+    it('can update a card', async function () {
+      /**
+       * Must include updates to all of:
+       * - name
+       * - description
+       * - favroAttachments
+       * -
+       * - Text
+       * - Number
+       * - Status
+       * - Multiple Select
+       * - Link
+       * - Date
+       */
+    });
+    it('can unset/delete card fields', async function () {});
+
     // TODO: NEXT HEIRARCHY LEVEL
     it('can delete a created card', async function () {
       // Can't delete the last column, so we need to make another to delete!

@@ -11,6 +11,7 @@ import type {
   DataFavroCardFavroAttachment,
   DataFavroCardFieldTimeUserReport,
 } from './FavroCardTypes';
+import { ExtractKeysByValue } from './Utility.js';
 
 interface DataFavroCardFieldMembersUpdate {
   /** The list of members, that will be added to the card custom field (array of userIds).*/
@@ -72,6 +73,13 @@ export type FavroApiParamsCardUpdateCustomField = { customFieldId: string } & (
   | DataFavroCardFieldVoteUpdate
 );
 
+export type FavroApiParamsCardUpdateField = keyof FavroApiParamsCardUpdate;
+
+export type FavroApiParamsCardUpdateArrayField = ExtractKeysByValue<
+  Required<FavroApiParamsCardUpdate>,
+  any[]
+>;
+
 /**
  * Body parameters for updating a Card.
  *
@@ -93,8 +101,6 @@ export interface FavroApiParamsCardUpdate {
   columnId?: string;
   /** The laneId to commit the card in. This is only applicable if creating the card on a widget that has lanes enabled. */
   laneId?: string;
-  /** The id of the parent card in the card hierarchy (sheet or card list), where the card will be commited. It must belong to the widget specified in the widgetCommonId parameter. */
-  parentCardId?: string;
   /** 'commit' to commit card, 'move' to move card. 'commit' by default. */
   dragMode?: 'commit' | 'move';
   /**
@@ -106,12 +112,14 @@ export interface FavroApiParamsCardUpdate {
   listPosition?: number;
   /** New position of the card in a hierarchical view (sheet or card list).*/
   sheetPosition?: number;
+  /** The id of the parent card in the card hierarchy (sheet or card list), where the card will be commited. It must belong to the widget specified in the widgetCommonId parameter. */
+  parentCardId?: string;
   /** The list of assignments, that will be added to card (array of userIds).*/
   addAssignmentIds?: string[];
   /** The list of assignments, that will be removed from card (array of userIds).*/
   removeAssignmentIds?: string[];
   /** The list of card assignment, that will update their statuses accordingly.*/
-  completeAssignments?: string[];
+  completeAssignments?: { userId: string; completed: boolean }[];
   /** The list of tag names or card tags that will be added to the card. If the tag does not exist in the organization it will be created.*/
   addTags?: string[];
   /** A list of tagIds that will be added to card.*/
@@ -121,9 +129,9 @@ export interface FavroApiParamsCardUpdate {
   /** The list of tag IDs, that will be removed from card.*/
   removeTagIds?: string[];
   /** The start date of card. Format ISO-8601. If null, start date will be removed.*/
-  startDate?: string;
+  startDate?: string | null;
   /** The due date of card. Format ISO-8601. If null, due date will be removed.*/
-  dueDate?: string;
+  dueDate?: string | null;
   /** The list of card tasklists, that will be added to card.*/
   addTasklists?: {
     name: string;
@@ -153,5 +161,5 @@ export interface FavroApiParamsCardUpdate {
    */
   removeFavroAttachmentIds?: string[];
   /** Archive or unarchive card.*/
-  archive: boolean;
+  archive?: boolean;
 }

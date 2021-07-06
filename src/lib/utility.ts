@@ -83,3 +83,63 @@ export function toBase64(string: string) {
 export function selectRandom<T>(array: T[] | Readonly<T[]>): T {
   return array[Math.floor(Math.random() * array.length)];
 }
+
+export function addToUniqueArray<T>(array: T[], values: T | T[]): T[] {
+  for (const value of wrapIfNotArray(values)) {
+    if (!array.find((a) => a === value)) {
+      array.push(value);
+    }
+  }
+  return array;
+}
+
+export function addToUniqueArrayBy<T>(
+  array: T[],
+  byField: keyof T,
+  values: T | T[],
+): T[] {
+  for (const value of wrapIfNotArray(values)) {
+    if (!array.find((a) => a[byField] === value[byField])) {
+      array.push(value);
+    }
+  }
+  return array;
+}
+
+export function ensureArrayExistsAndAddUnique<T>(
+  array: T[] | undefined,
+  values: T | T[],
+): T[] {
+  if (!array) {
+    array = [];
+  }
+  return addToUniqueArray(array, values);
+}
+
+export function ensureArrayExistsAndAddUniqueBy<T>(
+  array: T[] | undefined,
+  byField: keyof T,
+  values: T | T[],
+): T[] {
+  if (!array) {
+    array = [];
+  }
+  return addToUniqueArrayBy(array, byField, values);
+}
+
+export function removeFromArray<T>(array: T[] | undefined, values: T | T[]) {
+  for (const value of Array.isArray(values) ? values : [values]) {
+    const idx = array?.findIndex((a) => a === value);
+    if (typeof idx == 'number' && idx > -1) {
+      array!.splice(idx, 1);
+    }
+  }
+  return array;
+}
+
+export function wrapIfNotArray<T>(array: T | T[]): T[] {
+  if (Array.isArray(array)) {
+    return array;
+  }
+  return [array];
+}
