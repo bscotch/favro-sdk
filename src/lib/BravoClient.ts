@@ -526,6 +526,28 @@ export class BravoClient extends FavroClient {
   }
 
   /**
+   * Directly fetch a card with a known `cardId` from the API.
+   * Useful when the ID is already known to reduce API calls,
+   * or to ensure that the local copy of a specific card's
+   * content is up-to-date prior to taking some action.
+   *
+   * @param cardId The Widget-specific `cardId` (not the `commonCardId`!)
+   */
+  async findCardById(cardId: string) {
+    const res = (await this.requestWithReturnedEntities(
+      `cards/${cardId}`,
+      {
+        method: 'get',
+        query: {
+          descriptionFormat: 'markdown',
+        } as FavroApiGetCardsParams,
+      },
+      BravoCard,
+    )) as BravoResponseEntities<DataFavroCard, BravoCard>;
+    return await res.getFirstEntity();
+  }
+
+  /**
    * Delete a card by its *cardId* (not its *cardCommonId*!).
    * The cardId is associated with a single Widget. Optionally
    * delete the card *everywhere* instead of only the widget

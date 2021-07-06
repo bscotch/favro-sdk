@@ -124,9 +124,9 @@ Favro implements a limited subset of Markdown. Which subset seems to differ base
 
 > 💡 Use HTML inspectors in the Favro webapp to find unique identifiers.
 
-> ⚠ The short, numeric identifers in the top-left of a card are _not visible or useable_ by the Favro API. **[Upvote the feature request!](https://favro.canny.io/feature-requests/p/webhooks-api-expose-card-short-ids)**
+> ⚠ The short, numeric identifiers in the top-left of a card are _not visible or useable_ by the Favro API. **[Upvote the feature request!](https://favro.canny.io/feature-requests/p/webhooks-api-expose-card-short-ids)**
 
-Items in Favro (cards, boards, comments, custom fields, etc) are all identified by unique identifiers. Different types of items are fetched independently, with relationships indicated by identifiers for other types of items.
+Items in Favro (cards, boards, comments, custom fields, etc.) are all identified by unique identifiers. Different types of items are fetched independently, with relationships indicated by identifiers for other types of items.
 
 For example, if you fetch a Card from the API (or a webhook) you'll also get a list of Widget identifiers in that card, but not the data about those widgets. Similarly, a Card contains a list of its Custom Fields and corresponding values, but most of the information is in the form of Custom Field identifiers. In both cases, if you wanted to see the _names_ or other information those associated items, you'll need to make API requests for those specific items using their IDs.
 
@@ -155,6 +155,6 @@ Identifiers can currently be found by using a browser's dev tools in the web-app
 
 > 💡 Create boards manually via the app to get all the features you expect from Favro.
 
-When creating a board via the Favro API, there appears to be no way to have the resulting board work the same way as one created via the app. In particular, when creating a kanban board the columns are not linked to a "Status" type Custom Field and there does not seem to be a way to create such a connection after the fact.
+When creating a board via the Favro API, there appears to be no way to have the resulting board work the same way as one created via the app. In particular, when creating a Kanban board the columns are not linked to a "Status" type Custom Field and there does not seem to be a way to create such a connection after the fact.
 
 There is also no way to create views using the Favro API.
