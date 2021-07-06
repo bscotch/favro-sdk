@@ -72,7 +72,8 @@ As environment variables:
   - ✔ List cards
   - ✔ Find card by name
   - ✔ Delete a card (from a board or from EVERYWHERE)
-  - 🔜 Change field values on a card, including Custom Fields
+  - 🔜 Fetch a Card directly by its ID
+  - 🔜 Update a Card, including Custom Fields
   - 🔜 Find card by field value, including Custom Fields
   - ❓ Add an attachment
   - ❓ Cache cards to reduce API calls (cards change frequently, so this might be a bad idea anyway)

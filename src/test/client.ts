@@ -125,7 +125,7 @@ describe('BravoClient', function () {
     expect(organizations.length).to.be.greaterThan(0);
   });
 
-  it('can find a specific organization and set it as the current one', async function () {
+  it('can find a specific organization', async function () {
     const org = await client.findOrganizationByName(
       process.env.FAVRO_ORGANIZATION_NAME!,
     );

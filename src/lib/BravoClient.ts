@@ -30,7 +30,7 @@ import { ArrayMatchFunction } from '$/types/Utility.js';
 import {
   DataFavroCard,
   FavroApiGetCardsParams,
-  FavroApiPostCard,
+  FavroApiParamsCardCreate,
 } from '$/types/FavroCardTypes.js';
 import { BravoCard } from './entities/BravoCard.js';
 import { BravoCustomField } from './entities/BravoCustomField.js';
@@ -489,7 +489,7 @@ export class BravoClient extends FavroClient {
    *
    * {@link https://favro.com/developer/#create-a-card}
    */
-  async createCard(data: FavroApiPostCard) {
+  async createCard(data: FavroApiParamsCardCreate) {
     const res = await this.requestWithReturnedEntities(
       `cards`,
       {
