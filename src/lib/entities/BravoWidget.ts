@@ -5,7 +5,7 @@ import type { BravoColumn } from './BravoColumn.js';
 import type { ArrayMatchFunction } from '$/types/Utility.js';
 import type {
   FavroApiGetCardsBase,
-  FavroApiPostCard,
+  FavroApiParamsCardCreate,
 } from '$/types/FavroCardTypes.js';
 import type { BravoCard } from './BravoCard.js';
 
@@ -90,7 +90,7 @@ export class BravoWidget extends BravoEntity<DataFavroWidget> {
     }, options);
   }
 
-  async createCard(data: Omit<FavroApiPostCard, 'widgetCommonId'>) {
+  async createCard(data: Omit<FavroApiParamsCardCreate, 'widgetCommonId'>) {
     return await this._client.createCard({
       ...data,
       widgetCommonId: this.widgetCommonId,
