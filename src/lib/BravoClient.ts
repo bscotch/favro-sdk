@@ -35,6 +35,7 @@ import {
 import { BravoCard } from './entities/BravoCard.js';
 import { BravoCustomField } from './entities/BravoCustomField.js';
 import { DataFavroCustomField } from '$/types/FavroCustomFieldTypes.js';
+import { FavroApiParamsCardUpdate } from '$/types/FavroCardUpdateTypes.js';
 
 /**
  * The `BravoClient` class should be singly-instanced for a given
@@ -532,6 +533,8 @@ export class BravoClient extends FavroClient {
    * content is up-to-date prior to taking some action.
    *
    * @param cardId The Widget-specific `cardId` (not the `commonCardId`!)
+   *
+   * {@link https://favro.com/developer/#get-a-card}
    */
   async findCardById(cardId: string) {
     const res = (await this.requestWithReturnedEntities(
@@ -541,6 +544,33 @@ export class BravoClient extends FavroClient {
         query: {
           descriptionFormat: 'markdown',
         } as FavroApiGetCardsParams,
+      },
+      BravoCard,
+    )) as BravoResponseEntities<DataFavroCard, BravoCard>;
+    return await res.getFirstEntity();
+  }
+
+  /**
+   * Update a card, given its ID and a collection of changes
+   * you want to make.
+   *
+   * @param cardId The Widget-specific `cardId` (not the `commonCardId`!)
+   *
+   * @note Custom Fields are hard to update this way, since
+   * they require knowing the correct identifiers for both
+   * fields and values.
+   *
+   * {@link https://favro.com/developer/#update-a-card}
+   */
+  async updateCardById(cardId: string, options: FavroApiParamsCardUpdate) {
+    const res = (await this.requestWithReturnedEntities(
+      `cards/${cardId}`,
+      {
+        method: 'put',
+        query: {
+          descriptionFormat: 'markdown',
+        },
+        body: options,
       },
       BravoCard,
     )) as BravoResponseEntities<DataFavroCard, BravoCard>;
