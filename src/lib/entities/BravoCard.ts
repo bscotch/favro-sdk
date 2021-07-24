@@ -27,10 +27,12 @@ class BravoCardUpdateBuilder {
 
   setName(name: string) {
     this.update.name = name;
+    return this;
   }
 
   setDescription(description: string) {
     this.update.detailedDescription = description;
+    return this;
   }
 
   assign(userIds: string[]) {
@@ -110,10 +112,12 @@ class BravoCardUpdateBuilder {
 
   archive() {
     this.update.archive = true;
+    return this;
   }
 
   unarchive() {
     this.update.archive = false;
+    return this;
   }
 
   addToWidget(
@@ -238,6 +242,8 @@ export class BravoCard extends BravoEntity<DataFavroCard> {
    * any changes made via this instance's `.updateBuilder` methods.
    */
   async update(data?: FavroApiParamsCardUpdate) {
+    // TODO: Handle Custom Fields
+    // TODO: Handle adding Attachments
     const updated = await this._client.updateCardById(
       this.cardId,
       data || this.updateBuilder.toJSON(),

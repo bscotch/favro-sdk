@@ -72,10 +72,12 @@ As environment variables:
   - ✔ List cards
   - ✔ Find card by name
   - ✔ Delete a card (from a board or from EVERYWHERE)
-  - 🔜 Fetch a Card directly by its ID
-  - 🔜 Update a Card, including Custom Fields
-  - 🔜 Find card by field value, including Custom Fields
-  - ❓ Add an attachment
+  - ✔ Fetch a Card directly by its ID
+  - 🔜 Fetch a Card directly by its user-visible "sequencial ID"
+  - 🔜 Update a Card's main fields
+  - 🔜 Update a Card's Custom Fields
+  - 🔜 Add an attachment to a card
+  - ❓ Find card by field value, including Custom Fields
   - ❓ Cache cards to reduce API calls (cards change frequently, so this might be a bad idea anyway)
 - Custom Fields
   - ✔ Fetch and cache Custom Field definitions
@@ -124,13 +126,21 @@ Favro implements a limited subset of Markdown. Which subset seems to differ base
 
 > 💡 Use HTML inspectors in the Favro webapp to find unique identifiers.
 
-> ⚠ The short, numeric identifiers in the top-left of a card are _not visible or useable_ by the Favro API. **[Upvote the feature request!](https://favro.canny.io/feature-requests/p/webhooks-api-expose-card-short-ids)**
-
 Items in Favro (cards, boards, comments, custom fields, etc.) are all identified by unique identifiers. Different types of items are fetched independently, with relationships indicated by identifiers for other types of items.
 
 For example, if you fetch a Card from the API (or a webhook) you'll also get a list of Widget identifiers in that card, but not the data about those widgets. Similarly, a Card contains a list of its Custom Fields and corresponding values, but most of the information is in the form of Custom Field identifiers. In both cases, if you wanted to see the _names_ or other information those associated items, you'll need to make API requests for those specific items using their IDs.
 
-You'll find that some items have multiple unique identifiers. Cards, in particular, have a `cardId` and `cardCommonId`. The former is a unique identifier for that Card _on a specific Widget_. The latter is a global identifier for that card
+You'll find that some items have multiple unique identifiers. Cards, in particular, have a `cardId` and `cardCommonId`. The former is a unique identifier for that Card _on a specific Widget_. The latter is a global identifier for that card.
+
+#### Card Sequential
+
+Cards have a field called `sequentialId` that corresponds directly to the visible identifier shown in the Card UI, from which users can copy a card URL.
+
+Note that the card-search Favro API endpoing allows use of `sequentialId` as a query parameter. They've done us a huge solid here by allowing us to use any of the following as its value while still serving up the expected card:
+
+- The number part of the identifier shown in the UI.
+- The full identifier shown in the UI (e.g. `BSC-123`).
+- The full URL of the card copied from the UI.
 
 ### Custom Fields
 

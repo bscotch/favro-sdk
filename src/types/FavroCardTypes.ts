@@ -218,11 +218,11 @@ export interface DataFavroCard {
   /**
    * The id of the lane that this card exists in.
    * Only returned if the card exists on a widget and the widget has lanes enabled. */
-  laneId: string;
+  laneId: string | null;
   /**
    * The id of the parent card in the card hierarchy (sheet or card list).
    * Only returned if the card exists in a widget and is the child of another card. */
-  parentCardId: string;
+  parentCardId: string | null;
   /**
    * Returns 'true' if the card is a lane. */
   isLane: boolean;

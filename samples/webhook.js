@@ -14,7 +14,8 @@
  * can be tested against real data.
  */
 
-const sampleWebhookAsJs = {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+module.exports = {
   /**
    * The `payloadId` is presumably unique to this data
    * when it comes from a webhook. An API response with

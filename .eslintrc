@@ -10,7 +10,11 @@
   "parserOptions": {
     "ecmaVersion": 2019,
     "sourceType": "module",
-    "project": "./tsconfig.json"
+    "project": [
+      "./tsconfig.json",
+      "./integromat/tsconfig.json",
+      "./samples/tsconfig.json"
+    ]
   },
   "ignorePatterns": [".eslintrc.js", "prettier.config.js"],
   "rules": {
