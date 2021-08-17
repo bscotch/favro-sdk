@@ -76,8 +76,8 @@ As environment variables:
   - ✔ Fetch a Card directly by its user-visible "sequential ID"
   - ✔ Compose a card URL
   - ✔ Update a Card's built-in fields
+  - ✔ Add an attachment to a card
   - 🔜 Update a Card's Custom Fields
-  - 🔜 Add an attachment to a card
   - ❓ Find card by field value, including Custom Fields
   - ❓ Cache cards to reduce API calls (cards change frequently, so this might be a bad idea anyway)
 - Custom Fields
@@ -89,6 +89,7 @@ As environment variables:
   - 🔜 Create a comment
   - 🔜 List comments
   - 🔜 Delete a comment
+  - 🔜 Add an attachment to a comment
   - ❓ Update a comment
 - ❓ Activities
 

@@ -27,8 +27,9 @@ import type { OptionsBravoCreateWidget } from '$/types/ParameterOptions.js';
 import { BravoColumn } from './entities/BravoColumn.js';
 import { DataFavroColumn } from '$/types/FavroColumnTypes.js';
 import { ArrayMatchFunction } from '$/types/Utility.js';
-import {
+import type {
   DataFavroCard,
+  DataFavroCardAttachment,
   FavroApiGetCardsParams,
   FavroApiParamsCardCreate,
 } from '$/types/FavroCardTypes.js';
@@ -36,6 +37,9 @@ import { BravoCard } from './entities/BravoCard.js';
 import { BravoCustomField } from './entities/BravoCustomField.js';
 import { DataFavroCustomField } from '$/types/FavroCustomFieldTypes.js';
 import { FavroApiParamsCardUpdate } from '$/types/FavroCardUpdateTypes.js';
+import type { FavroResponse } from './clientLib/FavroResponse.js';
+import { readFileSync } from 'fs';
+import { basename } from 'path/posix';
 
 /**
  * The `BravoClient` class should be singly-instanced for a given
@@ -588,6 +592,27 @@ export class BravoClient extends FavroClient {
       BravoCard,
     )) as BravoResponseEntities<DataFavroCard, BravoCard>;
     return await res.getFirstEntity();
+  }
+
+  /**
+   * Upload an attachment to a card.
+   * @param data  If not provided, assumes `filename` exists and
+   *              attempts to use its content.
+   */
+  async addAttachmentToCard(
+    cardId: string,
+    filename: string,
+    data?: string | Buffer,
+  ) {
+    const body = data || readFileSync(filename);
+    const res = (await this.request(`cards/${cardId}/attachment`, {
+      method: 'post',
+      body,
+      query: { filename: basename(filename) },
+    })) as FavroResponse<DataFavroCardAttachment, this>;
+    const attachment = (await res.response.json()) as DataFavroCardAttachment;
+    assertBravoClaim(attachment?.fileURL, `Failed to add attachment`);
+    return attachment;
   }
 
   /**

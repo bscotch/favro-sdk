@@ -297,6 +297,32 @@ export class BravoCard extends BravoEntity<DataFavroCard> {
   }
 
   /**
+   * Upload an attachment to this card.
+   * @param data  If not provided, assumes `filename` exists and
+   *              attempts to use its content.
+   */
+  async attach(filename: string, data?: string | Buffer) {
+    const attachment = await this._client.addAttachmentToCard(
+      this.cardId,
+      filename,
+      data,
+    );
+    this._data.attachments.push(attachment);
+    return { ...attachment };
+  }
+
+  /**
+   * Re-fetch the data for this card so that its local
+   * data is up-to-date.
+   */
+  async refresh() {
+    this._updateBuilder = new BravoCardUpdateBuilder();
+    const refreshed = await this._client.findCardById(this.cardId);
+    this._data = refreshed._data;
+    return this;
+  }
+
+  /**
    * Delete this card from its Widget (the one it
    * was fetched from in search results). Optionally
    * delete it everywhere else, too!

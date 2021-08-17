@@ -63,3 +63,12 @@ export type ExcludeKeysByValue<Container, ValueTypeFilter> = Exclude<
   keyof Container,
   ExtractKeysByValue<Container, ValueTypeFilter>
 >;
+
+export type MimeType =
+  | 'application/octet-stream'
+  | 'application/json'
+  | 'application/x-www-form-urlencoded'
+  | 'multipart/form-data'
+  | 'text/plain'
+  | 'text/html'
+  | 'text/markdown';

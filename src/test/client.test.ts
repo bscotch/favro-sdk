@@ -34,6 +34,7 @@ import type { BravoCollection } from '$entities/BravoCollection.js';
 import type { BravoWidget } from '$entities/BravoWidget.js';
 import type { BravoColumn } from '$/lib/entities/BravoColumn.js';
 import { BravoCard } from '$/lib/entities/BravoCard.js';
+import fetch from 'node-fetch';
 
 /**
  * @note A root .env file must be populated with the required
@@ -263,15 +264,6 @@ describe('BravoClient', function () {
        * - ✔ assignment
        * - ✔ assignmentCompletion
        * - ✔ favroAttachments
-       *
-       * - Members (custom)
-       * - Tags (regular and custom)
-       * - Text
-       * - Number
-       * - Status
-       * - Multiple Select
-       * - Link
-       * - Date
        */
       const users = await client.listFullUsers();
       const user = users[0];
@@ -325,7 +317,40 @@ describe('BravoClient', function () {
       await testCard.update();
       expect(testCard.assignments).to.be.empty;
     });
-    xit('can unset card fields', async function () {});
+    xit('can update custom fields', async function () {
+      /**
+       * Must be able to set/unset all of:
+       * - Members (custom)
+       * - Tags (regular and custom)
+       * - Text
+       * - Number
+       * - Status
+       * - Multiple Select
+       * - Link
+       * - Date
+       */
+    });
+    it('can add attachment to a card (and remove it)', async function () {
+      const filename = 'hi.txt';
+      const attachedText = 'Hello World!';
+      const attachment = await client.addAttachmentToCard(
+        testCard.cardId,
+        filename,
+        attachedText,
+      );
+      expect(attachment).to.exist;
+      expect(attachment.name).to.equal(filename);
+      const res = await fetch(attachment.fileURL);
+      expect(await res.text()).to.equal(attachedText);
+
+      // See that it's now on the card
+      await testCard.refresh();
+      expect(testCard.attachments[0].name).to.equal(filename);
+
+      // Remove the attachment
+      await testCard.update({ removeAttachments: [attachment.fileURL] });
+      expect(testCard.attachments).to.be.empty;
+    });
 
     it('can delete a created card', async function () {
       // Can't delete the last column, so we need to make another to delete!
