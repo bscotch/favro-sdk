@@ -75,7 +75,7 @@ As environment variables:
   - ✔ Fetch a Card directly by its ID
   - ✔ Fetch a Card directly by its user-visible "sequential ID"
   - ✔ Compose a card URL
-  - 🔜 Update a Card's main fields
+  - ✔ Update a Card's built-in fields
   - 🔜 Update a Card's Custom Fields
   - 🔜 Add an attachment to a card
   - ❓ Find card by field value, including Custom Fields

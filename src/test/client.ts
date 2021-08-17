@@ -251,13 +251,20 @@ describe('BravoClient', function () {
       expect(byCardId!.equals(foundCard), 'can fetch by sequentialId').to.be
         .true;
     });
-    xit('can update a card', async function () {
+    it('can update a cards built-in fields', async function () {
       /**
-       * Must include updates to all of:
-       * - name
-       * - description
-       * - favroAttachments
-       * - Members (regular and custom)
+       * Must be able to set/unset all of:
+       * - ✔ name
+       * - ✔ description
+       * - ✔ startDate
+       * - ✔ dueDate
+       * - ✔ archived
+       * - ✔ tags
+       * - ✔ assignment
+       * - ✔ assignmentCompletion
+       * - ✔ favroAttachments
+       *
+       * - Members (custom)
        * - Tags (regular and custom)
        * - Text
        * - Number
@@ -266,9 +273,57 @@ describe('BravoClient', function () {
        * - Link
        * - Date
        */
+      const users = await client.listFullUsers();
+      const user = users[0];
       const newName = 'NEW NAME';
       const newDescription = '# New Description\n\nHello!';
-      // testCard.updateBuilder.setName(newName).setDescription(newDescription).se;
+      const testDate = new Date();
+      const tagName = 'totally-real-tag';
+      testCard.updateBuilder
+        .setName(newName)
+        .setDescription(newDescription)
+        .assign([user.userId])
+        // // Cannot attach a card to self! (Get that error message
+        // // when we try, implying that the update would otherwise
+        // // work.
+        // .addFavroAttachments([
+        //   { itemCommonId: testCard.cardCommonId, type: 'card' },
+        // ])
+        .addTagsByName([tagName])
+        .completeAssignment([user.userId])
+        .setStartDate(testDate)
+        .setDueDate(testDate)
+        .archive();
+      await testCard.update();
+      expect(testCard.detailedDescription).to.equal(newDescription);
+      expect(testCard.name).to.equal(newName);
+      expect(testCard.assignments[0].userId).to.equal(user.userId);
+      expect(testCard.assignments[0].completed).to.equal(true);
+      expect(testCard.tags[0]).to.be.a('string');
+      expect(testCard.dueDate).to.eql(testDate);
+      expect(testCard.startDate).to.eql(testDate);
+      expect(testCard.archived).to.equal(true);
+
+      // Unset unsettable values
+      testCard.updateBuilder
+        .unarchive()
+        .removeTagsByName([tagName])
+        .uncompleteAssignment([user.userId])
+        .unsetDueDate()
+        .unsetStartDate();
+      await testCard.update();
+      expect(testCard.archived).to.equal(false);
+      expect(testCard.dueDate).to.be.null;
+      expect(testCard.startDate).to.be.null;
+      expect(testCard.tags).to.be.empty;
+      expect(testCard.assignments[0].completed).to.be.false;
+
+      // Need to unset the assigned user separately,
+      // since we wanted to check that we could uncomplete
+      // that user's assignment in the last step.
+      testCard.updateBuilder.unassign([user.userId]);
+      await testCard.update();
+      expect(testCard.assignments).to.be.empty;
     });
     xit('can unset card fields', async function () {});
 

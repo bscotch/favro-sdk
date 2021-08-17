@@ -284,13 +284,15 @@ export class BravoCard extends BravoEntity<DataFavroCard> {
   async update(data?: FavroApiParamsCardUpdate) {
     // TODO: Handle Custom Fields
     // TODO: Handle adding Attachments
-    const updated = await this._client.updateCardById(
-      this.cardId,
-      data || this.updateBuilder.toJSON(),
-    );
+    data ||= this.updateBuilder.toJSON();
+    // Replace the update builder immediately, since
+    // we then have to wait for the update to occur
+    // the the user might want to start building a new update
+    // before that returns.
+    this._updateBuilder = new BravoCardUpdateBuilder();
+    const updated = await this._client.updateCardById(this.cardId, data);
     // Update this card!
     this._data = updated._data;
-    this._updateBuilder = new BravoCardUpdateBuilder();
     return this;
   }
 
