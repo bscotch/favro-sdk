@@ -527,6 +527,19 @@ export class BravoClient extends FavroClient {
   }
 
   /**
+   * Fetch a card with a known `sequentialId`.
+   * The `sequentialId` is the numeric part of the incrementing
+   * ID shown in the card's UI and shareable URL.
+   *
+   * @param cardSequentialId The card's number as shown in the UI
+   *                         (can be just the number or include the prefix)
+   */
+  async findCardBySequentialId(cardSequentialId: number | string) {
+    const cards = await this.listCards({ cardSequentialId });
+    return await cards.getFirstEntity();
+  }
+
+  /**
    * Directly fetch a card with a known `cardId` from the API.
    * Useful when the ID is already known to reduce API calls,
    * or to ensure that the local copy of a specific card's

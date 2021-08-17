@@ -41,10 +41,15 @@ export interface FavroApiGetCardsByCollectionId extends FavroApiGetCardsBase {
   collectionId: string;
 }
 
+export interface FavroApiGetCardsBySequentialId extends FavroApiGetCardsBase {
+  cardSequentialId: string | number;
+}
+
 export type FavroApiGetCardsParams =
   | FavroApiGetCardsByCardCommonId
   | FavroApiGetCardsByWidgetCommonId
-  | FavroApiGetCardsByCollectionId;
+  | FavroApiGetCardsByCollectionId
+  | FavroApiGetCardsBySequentialId;
 
 // FOR SETTING VALUES ON A CARD
 

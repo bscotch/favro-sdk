@@ -233,9 +233,23 @@ describe('BravoClient', function () {
       expect(testCard).to.exist;
     });
     it('can fetch a created card', async function () {
+      this.timeout(8000);
+
       const foundCard = await testWidget.findCardByName(testCardName);
       assertBravoTestClaim(foundCard);
       expect(foundCard!.equals(testCard)).to.be.true;
+
+      // Fetch it again via sequentialId
+      const bySequentialId = await client.findCardBySequentialId(
+        foundCard.sequentialId,
+      );
+      expect(bySequentialId!.equals(foundCard), 'can fetch by sequentialId').to
+        .be.true;
+
+      // Fetch it again via cardId
+      const byCardId = await client.findCardById(foundCard.cardId);
+      expect(byCardId!.equals(foundCard), 'can fetch by sequentialId').to.be
+        .true;
     });
     xit('can update a card', async function () {
       /**

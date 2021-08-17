@@ -192,6 +192,10 @@ export class BravoCard extends BravoEntity<DataFavroCard> {
     return this._data.name;
   }
 
+  get sequentialId() {
+    return this._data.sequentialId;
+  }
+
   /** The card's ID within a widget */
   get cardId() {
     return this._data.cardId;
