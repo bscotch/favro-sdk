@@ -98,6 +98,7 @@ class BravoCardUpdateBuilder {
   }
 
   addFavroAttachments(favroItems: DataFavroCardFavroAttachment[]) {
+    this.update.addFavroAttachments ||= [];
     ensureArrayExistsAndAddUniqueBy(
       this.update.addFavroAttachments,
       'itemCommonId',
@@ -158,6 +159,7 @@ class BravoCardUpdateBuilder {
       userId,
       completed,
     }));
+    this.update.completeAssignments ||= [];
     ensureArrayExistsAndAddUniqueBy(
       this.update.completeAssignments,
       'userId',
@@ -177,6 +179,7 @@ class BravoCardUpdateBuilder {
     values: FavroApiParamsCardUpdate[Field],
     opposingField?: FavroApiParamsCardUpdateArrayField,
   ) {
+    this.update[updateField] ||= [];
     ensureArrayExistsAndAddUnique(this.update[updateField], values);
     if (opposingField) {
       removeFromArray(this.update[opposingField], values);
@@ -205,6 +208,10 @@ export class BravoCard extends BravoEntity<DataFavroCard> {
    */
   get url() {
     return `https://favro.com/organization/${this._client.organizationId}?card=${this.sequentialId}`;
+  }
+
+  get assignments() {
+    return [...this._data.assignments];
   }
 
   /** The card's ID within a widget */
@@ -241,6 +248,24 @@ export class BravoCard extends BravoEntity<DataFavroCard> {
     return this._data.attachments;
   }
 
+  get startDate() {
+    if (this._data.startDate) {
+      return new Date(this._data.startDate);
+    }
+    return null;
+  }
+
+  get dueDate() {
+    if (this._data.dueDate) {
+      return new Date(this._data.dueDate);
+    }
+    return null;
+  }
+
+  get archived() {
+    return this._data.archived;
+  }
+
   /**
    * Get the update-builder for this card, to
    * more easily assemble a complex Card update.
@@ -265,6 +290,7 @@ export class BravoCard extends BravoEntity<DataFavroCard> {
     );
     // Update this card!
     this._data = updated._data;
+    this._updateBuilder = new BravoCardUpdateBuilder();
     return this;
   }
 
