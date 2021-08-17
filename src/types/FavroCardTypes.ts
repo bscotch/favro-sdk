@@ -156,7 +156,7 @@ export interface DataFavroCardFieldMultipleSelect {
 }
 
 /** {@link https://favro.com/developer/#card-assignment} */
-interface DataFavroCardAssignment {
+export interface DataFavroCardAssignment {
   userId: string;
   completed: boolean;
 }
@@ -265,11 +265,11 @@ export interface DataFavroCard {
   /**
    * The start date of the card.
    */
-  startDate: string;
+  startDate: string | null;
   /**
    * The due date of the card.
    */
-  dueDate: string;
+  dueDate: string | null;
   /**
    * The users assigned to the card and whether or not they have
    * completed the card. */
