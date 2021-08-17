@@ -192,8 +192,19 @@ export class BravoCard extends BravoEntity<DataFavroCard> {
     return this._data.name;
   }
 
+  /** The number shown in the card UI, and used in user-friendly URLs. */
   get sequentialId() {
     return this._data.sequentialId;
+  }
+
+  /**
+   * Get a user-friendly URL for the card.
+   * It is not associated with a specific Collection,
+   * so the Favro App will choose which collection to
+   * open the card in.
+   */
+  get url() {
+    return `https://favro.com/organization/${this._client.organizationId}?card=${this.sequentialId}`;
   }
 
   /** The card's ID within a widget */

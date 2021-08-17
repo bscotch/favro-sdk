@@ -74,7 +74,7 @@ As environment variables:
   - ✔ Delete a card (from a board or from EVERYWHERE)
   - ✔ Fetch a Card directly by its ID
   - ✔ Fetch a Card directly by its user-visible "sequential ID"
-  - 🔜 Compose a card URL
+  - ✔ Compose a card URL
   - 🔜 Update a Card's main fields
   - 🔜 Update a Card's Custom Fields
   - 🔜 Add an attachment to a card
@@ -113,9 +113,9 @@ This section provides guidance for using the Favro API (and therefore Bravo), in
 
 > ⚠ The Favro API has extremely limited search functionality. **[Upvote the feature request!](https://favro.canny.io/feature-requests/p/api-filter-by-field-title-tags-status-custom-fields)**
 
-The Favro API has essentially no search functionality. It does provide some filtering options, e.g. to restrict the "get Cards" endpoint to a specific Widget, but there is no way to further restrict by any content of the cards themselves (e.g. no text search on the name/description fields, nor filtering by assigned user, nor tags, etc).
+The Favro API has very limited search functionality. It does provide some filtering options, e.g. to restrict the "get Cards" endpoint to a specific Widget, but there is no way to further restrict by any content of the cards themselves (e.g. no text search on the name/description fields, nor filtering by assigned user, nor tags, etc).
 
-To _find_ something via the API then requires an exhaustive search with filtering doing locally. Bravo adds some convenience methods for things like finding a card by name, but it does so by doing this sort of exhaustive search behind the scenes. Bravo also does a lot of caching and lazy-loading to reduce the impact of this on the number of API requests it makes, but the end result is always going to be that search functionality in Bravo has to consume a lot of API requests, especially if you have a lot of stuff in Favro.
+To _find_ something via the API then requires an exhaustive search followed by local filtering. Bravo adds some convenience methods for things like finding a card by name, but it does so by doing this sort of exhaustive search behind the scenes. Bravo also does a lot of caching and lazy-loading to reduce the impact of this on the number of API requests it makes, but the end result is always going to be that search functionality in Bravo has to consume a lot of API requests, especially if you have a lot of stuff in Favro.
 
 ### Markdown
 
@@ -137,7 +137,7 @@ You'll find that some items have multiple unique identifiers. Cards, in particul
 
 Cards have a field called `sequentialId` that corresponds directly to the visible identifier shown in the Card UI, from which users can copy a card URL.
 
-Note that the card-search Favro API endpoing allows use of `sequentialId` as a query parameter. They've done us a huge solid here by allowing us to use any of the following as its value while still serving up the expected card:
+Note that the card-search Favro API endpoint allows use of `sequentialId` as a query parameter. They've done us a huge solid here by allowing us to use any of the following as its value while still serving up the expected card:
 
 - The number part of the identifier shown in the UI.
 - The full identifier shown in the UI (e.g. `BSC-123`).
@@ -160,12 +160,12 @@ Collectively, these prevent you from using existing Cards (fetched while narrowi
 
 Identifiers can currently be found by using a browser's dev tools in the web-app. E.g. by using "Inspect element" on an item shown inside a card, you can find its ID in an HTML element's `id` field (among other attribute fields).
 
-[Feature reqeust](https://favro.canny.io/feature-requests/p/webhooks-api-custom-fields-visibilityscope-information)
+[Feature request](https://favro.canny.io/feature-requests/p/webhooks-api-custom-fields-visibilityscope-information)
 
 ### Creating Boards
 
 > 💡 Create boards manually via the app to get all the features you expect from Favro.
 
-When creating a board via the Favro API, there appears to be no way to have the resulting board work the same way as one created via the app. In particular, when creating a Kanban board the columns are not linked to a "Status" type Custom Field and there does not seem to be a way to create such a connection after the fact.
+When creating a board via the Favro API, there appears to be no way to have the resulting board work the same way as one created via the app. In particular, when creating a Kanban board the columns are not linked to a "Status" type Custom Field and there does not seem to be a way to create such a connection after the fact.There appears to be a [planned fix](https://favro.canny.io/bugs/p/fav-93084-api-created-widget-has-no-synced-status-with-kanban-views).
 
 There is also no way to create views using the Favro API.
