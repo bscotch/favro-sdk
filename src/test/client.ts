@@ -237,21 +237,14 @@ describe('BravoClient', function () {
       assertBravoTestClaim(foundCard);
       expect(foundCard!.equals(testCard)).to.be.true;
     });
-    xit('can update a card description', async function () {});
-    xit('can add and remove card attachments', async function () {});
-    xit('can assign and unassign card members', async function () {});
-    xit('can add and remove card Custom Field members', async function () {});
-    xit('can add and remove card tags', async function () {});
-    xit('can add and remove card Custom Field tags', async function () {});
-    xit('can add and remove card Favro attachments', async function () {});
-
-    it('can update a card', async function () {
+    xit('can update a card', async function () {
       /**
        * Must include updates to all of:
        * - name
        * - description
        * - favroAttachments
-       * -
+       * - Members (regular and custom)
+       * - Tags (regular and custom)
        * - Text
        * - Number
        * - Status
@@ -259,10 +252,12 @@ describe('BravoClient', function () {
        * - Link
        * - Date
        */
+      const newName = 'NEW NAME';
+      const newDescription = '# New Description\n\nHello!';
+      // testCard.updateBuilder.setName(newName).setDescription(newDescription).se;
     });
-    it('can unset/delete card fields', async function () {});
+    xit('can unset card fields', async function () {});
 
-    // TODO: NEXT HEIRARCHY LEVEL
     it('can delete a created card', async function () {
       // Can't delete the last column, so we need to make another to delete!
       await testCard.delete();

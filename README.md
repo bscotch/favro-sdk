@@ -28,10 +28,10 @@ As environment variables:
 
 | Icon | Meaning                                           |
 | ---- | ------------------------------------------------- |
-| 🔜   | Planned for core feature set                      |
+| 🔜    | Planned for core feature set                      |
 | ✔    | Complete                                          |
-| 😍   | Quality-of-life improvements that _should_ happen |
-| ❓   | Maybe... someday... if a use case arises...       |
+| 😍    | Quality-of-life improvements that _should_ happen |
+| ❓    | Maybe... someday... if a use case arises...       |
 
 - BravoClient
   - 😍 Logging utility (with debug flag)
@@ -73,7 +73,7 @@ As environment variables:
   - ✔ Find card by name
   - ✔ Delete a card (from a board or from EVERYWHERE)
   - ✔ Fetch a Card directly by its ID
-  - 🔜 Fetch a Card directly by its user-visible "sequencial ID"
+  - 🔜 Fetch a Card directly by its user-visible "sequential ID"
   - 🔜 Update a Card's main fields
   - 🔜 Update a Card's Custom Fields
   - 🔜 Add an attachment to a card
