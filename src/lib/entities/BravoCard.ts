@@ -224,6 +224,7 @@ export class BravoCard extends BravoEntity<DataFavroCard> {
     return this._data.cardCommonId;
   }
 
+  /** The column this card appears in on the current widget.*/
   get columnId() {
     return this._data.columnId;
   }
@@ -232,6 +233,11 @@ export class BravoCard extends BravoEntity<DataFavroCard> {
     return this._data.parentCardId;
   }
 
+  /**
+   * The widget that the current instance of this
+   * card appears in. (A single card can live in,
+   * and be fetched from, multiple Widgets.)
+   */
   get widgetCommonId() {
     return this._data.widgetCommonId;
   }

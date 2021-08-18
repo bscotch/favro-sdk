@@ -1,14 +1,20 @@
 <p align="center"><i><a href="https://www.bscotch.net">Butterscotch Shenanigans</a> Presents:</i></p>
 
 <h1 align="center"> Bravo</h1>
-<h2 align="center">The <i>(Unofficial)</i> Favro SDK</h2>
+<h2 align="center">The <i>(unofficial)</i> Favro SDK</h2>
 
 Bravo makes working with the Favro API a breeze.
+
+_[Butterscotch Shenanigans&reg;](https://www.bscotch.net) and Bravo (this project) are not affiliated with Favro._
+
+> **⚠Warning⚠** *Bravo is in active development and may change substantially with any release. Check the changelog before updating!* 
+
 
 ### Features
 
 - 💧 Favro data is hydrated into feature-rich and explorable classes, with convenience functions galore
 - 🤖 Fully typed (with Typescript) so your IDE can do tons of the work for you
+- ⚡ All core methods are available from the Bravo Client class. Widget, Card, and other hydrated classes provide simplified shortcuts to those same methods, with details already filled in for you.
 - 🔐 Credentials and Favro-specific request details handled automatically
 - 💤 Lazy-loading of search results to minimize API calls
 
@@ -21,50 +27,52 @@ and a great way to centralize all kinds of workflows. However, Favro's integrati
 
 Fortunately, Favro provides an [HTTP API and Webhooks](https://favro.com/developer) so developers can fill in those gaps themselves. Unfortunately, using raw HTTP APIs is unpleasant and time-consuming. That's where Bravo comes in!
 
-_Butterscotch Shenanigans&reg; and Bravo are not affiliated with Favro._
-
-
 ## Quick Start
 
 Install [from npm](https://www.npmjs.com/package/@bscotch/bravo):
 
 `npm install -g @bscotch/bravo`
 
-Import into your Node project, create a Bravo client, and you're all set!
+Then import Bravo into your Node project, instance a Bravo client, and you're all set!
 
 ```ts
-// Typescript
+// ESM-style (Typescript)
 import {BravoClient} from '@bscotch/bravo';
 // -or-
-// Node (without Typescript)
+// CommonJS style (regular Node)
 const {BravoClient} = require('@bscotch/bravo');
 
-const bravo = new BravoClient({
+const bravoClient = new BravoClient({
   token:'your-token',
+  userEmail: 'your-favro-account-email',
+  // You can set the organizationId later instead!
   organizationId:'your-organization-id',
-  userEmail: 'your-favro-account-email'
 });
 
 async function doFavroStuff() {
   // Set the organization if you did not provide that
   // to the client already.
-  bravo.setOrganizationIdByName('My Organization');
+  await bravoClient.setOrganizationIdByName('My Organization');
   
   // Find a Widget (a.k.a. Board)
-  const widget = await bravo.findWidgetByName('My To Do List');
+  const widget = await bravoClient.findWidgetByName('My To Do List');
+
   // Add a card to that widget
   const newCard = await widget.createCard({
     name: 'Talk to so-and-so',
     detailedDescription: 'We need to maximize synergy.'
   });
+
   // Find the userId for an assignee
-  const assignee = await bravo.findUserByName('Scam Likely');
-  // Begin building an update (for batching changes)
+  const assignee = await bravoClient.findUserByName('Scam Likely');
+
+  // Use the update-builder to create and send an update
+  // that covers multiple fields.
   newCard.updateBuilder
     .assign([assignee.userId])
     .setStartDate(new Date())
     .addTagsByName(['todo']);
-  // Submit the batch update
+  // Submit and clear the update-builder's changes
   await newCard.update();
 
   // Delete the card
@@ -74,30 +82,66 @@ async function doFavroStuff() {
 
 ## Authentication
 
-To have Bravo access Favro on your behalf, you'll need to provide it with the values listed below (either as environment variables or directly to the Bravo client):
+To have Bravo access Favro on your behalf, you'll need to provide it with the credentials listed below. You can do so via environment variables as shown here, or directly when instancing the Bravo client as shown in the example above:
 
-1. **API Token** (env var `FAVRO_TOKEN`)
+1. `FAVRO_TOKEN`: (required) Your Favro API token. To create one, go to your Profile, then "API Tokens" &rarr; "New API Token".
+2. `FAVRO_USER_EMAIL`: (required) Your Favro account email.
+3. `FAVRO_ORGANIZATION_ID`: (optional) The Organization ID that you are targeting. You can either provide this directly, or use one of the Bravo client methods to find it (e.g. as in the code example above, using `await bravoClient.setOrganizationIdByName('My Organization')`). You can get your Organization ID from the URL when using Favro in a browser: Favro URLs look like this: `favro.com/organization/{organizationId}`.
 
-## Usage
+> ⚠ The `organizationId` is required for most Favro API calls. To prevent confusion, once you've set the `organizationId` on a Bravo Client instance you cannot change it. You can always create a new instance that talks to a different organization!
 
-### Client Parameters
-
-As environment variables:
-
-- `FAVRO_TOKEN`
-- `FAVRO_USER_EMAIL`
-- `FAVRO_ORGANIZATION_ID` (optional, can by found with Bravo)
-
-## Usage
-
-### Dependencies
+## Dependencies
 
 - [**Node.js v14+**](https://nodejs.org/)
+- ⚠ Does not work in browser environments!
 
-## Development
+## The Favro Data Model
 
-- `FAVRO_TOKEN`
-- `FAVRO_USER_EMAIL`
+The Favro API gives us access to some of the underlying data models used by Favro. While not exactly *unintuitive*, it is tricky to figure out how everything works together and what Favro's terms and names mean.
+
+Below is a summary of how it all comes together.
+
+### Collections
+
+The term "Collection" is used the same way in the webapp and API. A Collection is essentially a dashboard that contains Widgets, and Widgets can live in multiple Collections.
+
+### Widgets (a.k.a. "Boards")
+
+A Favro Board (e.g. a KanBan board or Backlog) is called a "Widget" in the Favro API.
+
+> ⚠ The API does not have any access to the "Views" concept that we can use via the UI (e.g. to create Sheet and Kanban views on the same Board/Widget).
+
+### Columns (a.k.a. "Board Statuses")
+
+A Widget has "Columns", which have a narrower meaning than you might expect: each Column corresponds to one *value* from the "Status" field that is created when you make a new Widget via the GUI. In other words, "Column" and "Status" are interchangeable.
+
+> ⚠ While the default Status field is synonymous with "Columns", that *is not true* for custom Status fields! Custom Status fields are their own completely separate thing (discussed below).
+
+### Cards
+
+A Card can exist in multiple Widgets at once. Favro models this by saying that a Card is "instanced" separately on each Widget. Cards have multiple identifiers acting differently on the global vs. "instance" scopes:
+
+| Identifier Name | Scope      | Purpose                       |
+| --------------- | ---------- | ----------------------------- |
+| `cardCommonId`  | Global     | Identifying a Card            |
+| `cardId`        | Per Widget | Identifying a Card *instance* |
+| `sequentialId`  | Global     | Human-friendly id (for URLs)  |
+
+When you list Cards in a Widget-level scope (e.g. by limiting the search to a specific Widget), you'll get exactly one instance of each returned Card.
+
+When you list Cards in a global-level scope (e.g. by filtering on `sequentialId` or `cardCommonId`, or otherwise not filtering by Widget or forcing uniqueness), you can end up getting multiple near-identical copies of the same Card! One per Widget that the Card is "instanced" on.
+
+Many of the Card's data is completely identical in each instance. Only the Widget-specific data changes, which is largely about position information within the Widget. Example per-Widget Card data (non-exhaustive):
+
+| Card Instance Field | Meaning                                                                                              |
+| ------------------- | ---------------------------------------------------------------------------------------------------- |
+| `widgetCommonId`    | The parent Widget's ID (for this Card instance)                                                      |
+| `columnId`          | The identifier for the Status/Column this instance is in on the parent Widget                        |
+| `parentCardId`      | If the card has a parent on the Widget (a la Sheet-view), the parent Card's Widget-specific `cardId` |
+| `listPosition`      | The index position of the Card on the Widget                                                         |
+| `timeOnBoard`       | How long the Card has been on the Widget                                                             |
+
+> 💡 To get all Board Statuses for a Card, you would need to do a search using a global identifier for that card and then loop through all returned instances.
 
 ## Tips, Tricks, and Limitations
 
@@ -105,13 +149,29 @@ The public Favro API has a limited set of functionality compared to private, web
 
 This section provides guidance for using the Favro API (and therefore Bravo), including explanations for what _cannot_ be done with it. I've provided links to feature request/bug reports to the Favro team where appropriate -- please upvote those to let their team know these features/fixes are worth making!
 
+
+### API Rate Limits
+
+Favro's API rate limits are quite strict and [differ by plan tier](https://www.favro.com/pricing). At the time of writing, based on the pricing page and my experience using the API, the limits appear to be:
+
+| Tier         | Requests/Hour |
+| ------------ | ------------- |
+| Free (trial) | 100           |
+| Lite         | 100           |
+| Standard     | 1000          |
+| Enterprise   | 10000         |
+
+Rate limits appear to be per user-organization pair. It is easy to hit the lower limits even with fairly light automation.
+
 ### Searching
 
 > ⚠ The Favro API has extremely limited search functionality. **[Upvote the feature request!](https://favro.canny.io/feature-requests/p/api-filter-by-field-title-tags-status-custom-fields)**
 
-The Favro API has very limited search functionality. It does provide some filtering options, e.g. to restrict the "get Cards" endpoint to a specific Widget, but there is no way to further restrict by any content of the cards themselves (e.g. no text search on the name/description fields, nor filtering by assigned user, nor tags, etc).
+The Favro API does provide some filtering options, e.g. to restrict the "get Cards" endpoint to a specific Widget, but there is no way to further restrict by any content of the cards themselves (e.g. no text search on the name/description fields, nor filtering by assigned user, nor tags, etc).
 
-To _find_ something via the API then requires an exhaustive search followed by local filtering. Bravo adds some convenience methods for things like finding a card by name, but it does so by doing this sort of exhaustive search behind the scenes. Bravo also does a lot of caching and lazy-loading to reduce the impact of this on the number of API requests it makes, but the end result is always going to be that search functionality in Bravo has to consume a lot of API requests, especially if you have a lot of stuff in Favro.
+To _find_ something via the API then requires an exhaustive search followed by local filtering. Bravo adds some convenience methods for things like finding a card by name, but it does so by doing an exhaustive search behind the scenes.
+
+Bravo does some caching and lazy-loading to reduce the impact of this on the number of API requests it makes, but the end result is always going to be that search functionality in Bravo has to consume a lot of API requests, especially if you have a lot of stuff in Favro.
 
 ### Markdown
 
@@ -121,15 +181,11 @@ Favro implements a limited subset of Markdown. Which subset seems to differ base
 
 ### Identifiers
 
-> 💡 Use HTML inspectors in the Favro webapp to find unique identifiers.
-
-Items in Favro (cards, boards, comments, custom fields, etc.) are all identified by unique identifiers. Different types of items are fetched independently, with relationships indicated by identifiers for other types of items.
+Items in Favro (cards, boards, comments, custom fields, etc.) are all identified by unique identifiers. Different types of items are fetched independently, with relationships indicated by identifiers pointing to other items.
 
 For example, if you fetch a Card from the API (or a webhook) you'll also get a list of Widget identifiers in that card, but not the data about those widgets. Similarly, a Card contains a list of its Custom Fields and corresponding values, but most of the information is in the form of Custom Field identifiers. In both cases, if you wanted to see the _names_ or other information those associated items, you'll need to make API requests for those specific items using their IDs.
 
-You'll find that some items have multiple unique identifiers. Cards, in particular, have a `cardId` and `cardCommonId`. The former is a unique identifier for that Card _on a specific Widget_. The latter is a global identifier for that card.
-
-#### Card Sequential
+#### Card Sequential ID
 
 Cards have a field called `sequentialId` that corresponds directly to the visible identifier shown in the Card UI, from which users can copy a card URL.
 
