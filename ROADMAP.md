@@ -1,12 +1,17 @@
 ## Bravo Roadmap
 
-| Icon | Meaning                                           |
-| ---- | ------------------------------------------------- |
-| 🔜    | Planned for core feature set                      |
-| ✔    | Complete                                          |
-| 😍    | Quality-of-life improvements that _should_ happen |
-| 🔥    | On the backburner (no use case)                   |
+| Icon | Meaning                                         |
+| ---- | ----------------------------------------------- |
+| 🔜    | Planned for core feature set                    |
+| ✔    | Complete                                        |
+| 😍    | Quality-of-life improvements that would be nice |
+| 🔥    | On the backburner (no use case)                 |
 
+- Docs
+  - 🔜 Add sample code to the QuickStart
+  - 🔜 Explain how to authenticate Bravo clients
+- NPM
+  - 🔜 Publish to npm as `@bscotch/bravo`
 - BravoClient
   - 😍 Logging utility (with debug flag)
   - 😍 Track request counts and optionally log them (for auditing API use vs. rate limits)
