@@ -1,12 +1,25 @@
 <p align="center"><i><a href="https://www.bscotch.net">Butterscotch Shenanigans</a> Presents:</i></p>
 
 <h1 align="center"> Bravo</h1>
-<h2 align="center">The <i>(Unofficial)</i> Node.js SDK for Favro</h2>
+<h2 align="center">The <i>(Unofficial)</i> Favro SDK</h2>
+
+Bravo makes working with the Favro API a breeze.
+
+### Features
+
+- 💧 Favro data is hydrated into feature-rich and explorable classes, with convenience functions galore
+- 🤖 Fully typed (with Typescript) so your IDE can do tons of the work for you
+- 🔐 Credentials and Favro-specific request details handled automatically
+- 💤 Lazy-loading of search results to minimize API calls
+
+See the [Roadmap](./ROADMAP.md) for which Favro API features are implemented, planned, or backburnered.
+
+### Why?
 
 [Favro](https://www.favro.com/) is an amazing project management tool
-and a great way to centralize all kinds of workflows. However, Favro's integrations with external tools, and its own internal automations, are limited. Favro provides a limited [HTTP API and Webhooks](https://favro.com/developer), allowing us to extend Favro's internal automations and external integrations. However, working with raw web APIs & Webhooks is a pain. That's where Bravo comes in!
+and a great way to centralize all kinds of workflows. However, Favro's integrations with external tools and services, and its own internal automations, are limited.
 
-Bravo is a Node.js toolkit (or, if we want to get fancy, a "Software Development Toolkit") meant to make working with the Favro API a breeze. Within [its limitations](#tips-tricks-and-limitations), anyway!
+Fortunately, Favro provides an [HTTP API and Webhooks](https://favro.com/developer) so developers can fill in those gaps themselves. Unfortunately, using raw HTTP APIs is unpleasant and time-consuming. That's where Bravo comes in!
 
 _Butterscotch Shenanigans&reg; and Bravo are not affiliated with Favro._
 
@@ -23,75 +36,6 @@ As environment variables:
 - `FAVRO_TOKEN`
 - `FAVRO_USER_EMAIL`
 - `FAVRO_ORGANIZATION_ID` (optional, can by found with Bravo)
-
-## Roadmap
-
-| Icon | Meaning                                           |
-| ---- | ------------------------------------------------- |
-| 🔜    | Planned for core feature set                      |
-| ✔    | Complete                                          |
-| 😍    | Quality-of-life improvements that _should_ happen |
-| ❓    | Maybe... someday... if a use case arises...       |
-
-- BravoClient
-  - 😍 Logging utility (with debug flag)
-  - 😍 Track request counts and optionally log them (for auditing API use vs. rate limits)
-  - 😍 Handle hitting the API rate limit (currently just a 403 error)
-- ❓ CLI _(no current use cases)_
-- Organizations
-  - ✔ List orgs
-  - ✔ Find org by name
-  - ✔ Set active org by name or ID
-  - ❓ Update an org
-- Users
-  - ✔ List users
-  - ✔ Find user by name, id, or email
-- Collections
-  - ✔ List collections
-  - ✔ Find collection by name
-  - ✔ Find collection by id
-  - ✔ Create a collection
-  - ✔ Delete a collection
-  - ❓ Update a collection
-- Widgets
-  - ✔ List widgets
-  - ✔ Find widget by ID
-  - ✔ Find widgets by name
-  - ✔ Create a widget
-  - ✔ Delete a widget
-  - ❓ Update a widget
-- Columns
-  - ✔ List columns
-  - ✔ Find columns
-  - ✔ Create columns
-  - ✔ Delete columns
-  - 😍 Add some sort of warning when a user tries to delete the LAST column on a Widget, since that's guaranteed to throw a 403.
-  - ❓ Update a column
-- Cards
-  - ✔ Create a card
-  - ✔ List cards
-  - ✔ Find card by name
-  - ✔ Delete a card (from a board or from EVERYWHERE)
-  - ✔ Fetch a Card directly by its ID
-  - ✔ Fetch a Card directly by its user-visible "sequential ID"
-  - ✔ Compose a card URL
-  - ✔ Update a Card's built-in fields
-  - ✔ Add an attachment to a card
-  - 🔜 Update a Card's Custom Fields
-  - ❓ Find card by field value, including Custom Fields
-  - ❓ Cache cards to reduce API calls (cards change frequently, so this might be a bad idea anyway)
-- Custom Fields
-  - ✔ Fetch and cache Custom Field definitions
-  - ~~Create Custom Field~~ (No API endpoint for this)
-  - ~~Delete Custom Field~~ (No API endpoint for this)
-  - ~~Update a Custom Field~~ (No API endpoint for this)
-- Comments
-  - 🔜 Create a comment
-  - 🔜 List comments
-  - 🔜 Delete a comment
-  - 🔜 Add an attachment to a comment
-  - ❓ Update a comment
-- ❓ Activities
 
 ## Usage
 
