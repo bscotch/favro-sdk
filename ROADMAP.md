@@ -1,11 +1,11 @@
 ## Bravo Roadmap
 
-| Icon | Meaning                                         |
-| ---- | ----------------------------------------------- |
-| 🔜    | Planned for core feature set                    |
-| ✔    | Complete                                        |
-| 😍    | Quality-of-life improvements that would be nice |
-| 🔥    | On the backburner (no use case)                 |
+| Icon | Meaning                                 |
+| ---- | --------------------------------------- |
+| 🔜    | Planned for core feature set            |
+| ✔    | Complete                                |
+| 😍    | Quality-of-life improvements (optional) |
+| 🔥    | On the backburner (no use case)         |
 
 - Docs
   - 🔜 Add sample code to the QuickStart

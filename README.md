@@ -23,9 +23,60 @@ Fortunately, Favro provides an [HTTP API and Webhooks](https://favro.com/develop
 
 _Butterscotch Shenanigans&reg; and Bravo are not affiliated with Favro._
 
+
 ## Quick Start
 
+Install [from npm](https://www.npmjs.com/package/@bscotch/bravo):
+
 `npm install -g @bscotch/bravo`
+
+Import into your Node project, create a Bravo client, and you're all set!
+
+```ts
+// Typescript
+import {BravoClient} from '@bscotch/bravo';
+// -or-
+// Node (without Typescript)
+const {BravoClient} = require('@bscotch/bravo');
+
+const bravo = new BravoClient({
+  token:'your-token',
+  organizationId:'your-organization-id',
+  userEmail: 'your-favro-account-email'
+});
+
+async function doFavroStuff() {
+  // Set the organization if you did not provide that
+  // to the client already.
+  bravo.setOrganizationIdByName('My Organization');
+  
+  // Find a Widget (a.k.a. Board)
+  const widget = await bravo.findWidgetByName('My To Do List');
+  // Add a card to that widget
+  const newCard = await widget.createCard({
+    name: 'Talk to so-and-so',
+    detailedDescription: 'We need to maximize synergy.'
+  });
+  // Find the userId for an assignee
+  const assignee = await bravo.findUserByName('Scam Likely');
+  // Begin building an update (for batching changes)
+  newCard.updateBuilder
+    .assign([assignee.userId])
+    .setStartDate(new Date())
+    .addTagsByName(['todo']);
+  // Submit the batch update
+  await newCard.update();
+
+  // Delete the card
+  await newCard.delete();
+}
+```
+
+## Authentication
+
+To have Bravo access Favro on your behalf, you'll need to provide it with the values listed below (either as environment variables or directly to the Bravo client):
+
+1. **API Token** (env var `FAVRO_TOKEN`)
 
 ## Usage
 
