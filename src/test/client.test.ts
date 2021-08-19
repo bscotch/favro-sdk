@@ -176,9 +176,7 @@ describe('BravoClient', function () {
   });
 
   it('can find a specific user by email', async function () {
-    const me = await (await client.getCurrentOrganization())!.findMemberByEmail(
-      myUserEmail,
-    )!;
+    const me = await client.findOrganizationMemberByEmail(myUserEmail)!;
     expect(me).to.exist;
     expect(me!.email).to.equal(myUserEmail);
   });

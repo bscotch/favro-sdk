@@ -47,7 +47,7 @@ const bravoClient = new BravoClient({
 });
 
 async function doFavroStuff() {
-  const org = await bravoClient.getCurrentOrganization();
+  await bravoClient.getCurrentOrganization();
   
   // Find a Widget (a.k.a. Board)
   const widget = await bravoClient.findWidgetByName('My To Do List');
@@ -59,7 +59,7 @@ async function doFavroStuff() {
   });
 
   // Find the userId for an assignee
-  const assignee = await org.findMemberByName('Scam Likely');
+  const assignee = await bravoClient.findMemberByName('Scam Likely');
 
   // Use the update-builder to create and send an update
   // that covers multiple fields.

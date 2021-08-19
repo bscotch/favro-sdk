@@ -45,7 +45,7 @@ import { basename } from 'path';
  * The `BravoClient` class should be singly-instanced for a given
  * set of credentials and a target organization. Once the organizationId
  * is set (either out of the gate via env var or construct args, or
- * by using `client.setOrganizationIdByName` when the org name is known
+ * by using `client.chooseOrganizationByName` when the org name is known
  * but the id is not).
  *
  * All Favro API fetching and caching is centralized and managed in
@@ -140,7 +140,7 @@ export class BravoClient extends FavroClient {
   /**
    * Full user info for the org (includes emails and names).
    */
-  async listOrganizationMembers() {
+  async listMembers() {
     const org = await this.getCurrentOrganization();
     assertBravoClaim(org, 'Organization not set');
     if (!this.cache.users) {
@@ -154,30 +154,28 @@ export class BravoClient extends FavroClient {
     return this.cache.users;
   }
 
-  async findOrganizationMember(match: (user: BravoUser) => any) {
-    const members = await this.listOrganizationMembers();
+  async findMember(match: (user: BravoUser) => any) {
+    const members = await this.listMembers();
     return members.find((user) => match(user));
   }
 
-  async findOrganizationMemberByEmail(email: string | RegExp) {
-    return await this.findOrganizationMemberByField('email', email);
+  async findMemberByEmail(email: string | RegExp) {
+    return await this.findMemberByField('email', email);
   }
 
-  async findOrganizationMemberByName(name: string | RegExp) {
-    return await this.findOrganizationMemberByField('name', name);
+  async findMemberByName(name: string | RegExp) {
+    return await this.findMemberByField('name', name);
   }
 
-  async findOrganizationMemberByUserId(userId: string) {
-    return await this.findOrganizationMemberByField('userId', userId);
+  async findMemberByUserId(userId: string) {
+    return await this.findMemberByField('userId', userId);
   }
 
-  private async findOrganizationMemberByField(
+  private async findMemberByField(
     field: 'email' | 'name' | 'userId',
     value: string | RegExp,
   ) {
-    return await this.findOrganizationMember((user) =>
-      user[field]?.match(value),
-    );
+    return await this.findMember((user) => user[field]?.match(value));
   }
 
   //#endregion
