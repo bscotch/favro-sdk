@@ -5,9 +5,7 @@
 
 > **⚠Warning⚠** *Bravo is in active development and may change substantially with any release. Check the changelog before updating!* 
 
-_[Butterscotch Shenanigans&reg;](https://www.bscotch.net) and Bravo (this project) are not affiliated with Favro._
-
-### Features
+## Features
 
 - 💧 Favro data is hydrated into feature-rich and explorable classes, with convenience functions galore
 - 🤖 Fully typed (with Typescript) so your IDE can do tons of the work for you
@@ -17,12 +15,14 @@ _[Butterscotch Shenanigans&reg;](https://www.bscotch.net) and Bravo (this projec
 
 See the [Roadmap](./ROADMAP.md) for which Favro API features are implemented, planned, or backburnered.
 
-### Why?
+## Why?
 
 [Favro](https://www.favro.com/) is an amazing project management tool
 and a great way to centralize all kinds of workflows. However, Favro's integrations with external tools and services, and its own internal automations, are limited.
 
 Fortunately, Favro provides an [HTTP API and Webhooks](https://favro.com/developer) so developers can fill in those gaps themselves. Unfortunately, using raw HTTP APIs is unpleasant and time-consuming. That's where Bravo comes in!
+
+_[Butterscotch Shenanigans&reg;](https://www.bscotch.net) and Bravo (this project) are not affiliated with Favro._
 
 ## Quick Start
 
