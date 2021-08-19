@@ -263,6 +263,13 @@ export class BravoClient extends FavroClient {
     return this.cache.collections;
   }
 
+  /** Find a collection using a match function. */
+  async findCollection(match: (collection: BravoCollection) => any) {
+    return (await this.listCollections()).find((collection) =>
+      match(collection),
+    );
+  }
+
   /**
    * Find a collection by name. Names are not required to be unique
    * by Favro -- only the first match is returned.
