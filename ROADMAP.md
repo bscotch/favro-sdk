@@ -1,5 +1,14 @@
 ## Bravo Roadmap
 
+### General TODO
+
+- Revisit "Columns" implementation to more intuitively reflect what it's *for*.
+- Revisit "Custom Fields" implementation to make sure it reflects how Custom Fields are used.
+- Revisit the class method and getter/setter names. Currently they are based directly on the field names from the Favro API, but many of those names are not easy to differentiate without referring to the docs (e.g. "cardId" vs "cardCommonId" vs "sequentialId"). Could keep the existing names but create more user-friendly aliases?
+
+### Feature List
+
+
 | Icon | Meaning                                 |
 | ---- | --------------------------------------- |
 | 🔜    | Planned for core feature set            |
@@ -7,11 +16,8 @@
 | 😍    | Quality-of-life improvements (optional) |
 | 🔥    | On the backburner (no use case)         |
 
-- Docs
-  - ✔ Add sample code to the QuickStart
-  - ✔ Explain how to authenticate Bravo clients
-- NPM
-  - 🔜 Publish to npm as `@bscotch/bravo`
+Ordered hierarchically by the Favro data model (not by priority order):
+
 - BravoClient
   - 😍 Logging utility (with debug flag)
   - 😍 Track request counts and optionally log them (for auditing API use vs. rate limits)

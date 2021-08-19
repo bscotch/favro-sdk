@@ -79,7 +79,8 @@ export class BravoClient extends FavroClient {
     return new BravoResponseEntities(this, entityClass, res);
   }
 
-  async currentOrganization() {
+  /** Get the Organization that this client is using. */
+  async getCurrentOrganization() {
     if (!this._organizationId) {
       return;
     }
@@ -123,14 +124,13 @@ export class BravoClient extends FavroClient {
   }
 
   /**
-   * The organizationId is required for most API calls.
-   * Easily set the client's organizationId based on the
-   * org's name.
+   * Set the orgnization to be used by the client (if not already set).
    */
-  async setOrganizationIdByName(organizationName: string) {
+  async chooseOrganizationByName(organizationName: string) {
     const org = await this.findOrganizationByName(organizationName);
     assertBravoClaim(org.organizationId, `Org does not have an ID`);
     this.organizationId = org.organizationId;
+    return org;
   }
 
   //#endregion
@@ -140,8 +140,8 @@ export class BravoClient extends FavroClient {
   /**
    * Full user info for the org (includes emails and names).
    */
-  async listFullUsers() {
-    const org = await this.currentOrganization();
+  async listOrganizationMembers() {
+    const org = await this.getCurrentOrganization();
     assertBravoClaim(org, 'Organization not set');
     if (!this.cache.users) {
       const res = await this.requestWithReturnedEntities(
@@ -154,38 +154,29 @@ export class BravoClient extends FavroClient {
     return this.cache.users;
   }
 
-  /**
-   * Basic user info (just userIds and org roles) obtained directly
-   * from organization data.
-   */
-  async listOrganizationMembers() {
-    const org = await this.currentOrganization();
-    assertBravoClaim(org, 'Organization not set');
-    return org.sharedToUsers;
+  async findOrganizationMember(match: (user: BravoUser) => any) {
+    const members = await this.listOrganizationMembers();
+    return members.find((user) => match(user));
   }
 
-  async findUserByName(name: string) {
-    return findRequiredByField(await this.listFullUsers(), 'name', name, {
-      ignoreCase: true,
-    });
+  async findOrganizationMemberByEmail(email: string | RegExp) {
+    return await this.findOrganizationMemberByField('email', email);
   }
 
-  async findUserByEmail(email: string) {
-    return findRequiredByField(await this.listFullUsers(), 'email', email, {
-      ignoreCase: true,
-    });
+  async findOrganizationMemberByName(name: string | RegExp) {
+    return await this.findOrganizationMemberByField('name', name);
   }
 
-  async findUserById(userId: string) {
-    return findRequiredByField(await this.listFullUsers(), 'userId', userId);
+  async findOrganizationMemberByUserId(userId: string) {
+    return await this.findOrganizationMemberByField('userId', userId);
   }
 
-  /** Find a user's basic info (userId & role) in this org, by ID. */
-  async findOrganizationMemberById(userId: string) {
-    return findRequiredByField(
-      await this.listOrganizationMembers(),
-      'userId',
-      userId,
+  private async findOrganizationMemberByField(
+    field: 'email' | 'name' | 'userId',
+    value: string | RegExp,
+  ) {
+    return await this.findOrganizationMember((user) =>
+      user[field]?.match(value),
     );
   }
 
@@ -258,7 +249,7 @@ export class BravoClient extends FavroClient {
    * {@link https://favro.com/developer/#get-all-collections}
    */
   async listCollections() {
-    const org = await this.currentOrganization();
+    const org = await this.getCurrentOrganization();
     assertBravoClaim(org, 'Organization not set');
     if (!this.cache.collections) {
       const res = await this.requestWithReturnedEntities(

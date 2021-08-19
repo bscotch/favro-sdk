@@ -126,7 +126,7 @@ describe('BravoClient', function () {
   // are low) the tests become dependent on the outcomes of prior tests.
 
   before(async function () {
-    await client.setOrganizationIdByName(organizationName);
+    await client.chooseOrganizationByName(organizationName);
 
     resetSandbox();
     // Clean up any leftover remote testing content
@@ -169,16 +169,18 @@ describe('BravoClient', function () {
   it('can find all users for an organization, including self', async function () {
     const partialUsers = await client.listOrganizationMembers();
     expect(partialUsers.length, 'has partial users').to.be.greaterThan(0);
-    const fullUsers = await client.listFullUsers();
+    const fullUsers = await client.listOrganizationMembers();
     expect(fullUsers.length, 'has full users').to.be.greaterThan(0);
     const me = fullUsers.find((u) => u.email == myUserEmail);
     assertBravoTestClaim(me, 'Current user somehow not found in org');
   });
 
   it('can find a specific user by email', async function () {
-    const me = await client.findUserByEmail(myUserEmail);
+    const me = await (await client.getCurrentOrganization())!.findMemberByEmail(
+      myUserEmail,
+    )!;
     expect(me).to.exist;
-    expect(me.email).to.equal(myUserEmail);
+    expect(me!.email).to.equal(myUserEmail);
   });
 
   describe('Collections', function () {
@@ -265,7 +267,7 @@ describe('BravoClient', function () {
        * - ✔ assignmentCompletion
        * - ✔ favroAttachments
        */
-      const users = await client.listFullUsers();
+      const users = await client.listOrganizationMembers();
       const user = users[0];
       const newName = 'NEW NAME';
       const newDescription = '# New Description\n\nHello!';
