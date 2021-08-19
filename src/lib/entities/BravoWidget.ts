@@ -7,7 +7,7 @@ import type {
   FavroApiGetCardsBase,
   FavroApiParamsCardCreate,
 } from '$/types/FavroCardTypes.js';
-import type { BravoCard } from './BravoCard.js';
+import type { BravoCardInstance } from './BravoCard.js';
 
 export type OptionWidgetColor = typeof BravoWidget['colors'][number];
 
@@ -56,8 +56,8 @@ export class BravoWidget extends BravoEntity<DataFavroWidget> {
     return column;
   }
 
-  async deleteColumn(columnId: string) {
-    return await this._client.deleteColumn(this.widgetCommonId, columnId);
+  async deleteColumnById(columnId: string) {
+    return await this._client.deleteColumnById(this.widgetCommonId, columnId);
   }
 
   //#endregion
@@ -68,7 +68,8 @@ export class BravoWidget extends BravoEntity<DataFavroWidget> {
    * Get all cards on this Widget, with optional
    * additional filter parameters. **Note:** makes
    * an API request on *every call* (no caching),
-   * so prefer re-use of the results to re-fetching.
+   * so prefer re-use of the results to re-fetching,
+   * and limit by `columnId` if possible.
    */
   async listCards(options?: FavroApiGetCardsBase) {
     return await this._client.listCards({
@@ -78,7 +79,7 @@ export class BravoWidget extends BravoEntity<DataFavroWidget> {
   }
 
   async findCard(
-    matchFunc: ArrayMatchFunction<BravoCard>,
+    matchFunc: ArrayMatchFunction<BravoCardInstance>,
     options?: FavroApiGetCardsBase,
   ) {
     const cards = await this.listCards(options);

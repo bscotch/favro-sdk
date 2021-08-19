@@ -33,7 +33,7 @@ import dotenv from 'dotenv';
 import type { BravoCollection } from '$entities/BravoCollection.js';
 import type { BravoWidget } from '$entities/BravoWidget.js';
 import type { BravoColumn } from '$/lib/entities/BravoColumn.js';
-import { BravoCard } from '$/lib/entities/BravoCard.js';
+import { BravoCardInstance } from '$/lib/entities/BravoCard.js';
 import fetch from 'node-fetch';
 
 /**
@@ -117,7 +117,7 @@ describe('BravoClient', function () {
   let testWidget: BravoWidget;
   let testCollection: BravoCollection;
   let testColumn: BravoColumn;
-  let testCard: BravoCard;
+  let testCard: BravoCardInstance;
 
   // !!!
   // Tests are in a specific order to ensure that dependencies
@@ -242,7 +242,7 @@ describe('BravoClient', function () {
         .be.true;
 
       // Fetch it again via cardId
-      const byCardId = await client.findCardById(foundCard.cardId);
+      const byCardId = await client.findCardInstanceById(foundCard.cardId);
       expect(byCardId!.equals(foundCard), 'can fetch by sequentialId').to.be
         .true;
     });

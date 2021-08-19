@@ -17,10 +17,10 @@ export interface FavroApiGetCardsBase {
   /** Limit the search scope to a specific column */
   columnId?: string;
   /**
-   * Apparently cards can be returned multiple times
-   * in a single request, since they can live in multiple
-   * places depending on scope of the search. The API
-   * defaults to `false`.
+   * Cards can be returned multiple times
+   * in a single request, but as per-Widget "instances",
+   * since they can live in multiple
+   * places depending on scope of the search.
    */
   unique?: boolean;
   /**

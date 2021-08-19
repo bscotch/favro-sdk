@@ -7,6 +7,7 @@ import type {
   FavroApiParamsCardUpdateArrayField,
 } from '$/types/FavroCardUpdateTypes.js';
 import { BravoEntity } from '$lib/BravoEntity.js';
+import { assertBravoClaim } from '../errors.js';
 import {
   ensureArrayExistsAndAddUnique,
   ensureArrayExistsAndAddUniqueBy,
@@ -188,20 +189,30 @@ class BravoCardUpdateBuilder {
   }
 }
 
-export class BravoCard extends BravoEntity<DataFavroCard> {
+// TODO: Add a Favro-global-scope Card class as a base
+//       for specific Instances. (Still need to think through
+//       details of the data model...)
+
+/**
+ * A Card "Instance" represents the combination of a Card's
+ * *global* data and its data associated with a specific Widget.
+ */
+export class BravoCardInstance extends BravoEntity<DataFavroCard> {
   private _updateBuilder = new BravoCardUpdateBuilder();
 
   get name() {
     return this._data.name;
   }
 
-  /** The number shown in the card UI, and used in user-friendly URLs. */
+  /**
+   * The number shown in the card UI,
+   * and used in user-friendly URLs. */
   get sequentialId() {
     return this._data.sequentialId;
   }
 
   /**
-   * Get a user-friendly URL for the card.
+   * A user-friendly URL for the card.
    * It is not associated with a specific Collection,
    * so the Favro App will choose which collection to
    * open the card in.
@@ -214,17 +225,24 @@ export class BravoCard extends BravoEntity<DataFavroCard> {
     return [...this._data.assignments];
   }
 
-  /** The card's ID within a widget */
+  /**
+   * The card's Widget-specific ID.
+   */
   get cardId() {
     return this._data.cardId;
   }
 
-  /** The card's global ID, the same in all widgets in which this card appears */
+  /**
+   * The card's global ID, the same in all widgets in
+   * which this card appears
+   */
   get cardCommonId() {
     return this._data.cardCommonId;
   }
 
-  /** The column this card appears in on the current widget.*/
+  /**
+   * The column this card appears in (i.e. the status it has)
+   * on the current widget. */
   get columnId() {
     return this._data.columnId;
   }
@@ -283,6 +301,21 @@ export class BravoCard extends BravoEntity<DataFavroCard> {
   }
 
   /**
+   * Get the hydrated Column object for the Column (a.k.a. Status)
+   * this card is in.
+   */
+  async getColumn() {
+    assertBravoClaim(
+      this.widgetCommonId,
+      'This Card instance does not have a columnId (it is not in a Widget).',
+    );
+    return await this._client.findColumnById(
+      this.widgetCommonId,
+      this.columnId,
+    );
+  }
+
+  /**
    * Submit an update to Favro for this card.
    * If no argument is provided, uses
    * any changes made via this instance's `.updateBuilder` methods.
@@ -323,7 +356,7 @@ export class BravoCard extends BravoEntity<DataFavroCard> {
    */
   async refresh() {
     this._updateBuilder = new BravoCardUpdateBuilder();
-    const refreshed = await this._client.findCardById(this.cardId);
+    const refreshed = await this._client.findCardInstanceById(this.cardId);
     this._data = refreshed._data;
     return this;
   }
@@ -337,7 +370,7 @@ export class BravoCard extends BravoEntity<DataFavroCard> {
     return this._client.deleteCard(this.cardId, everywhere);
   }
 
-  equals(org: BravoCard) {
+  equals(org: BravoCardInstance) {
     return (
       this.hasSameConstructor(org) && this.cardCommonId === org.cardCommonId
     );

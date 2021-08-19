@@ -40,7 +40,7 @@ export class BravoColumn extends BravoEntity<DataFavroColumn> {
 
   async delete() {
     if (!this.deleted) {
-      await this._client.deleteColumn(this.widgetCommonId, this.columnId);
+      await this._client.deleteColumnById(this.widgetCommonId, this.columnId);
     }
     this._deleted = true;
   }

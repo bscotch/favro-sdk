@@ -33,7 +33,7 @@ import type {
   FavroApiGetCardsParams,
   FavroApiParamsCardCreate,
 } from '$/types/FavroCardTypes.js';
-import { BravoCard } from './entities/BravoCard.js';
+import { BravoCardInstance } from './entities/BravoCard.js';
 import { BravoCustomField } from './entities/BravoCustomField.js';
 import { DataFavroCustomField } from '$/types/FavroCustomFieldTypes.js';
 import { FavroApiParamsCardUpdate } from '$/types/FavroCardUpdateTypes.js';
@@ -436,6 +436,12 @@ export class BravoClient extends FavroClient {
     return column;
   }
 
+  /**
+   * List the Columns (Statuses) attached to a Widget.
+   * Results are cached by Widget.
+   *
+   * {@link https://favro.com/developer/#get-all-columns
+   */
   async listColumns(widgetCommonId: string) {
     if (!this.cache.getColumns(widgetCommonId)) {
       const res = (await this.requestWithReturnedEntities(
@@ -459,7 +465,19 @@ export class BravoClient extends FavroClient {
     return await find(await this.listColumns(widgetCommonId), matchFunction);
   }
 
-  async deleteColumn(widgetCommonId: string, columnId: string) {
+  async findColumnById(widgetCommonId: string, columnId: string) {
+    const column = await find(
+      await this.listColumns(widgetCommonId),
+      (col) => col.columnId == columnId,
+    );
+    assertBravoClaim(
+      column,
+      `Column with id ${columnId} does not exist on Widget with id ${widgetCommonId}`,
+    );
+    return column;
+  }
+
+  async deleteColumnById(widgetCommonId: string, columnId: string) {
     // Note: technically we don't NEED the widgetId to delete a column,
     // but coupling these together is useful and allows for cache management.
     await this.deleteEntity(`columns/${columnId}`);
@@ -482,15 +500,19 @@ export class BravoClient extends FavroClient {
         method: 'post',
         body: data,
       },
-      BravoCard,
+      BravoCardInstance,
     );
-    const card = (await res.getFirstEntity()) as BravoCard;
+    const card = (await res.getFirstEntity()) as BravoCardInstance;
     assertBravoClaim(card, `Failed to create card`);
     return card;
   }
 
   /**
-   * Fetch cards. **Note**: not cached! Cards are lazy-loaded
+   * Fetch cards. Filtering results by the narrowest
+   * scope possible is a good idea to reduce API calls
+   * and how many results are obtained.
+   *
+   * **Note**: not cached! Cards are lazy-loaded
    * to reduce API calls.
    *
    * {@link https://favro.com/developer/#get-all-cards}
@@ -501,13 +523,12 @@ export class BravoClient extends FavroClient {
       {
         method: 'get',
         query: {
-          unique: true,
           descriptionFormat: 'markdown',
           ...options,
         } as FavroApiGetCardsParams,
       },
-      BravoCard,
-    )) as BravoResponseEntities<DataFavroCard, BravoCard>;
+      BravoCardInstance,
+    )) as BravoResponseEntities<DataFavroCard, BravoCardInstance>;
     return res;
   }
 
@@ -534,7 +555,7 @@ export class BravoClient extends FavroClient {
    *
    * {@link https://favro.com/developer/#get-a-card}
    */
-  async findCardById(cardId: string) {
+  async findCardInstanceById(cardId: string) {
     const res = (await this.requestWithReturnedEntities(
       `cards/${cardId}`,
       {
@@ -543,8 +564,8 @@ export class BravoClient extends FavroClient {
           descriptionFormat: 'markdown',
         } as FavroApiGetCardsParams,
       },
-      BravoCard,
-    )) as BravoResponseEntities<DataFavroCard, BravoCard>;
+      BravoCardInstance,
+    )) as BravoResponseEntities<DataFavroCard, BravoCardInstance>;
     return await res.getFirstEntity();
   }
 
@@ -570,8 +591,8 @@ export class BravoClient extends FavroClient {
         },
         body: options,
       },
-      BravoCard,
-    )) as BravoResponseEntities<DataFavroCard, BravoCard>;
+      BravoCardInstance,
+    )) as BravoResponseEntities<DataFavroCard, BravoCardInstance>;
     return await res.getFirstEntity();
   }
 
