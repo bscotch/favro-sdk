@@ -43,10 +43,7 @@ import { basename } from 'path';
 
 /**
  * The `BravoClient` class should be singly-instanced for a given
- * set of credentials and a target organization. Once the organizationId
- * is set (either out of the gate via env var or construct args, or
- * by using `client.chooseOrganizationByName` when the org name is known
- * but the id is not).
+ * set of credentials and a target organization.
  *
  * All Favro API fetching and caching is centralized and managed in
  * this class. "Entities" returned from Favro API endpoints are wrapped
@@ -79,11 +76,8 @@ export class BravoClient extends FavroClient {
     return new BravoResponseEntities(this, entityClass, res);
   }
 
-  /** Get the Organization that this client is using. */
+  /** Get the hydrated Organization model that this client is using. */
   async getCurrentOrganization() {
-    if (!this._organizationId) {
-      return;
-    }
     return findByField(
       await this.listOrganizations(),
       'organizationId',
@@ -121,16 +115,6 @@ export class BravoClient extends FavroClient {
       'organizationId',
       organizationId,
     );
-  }
-
-  /**
-   * Set the orgnization to be used by the client (if not already set).
-   */
-  async chooseOrganizationByName(organizationName: string) {
-    const org = await this.findOrganizationByName(organizationName);
-    assertBravoClaim(org.organizationId, `Org does not have an ID`);
-    this.organizationId = org.organizationId;
-    return org;
   }
 
   //#endregion

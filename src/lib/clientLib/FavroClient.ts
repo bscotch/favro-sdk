@@ -86,7 +86,7 @@ function cleanHeaders(rawHeaders: Record<string, any>) {
 
 export class FavroClient {
   protected _token!: string;
-  protected _organizationId?: string;
+  protected _organizationId!: string;
   /**
    * Authentication requires the user's identifer (their email address)
    */
@@ -106,32 +106,19 @@ export class FavroClient {
     organizationId?: string;
     userEmail?: string;
   }) {
-    for (const [optionsName, envName, optional] of [
+    for (const [optionsName, envName] of [
       ['token', 'FAVRO_TOKEN'],
       ['userEmail', 'FAVRO_USER_EMAIL'],
-      ['organizationId', 'FAVRO_ORGANIZATION_ID', true],
+      ['organizationId', 'FAVRO_ORGANIZATION_ID'],
     ] as const) {
       const value = options?.[optionsName] || process.env[envName];
-      if (!value && optional) {
-        continue;
-      }
       assertBravoClaim(value, `A Favro ${optionsName} is required.`);
       this[`_${optionsName}` as const] = value;
     }
   }
 
-  // @ts-expect-error
   get organizationId(): string | undefined {
     return this._organizationId;
-  }
-  /**
-   * Set the organizationID **if it isn't already set**
-   */
-  set organizationId(organizationId: string) {
-    if (this._organizationId && this._organizationId != organizationId) {
-      throw new BravoError(`Cannot reset clientId once it has been set.`);
-    }
-    this._organizationId = organizationId;
   }
 
   /**

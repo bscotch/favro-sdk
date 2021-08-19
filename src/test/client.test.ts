@@ -7,8 +7,8 @@
  *  - A root .env file must be added and include vars:
  *    - FAVRO_TOKEN (obtained from the Favro app)
  *    - FAVRO_USER_EMAIL (email matching the user who owns the token)
- *    - FAVRO_ORGANIZATION_NAME (exact name of target org
- *     (**Testing-only org highly recommended!**))
+ *    - FAVRO_ORGANIZATION_ID (target organization's ID
+ *      (**Testing-only org highly recommended!**))
  *  - The target Favro organization (again, make a separate one for testing!)
  *    must have one custom field per custom field type. Custom fields are
  *    always globally available to the API, so these can be created on any
@@ -41,7 +41,7 @@ import fetch from 'node-fetch';
  * env vars in order to run tests!
  */
 dotenv.config();
-const organizationName = process.env.FAVRO_ORGANIZATION_NAME!;
+const organizationId = process.env.FAVRO_ORGANIZATION_ID!;
 const myUserEmail = process.env.FAVRO_USER_EMAIL!;
 
 const testCollectionName = '___BRAVO_TEST_COLLECTION';
@@ -82,11 +82,11 @@ async function expectAsyncError(
 }
 
 assertBravoTestClaim(
-  organizationName,
-  `For testing, you must include FAVRO_ORGANIZATION_NAME in your .env file`,
+  organizationId,
+  `For testing, you must include FAVRO_ORGANIZATION_ID in your .env file`,
 );
 assertBravoTestClaim(
-  organizationName,
+  myUserEmail,
   `For testing, you must include FAVRO_USER_EMAIL in your .env file`,
 );
 
@@ -126,8 +126,6 @@ describe('BravoClient', function () {
   // are low) the tests become dependent on the outcomes of prior tests.
 
   before(async function () {
-    await client.chooseOrganizationByName(organizationName);
-
     resetSandbox();
     // Clean up any leftover remote testing content
     // (Since names aren't required to be unique, there could be quite a mess!)
@@ -154,29 +152,25 @@ describe('BravoClient', function () {
   });
 
   it('can find a specific organization', async function () {
-    const org = await client.findOrganizationByName(
-      process.env.FAVRO_ORGANIZATION_NAME!,
-    );
+    const org = await client.findOrganizationById(organizationId);
     assertBravoTestClaim(org, 'Org not found');
     assertBravoTestClaim(
       org.organizationId,
       'Organization ID not found on org data',
     );
-    client.organizationId = org.organizationId;
-    assertBravoTestClaim(org.organizationId == client.organizationId);
   });
 
   it('can find all users for an organization, including self', async function () {
-    const partialUsers = await client.listOrganizationMembers();
+    const partialUsers = await client.listMembers();
     expect(partialUsers.length, 'has partial users').to.be.greaterThan(0);
-    const fullUsers = await client.listOrganizationMembers();
+    const fullUsers = await client.listMembers();
     expect(fullUsers.length, 'has full users').to.be.greaterThan(0);
     const me = fullUsers.find((u) => u.email == myUserEmail);
     assertBravoTestClaim(me, 'Current user somehow not found in org');
   });
 
   it('can find a specific user by email', async function () {
-    const me = await client.findOrganizationMemberByEmail(myUserEmail)!;
+    const me = await client.findMemberByEmail(myUserEmail)!;
     expect(me).to.exist;
     expect(me!.email).to.equal(myUserEmail);
   });
@@ -265,7 +259,7 @@ describe('BravoClient', function () {
        * - ✔ assignmentCompletion
        * - ✔ favroAttachments
        */
-      const users = await client.listOrganizationMembers();
+      const users = await client.listMembers();
       const user = users[0];
       const newName = 'NEW NAME';
       const newDescription = '# New Description\n\nHello!';

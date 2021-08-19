@@ -42,7 +42,6 @@ const {BravoClient} = require('@bscotch/bravo');
 const bravoClient = new BravoClient({
   token:'your-token',
   userEmail: 'your-favro-account-email',
-  // You can set the organizationId later instead!
   organizationId:'your-organization-id',
 });
 
@@ -85,11 +84,9 @@ async function doFavroStuff() {
 
 To have Bravo access Favro on your behalf, you'll need to provide it with the credentials listed below. You can do so via environment variables as shown here, or directly when instancing the Bravo client as shown in the example above:
 
-1. `FAVRO_TOKEN`: (required) Your Favro API token. To create one, go to your Profile, then "API Tokens" &rarr; "New API Token".
-2. `FAVRO_USER_EMAIL`: (required) Your Favro account email.
-3. `FAVRO_ORGANIZATION_ID`: (optional) The Organization ID that you are targeting. You can either provide this directly, or use one of the Bravo client methods to find it (e.g. as in the code example above, using `await bravoClient.setOrganizationIdByName('My Organization')`). You can get your Organization ID from the URL when using Favro in a browser: Favro URLs look like this: `favro.com/organization/{organizationId}`.
-
-> ⚠ The `organizationId` is required for most Favro API calls. To prevent confusion, once you've set the `organizationId` on a Bravo Client instance you cannot change it. You can always create a new instance that talks to a different organization!
+1. `FAVRO_TOKEN`: Your Favro API token. To create one, go to your Profile, then "API Tokens" &rarr; "New API Token".
+2. `FAVRO_USER_EMAIL`: Your Favro account email.
+3. `FAVRO_ORGANIZATION_ID`: The Organization ID that you are targeting. You can get your Organization ID from the URL when using Favro in a browser. Favro URLs look like this: `favro.com/organization/{organizationId}`.
 
 ## Dependencies
 
