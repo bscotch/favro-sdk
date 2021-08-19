@@ -8,8 +8,8 @@
 | 🔥    | On the backburner (no use case)         |
 
 - Docs
-  - 🔜 Add sample code to the QuickStart
-  - 🔜 Explain how to authenticate Bravo clients
+  - ✔ Add sample code to the QuickStart
+  - ✔ Explain how to authenticate Bravo clients
 - NPM
   - 🔜 Publish to npm as `@bscotch/bravo`
 - BravoClient

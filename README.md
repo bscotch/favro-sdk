@@ -75,6 +75,12 @@ async function doFavroStuff() {
   // Submit and clear the update-builder's changes
   await newCard.update();
 
+  // Add an attachment
+  await newCard.attach('some-data.txt', "Ooooh, a text file!");
+  // If no data is provided, treats the path as an actual
+  // file and uploads its contents
+  await newCard.attach('path/to/a/file.txt');
+
   // Delete the card
   await newCard.delete();
 }
@@ -115,6 +121,8 @@ A Favro Board (e.g. a KanBan board or Backlog) is called a "Widget" in the Favro
 
 A Widget has "Columns", which have a narrower meaning than you might expect: each Column corresponds to one *value* from the "Status" field that is created when you make a new Widget via the GUI. In other words, "Column" and "Status" are interchangeable.
 
+> 💡 Favro's Webhooks are attached to *Columns*: Webhooks only trigger for registered events occurring on their associated Columns.
+
 > ⚠ While the default Status field is synonymous with "Columns", that *is not true* for custom Status fields! Custom Status fields are their own completely separate thing (discussed below).
 
 ### Cards
@@ -140,15 +148,50 @@ Many of the Card's data is completely identical in each instance. Only the Widge
 | `parentCardId`      | If the card has a parent on the Widget (a la Sheet-view), the parent Card's Widget-specific `cardId` |
 | `listPosition`      | The index position of the Card on the Widget                                                         |
 | `timeOnBoard`       | How long the Card has been on the Widget                                                             |
+| `archived`          | Whether or not the Card is archived on its parent Widget                                             |
 
 > 💡 To get all Board Statuses for a Card, you would need to do a search using a global identifier for that card and then loop through all returned instances.
 
+### Built-In Card Fields
+
+All cards come with a handful of fields by default. These fields are global (not Widget-specific), and include:
+
+- `name`: The title/name of the card (the part you fill in first when making a new one)
+- `detailedDescription`: The body of the card, as either Markdown or some sort of sad text file with Markdown removed
+- `cardCommonId`: The globally unique identifier for this card
+- `tags`: Identifiers for tags used on this card (tags are global)
+- `sequentialId`: An incrementing numeric identifier, used for URLs
+- `startDate`: The work start-date for the card
+- `dueDate`: The work due-date for the card
+- `assignments`: Who is assigned, and whether they've marked themselves "complete"
+- `attachments`: List of files attached and their URLs
+- `customFields`: While this field is on every card, its values depend on what data has been attached to the card via Custom Fields (see below)
+- `favroAttachments`: A list of Favro data objects attached to the card (like other cards and Widgets, shown as embeds in the body)
+
+### Custom Fields
+
+The idea of "Custom Fields" is a bit confusing, since the Favro GUI doesn't make it clear which fields are built-in, or that the default "Status" field is a totally different kind of thing (a collection of "Columns"). Further, "Custom Fields" overlap many of the built-ins in *type*: you can have a Custom Status Field, or a Custom Members field, and so on.
+
+All fields that are neither the build-ins nor the Widget-specific "Status" (Column) fields are "Custom Fields".
+
+In the GUI you can change a Custom Field's visibility and scope, and when you open a Card GUI you'll see all in-scope (global-, collection-, and widget-specific) Custom Fields shown, even for fields that are not yet set on that specific card. This makes it easy to figure out which field is which when using the app.
+
+When using webhooks or the public API, however, _all custom fields are global_ and they contain no information to help determine their scope. In other words, if any two of your (likely hundreds of) custom fields have the same name, you will not be able to tell them apart in the data returned by the Favro API.
+
+This problem is exacerbated by the facts that:
+
+- Cards can move around to different Widgets, causing them to inherit additional custom fields
+- Custom fields can be sparse on a given Widget (only those for which a value is set will be present at all in the API data)
+
+Collectively, these prevent you from using existing Cards (fetched while narrowing the search scope to a specific Widget) to infer what fields are associated with a given Widget.
+
+Currently, the best way to find Custom Field identifiers for use by the Favro API (or Bravo) is to use a browser's dev tools in the web-app. For example, by using the browser's "Inspect element" on a Custom Field shown inside a card, you can find its ID in the HTML element's `id` field.
+
+[Upvote the associated Favro Feature request!](https://favro.canny.io/feature-requests/p/webhooks-api-custom-fields-visibilityscope-information)
+
 ## Tips, Tricks, and Limitations
 
-The public Favro API has a limited set of functionality compared to private, websocket-based API used by the official application. There are certain things you can only do via the app, and others that you _should_ only do via the app.
-
-This section provides guidance for using the Favro API (and therefore Bravo), including explanations for what _cannot_ be done with it. I've provided links to feature request/bug reports to the Favro team where appropriate -- please upvote those to let their team know these features/fixes are worth making!
-
+Some lessons learned while building Bravo. 
 
 ### API Rate Limits
 
@@ -173,19 +216,25 @@ To _find_ something via the API then requires an exhaustive search followed by l
 
 Bravo does some caching and lazy-loading to reduce the impact of this on the number of API requests it makes, but the end result is always going to be that search functionality in Bravo has to consume a lot of API requests, especially if you have a lot of stuff in Favro.
 
-### Markdown
+### Limited Markdown
 
-> ⚠ Webhooks do not send Markdown. **[Upvote the feature request!](https://favro.canny.io/bugs/p/webhooks-no-way-to-get-correct-description)**
+> ⚠ Webhooks do not send Markdown. To get full Markdown content in response to a Webhook, you'll have to fetch the same card again via the API. **[Upvote the feature request!](https://favro.canny.io/bugs/p/webhooks-no-way-to-get-correct-description)**
 
-Favro implements a limited subset of Markdown. Which subset seems to differ based on context (e.g. a Card description vs. a Comment), though I don't know all the differences. Despite having some Markdown support, the API and Webhook data typically defaults to a "plaintext" format, which apparently means "strip out all Markdown". You may have to plan functionality around such limits.
+Favro implements a limited subset of Markdown. Which subset seems to differ based on context (e.g. a Card description vs. a Comment).
+
+Despite having some Markdown support, the API and Webhook data defaults to a "plaintext" format, which apparently means "strip out all Markdown". This is a particular problem for Webhooks, since there is no way to cause them to send Markdown instead.
+
+Bravo defaults to requesting Markdown where that's possible.
 
 ### Identifiers
 
 Items in Favro (cards, boards, comments, custom fields, etc.) are all identified by unique identifiers. Different types of items are fetched independently, with relationships indicated by identifiers pointing to other items.
 
-For example, if you fetch a Card from the API (or a webhook) you'll also get a list of Widget identifiers in that card, but not the data about those widgets. Similarly, a Card contains a list of its Custom Fields and corresponding values, but most of the information is in the form of Custom Field identifiers. In both cases, if you wanted to see the _names_ or other information those associated items, you'll need to make API requests for those specific items using their IDs.
+For example, if you fetch a Card from the API (or a webhook) you'll also get a list of Widget identifiers in that card, but not the data about those widgets. Similarly, a Card contains a list of its Custom Fields and corresponding values, but most of the information is in the form of Custom Field identifiers. In both cases, if you wanted to see the _names_ or other information for those associated items, you'll need to make API requests for those specific items using their IDs and appropriate API endpoints.
 
-#### Card Sequential ID
+Bravo tries to handle much of this for you behind the scenes.
+
+#### Card Sequential IDs
 
 Cards have a field called `sequentialId` that corresponds directly to the visible identifier shown in the Card UI, from which users can copy a card URL.
 
@@ -195,24 +244,7 @@ Note that the card-search Favro API endpoint allows use of `sequentialId` as a q
 - The full identifier shown in the UI (e.g. `BSC-123`).
 - The full URL of the card copied from the UI.
 
-### Custom Fields
-
-> ⚠ There is no way to programmatically differentiate Custom Fields via the Favro API. **[Upvote the feature request!](https://favro.canny.io/feature-requests/p/webhooks-api-custom-fields-visibilityscope-information)**
-
-All fields except for the ones every card has (the default Tags and Members fields) are "Custom Fields". In the app you can change a Custom Field's visibility and scope, and cards are shown with all in-scope fields even if those are unset. This makes it easy to figure out which field is which when using the app.
-
-When using webhooks or the public API, however, _all custom fields are global_ and they contain no information to help determine their scope. In other words, if any two of your (likely hundreds of) custom fields have the same name, you will not be able to tell them apart!
-
-This problem is exacerbated by the facts that:
-
-- Cards can move around to different Widgets, causing them to inherit additional custom fields.
-- Custom fields can be sparse on a given Widget.
-
-Collectively, these prevent you from using existing Cards (fetched while narrowing the search scope to a specific Widget) to infer what fields are associated with a given Widget.
-
-Identifiers can currently be found by using a browser's dev tools in the web-app. E.g. by using "Inspect element" on an item shown inside a card, you can find its ID in an HTML element's `id` field (among other attribute fields).
-
-[Feature request](https://favro.canny.io/feature-requests/p/webhooks-api-custom-fields-visibilityscope-information)
+Note that all of these also appear to work for the user-friendly Card URLs (e.g. where the default URL ends with `?card=BSC-123` you could instead use `?card=123`).
 
 ### Creating Boards
 
