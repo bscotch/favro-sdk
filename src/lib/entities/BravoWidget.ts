@@ -15,11 +15,12 @@ export class BravoWidget extends BravoEntity<DataFavroWidget> {
   get widgetCommonId() {
     return this._data.widgetCommonId;
   }
-  get collectionIds() {
-    return this._data.collectionIds;
-  }
   get name() {
     return this._data.name;
+  }
+  /** The IDs for the Collections this Widget is found in.*/
+  get collectionIds() {
+    return this._data.collectionIds;
   }
   get breakdownCardCommonId() {
     return this._data.breakdownCardCommonId;
@@ -37,6 +38,9 @@ export class BravoWidget extends BravoEntity<DataFavroWidget> {
     return await this._client.createColumn(this.widgetCommonId, name, options);
   }
 
+  /**
+   * List all Columns (Status values) on this Widget.
+   */
   async listColumns() {
     return await this._client.listColumns(this.widgetCommonId);
   }

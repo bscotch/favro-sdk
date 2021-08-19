@@ -410,6 +410,7 @@ export class BravoClient extends FavroClient {
 
   /**
    * Create a new column on a Widget.
+   *
    * {@link https://favro.com/developer/#create-a-column}
    */
   async createColumn(
