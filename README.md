@@ -3,12 +3,9 @@
 <h1 align="center"> Bravo</h1>
 <h2 align="center">The <i>(unofficial)</i> Favro SDK</h2>
 
-Bravo makes working with the Favro API a breeze.
-
-_[Butterscotch Shenanigans&reg;](https://www.bscotch.net) and Bravo (this project) are not affiliated with Favro._
-
 > **⚠Warning⚠** *Bravo is in active development and may change substantially with any release. Check the changelog before updating!* 
 
+_[Butterscotch Shenanigans&reg;](https://www.bscotch.net) and Bravo (this project) are not affiliated with Favro._
 
 ### Features
 

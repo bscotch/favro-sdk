@@ -39,7 +39,7 @@ import { DataFavroCustomField } from '$/types/FavroCustomFieldTypes.js';
 import { FavroApiParamsCardUpdate } from '$/types/FavroCardUpdateTypes.js';
 import type { FavroResponse } from './clientLib/FavroResponse.js';
 import { readFileSync } from 'fs';
-import { basename } from 'path/posix';
+import { basename } from 'path';
 
 /**
  * The `BravoClient` class should be singly-instanced for a given
