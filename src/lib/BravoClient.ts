@@ -517,7 +517,7 @@ export class BravoClient extends FavroClient {
    *
    * {@link https://favro.com/developer/#get-all-cards}
    */
-  async listCards(options?: FavroApiGetCardsParams) {
+  async listCardInstances(options?: FavroApiGetCardsParams) {
     const res = (await this.requestWithReturnedEntities(
       `cards`,
       {
@@ -533,16 +533,15 @@ export class BravoClient extends FavroClient {
   }
 
   /**
-   * Fetch a card with a known `sequentialId`.
+   * Fetch instances of a card with a known `sequentialId`.
    * The `sequentialId` is the numeric part of the incrementing
    * ID shown in the card's UI and shareable URL.
    *
    * @param cardSequentialId The card's number as shown in the UI
    *                         (can be just the number or include the prefix)
    */
-  async findCardBySequentialId(cardSequentialId: number | string) {
-    const cards = await this.listCards({ cardSequentialId });
-    return await cards.getFirstEntity();
+  async findCardInstancesBySequentialId(cardSequentialId: number | string) {
+    return await this.listCardInstances({ cardSequentialId });
   }
 
   /**
@@ -581,7 +580,10 @@ export class BravoClient extends FavroClient {
    *
    * {@link https://favro.com/developer/#update-a-card}
    */
-  async updateCardById(cardId: string, options: FavroApiParamsCardUpdate) {
+  async updateCardInstanceById(
+    cardId: string,
+    options: FavroApiParamsCardUpdate,
+  ) {
     const res = (await this.requestWithReturnedEntities(
       `cards/${cardId}`,
       {
@@ -601,7 +603,7 @@ export class BravoClient extends FavroClient {
    * @param data  If not provided, assumes `filename` exists and
    *              attempts to use its content.
    */
-  async addAttachmentToCard(
+  async addAttachmentToCardInstance(
     cardId: string,
     filename: string,
     data?: string | Buffer,
@@ -625,7 +627,7 @@ export class BravoClient extends FavroClient {
    *
    * {@link https://favro.com/developer/#delete-a-card}
    */
-  async deleteCard(cardId: string, everywhere = false) {
+  async deleteCardInstance(cardId: string, everywhere = false) {
     let url = `cards/${cardId}`;
     if (everywhere) {
       url += `?everywhere=true`;

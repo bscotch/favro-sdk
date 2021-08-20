@@ -189,10 +189,6 @@ class BravoCardUpdateBuilder {
   }
 }
 
-// TODO: Add a Favro-global-scope Card class as a base
-//       for specific Instances. (Still need to think through
-//       details of the data model...)
-
 /**
  * A Card "Instance" represents the combination of a Card's
  * *global* data and its data associated with a specific Widget.
@@ -329,7 +325,10 @@ export class BravoCardInstance extends BravoEntity<DataFavroCard> {
     // the the user might want to start building a new update
     // before that returns.
     this._updateBuilder = new BravoCardUpdateBuilder();
-    const updated = await this._client.updateCardById(this.cardId, data);
+    const updated = await this._client.updateCardInstanceById(
+      this.cardId,
+      data,
+    );
     // Update this card!
     this._data = updated._data;
     return this;
@@ -341,7 +340,7 @@ export class BravoCardInstance extends BravoEntity<DataFavroCard> {
    *              attempts to use its content.
    */
   async attach(filename: string, data?: string | Buffer) {
-    const attachment = await this._client.addAttachmentToCard(
+    const attachment = await this._client.addAttachmentToCardInstance(
       this.cardId,
       filename,
       data,
@@ -367,7 +366,7 @@ export class BravoCardInstance extends BravoEntity<DataFavroCard> {
    * delete it everywhere else, too!
    */
   async delete(everywhere = false) {
-    return this._client.deleteCard(this.cardId, everywhere);
+    return this._client.deleteCardInstance(this.cardId, everywhere);
   }
 
   equals(org: BravoCardInstance) {

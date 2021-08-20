@@ -66,33 +66,45 @@ export class BravoWidget extends BravoEntity<DataFavroWidget> {
 
   /**
    * Get all cards on this Widget, with optional
-   * additional filter parameters. **Note:** makes
+   * additional filter parameters. There is only
+   * one instance of a card per Widget.
+   *
+   * **Note:** makes
    * an API request on *every call* (no caching),
    * so prefer re-use of the results to re-fetching,
    * and limit by `columnId` if possible.
    */
-  async listCards(options?: FavroApiGetCardsBase) {
-    return await this._client.listCards({
+  async listCardInstances(options?: FavroApiGetCardsBase) {
+    return await this._client.listCardInstances({
       ...options,
       widgetCommonId: this.widgetCommonId,
     });
   }
 
-  async findCard(
+  async findCardInstance(
     matchFunc: ArrayMatchFunction<BravoCardInstance>,
     options?: FavroApiGetCardsBase,
   ) {
-    const cards = await this.listCards(options);
+    const cards = await this.listCardInstances(options);
     return await cards.find(matchFunc);
   }
 
-  async findCardByName(
+  async findCardInstanceByName(
     name: string,
     options?: FavroApiGetCardsBase & { ignoreCase?: boolean },
   ) {
-    return await this.findCard((card) => {
+    return await this.findCardInstance((card) => {
       return stringsMatch(card.name, name, options);
     }, options);
+  }
+
+  async findCardInstanceBySequentialId(sequentialId: string) {
+    return (
+      await this._client.listCardInstances({
+        cardSequentialId: sequentialId,
+        widgetCommonId: this.widgetCommonId,
+      })
+    ).getFirstEntity();
   }
 
   async createCard(data: Omit<FavroApiParamsCardCreate, 'widgetCommonId'>) {

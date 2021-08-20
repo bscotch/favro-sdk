@@ -230,16 +230,18 @@ describe('BravoClient', function () {
     it('can fetch a created card', async function () {
       this.timeout(8000);
 
-      const foundCard = await testWidget.findCardByName(testCardName);
+      const foundCard = await testWidget.findCardInstanceByName(testCardName);
       assertBravoTestClaim(foundCard);
       expect(foundCard!.equals(testCard)).to.be.true;
 
       // Fetch it again via sequentialId
-      const bySequentialId = await client.findCardBySequentialId(
+      const bySequentialId = await client.findCardInstancesBySequentialId(
         foundCard.sequentialId,
       );
-      expect(bySequentialId!.equals(foundCard), 'can fetch by sequentialId').to
-        .be.true;
+      expect(
+        (await bySequentialId.getFirstEntity())!.equals(foundCard),
+        'can fetch by sequentialId',
+      ).to.be.true;
 
       // Fetch it again via cardId
       const byCardId = await client.findCardInstanceById(foundCard.cardId);
@@ -327,7 +329,7 @@ describe('BravoClient', function () {
     it('can add attachment to a card (and remove it)', async function () {
       const filename = 'hi.txt';
       const attachedText = 'Hello World!';
-      const attachment = await client.addAttachmentToCard(
+      const attachment = await client.addAttachmentToCardInstance(
         testCard.cardId,
         filename,
         attachedText,
@@ -350,7 +352,7 @@ describe('BravoClient', function () {
       // Can't delete the last column, so we need to make another to delete!
       await testCard.delete();
       expect(
-        await testWidget.findCardByName(testCardName),
+        await testWidget.findCardInstanceByName(testCardName),
         'Should not find deleted card',
       ).to.be.undefined;
     });

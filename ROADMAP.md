@@ -4,7 +4,6 @@
 
 - Revisit "Columns" implementation to more intuitively reflect what it's *for*.
 - Revisit "Custom Fields" implementation to make sure it reflects how Custom Fields are used.
-- Revisit the class method and getter/setter names. Currently they are based directly on the field names from the Favro API, but many of those names are not easy to differentiate without referring to the docs (e.g. "cardId" vs "cardCommonId" vs "sequentialId"). Could keep the existing names but create more user-friendly aliases?
 
 ### Feature List
 

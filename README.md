@@ -238,6 +238,12 @@ Note that the card-search Favro API endpoint allows use of `sequentialId` as a q
 
 Note that all of these also appear to work for the user-friendly Card URLs (e.g. where the default URL ends with `?card=BSC-123` you could instead use `?card=123`).
 
+#### Widget-specific `cardId`s
+
+Favro Cards are always return as an *instance* of that Card, each with its own `cardId`.
+
+Despite this ID being Widget-specific, and the existence of global idtentifiers for Cards, most of the Favro API card endpoints use this Widget-scoped `cardId`. Presumably this is to prevent them having to have distinct endpoints for managing global vs. Widget-scoped properties.
+
 ### Creating Boards
 
 > 💡 Create boards manually via the app to get all the features you expect from Favro.
