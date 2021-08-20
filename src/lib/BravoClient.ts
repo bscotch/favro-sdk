@@ -34,7 +34,7 @@ import type {
   FavroApiParamsCardCreate,
 } from '$/types/FavroCardTypes.js';
 import { BravoCardInstance } from './entities/BravoCard.js';
-import { BravoCustomField } from './entities/BravoCustomField.js';
+import { BravoCustomFieldDefinition } from './entities/BravoCustomField.js';
 import { DataFavroCustomField } from '$/types/FavroCustomFieldTypes.js';
 import { FavroApiParamsCardUpdate } from '$/types/FavroCardUpdateTypes.js';
 import type { FavroResponse } from './clientLib/FavroResponse.js';
@@ -653,8 +653,11 @@ export class BravoClient extends FavroClient {
       const res = (await this.requestWithReturnedEntities(
         `customfields`,
         { method: 'get' },
-        BravoCustomField,
-      )) as BravoResponseEntities<DataFavroCustomField, BravoCustomField>;
+        BravoCustomFieldDefinition,
+      )) as BravoResponseEntities<
+        DataFavroCustomField,
+        BravoCustomFieldDefinition
+      >;
       this.cache.customFields = res;
     }
     return this.cache.customFields!;

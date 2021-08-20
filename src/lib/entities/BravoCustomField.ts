@@ -2,9 +2,9 @@ import type { DataFavroCustomField } from '$/types/FavroCustomFieldTypes.js';
 import { BravoEntity } from '$lib/BravoEntity.js';
 
 export type BravoCustomFieldTypeName =
-  typeof BravoCustomField['typeNames'][number];
+  typeof BravoCustomFieldDefinition['typeNames'][number];
 
-export class BravoCustomField extends BravoEntity<DataFavroCustomField> {
+export class BravoCustomFieldDefinition extends BravoEntity<DataFavroCustomField> {
   get name() {
     return this._data.name;
   }
@@ -34,7 +34,7 @@ export class BravoCustomField extends BravoEntity<DataFavroCustomField> {
     return this._data.enabled;
   }
 
-  equals(org: BravoCustomField) {
+  equals(org: BravoCustomFieldDefinition) {
     return (
       this.hasSameConstructor(org) && this.customFieldId === org.customFieldId
     );

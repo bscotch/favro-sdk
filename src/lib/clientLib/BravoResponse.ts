@@ -4,7 +4,7 @@ import type { FavroResponse } from './FavroResponse';
 import type { DataFavroCustomField } from '$/types/FavroCustomFieldTypes.js';
 import type { DataFavroWidget } from '$/types/FavroWidgetTypes.js';
 import type { BravoWidget } from '$entities/BravoWidget.js';
-import type { BravoCustomField } from '../entities/BravoCustomField.js';
+import type { BravoCustomFieldDefinition } from '../entities/BravoCustomField.js';
 
 export type BravoResponseWidgets = BravoResponseEntities<
   DataFavroWidget,
@@ -13,7 +13,7 @@ export type BravoResponseWidgets = BravoResponseEntities<
 
 export type BravoResponseCustomFields = BravoResponseEntities<
   DataFavroCustomField,
-  BravoCustomField
+  BravoCustomFieldDefinition
 >;
 
 export type BravoResponseEntitiesMatchFunction<Entity> = (
