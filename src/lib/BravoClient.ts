@@ -555,6 +555,7 @@ export class BravoClient extends FavroClient {
    * {@link https://favro.com/developer/#get-a-card}
    */
   async findCardInstanceById(cardId: string) {
+    assertBravoClaim(cardId, `No cardId provided`);
     const res = (await this.requestWithReturnedEntities(
       `cards/${cardId}`,
       {
@@ -614,7 +615,7 @@ export class BravoClient extends FavroClient {
       body,
       query: { filename: basename(filename) },
     })) as FavroResponse<DataFavroCardAttachment, this>;
-    const attachment = (await res.response.json()) as DataFavroCardAttachment;
+    const attachment = (await res.getParsedBody()) as DataFavroCardAttachment;
     assertBravoClaim(attachment?.fileURL, `Failed to add attachment`);
     return attachment;
   }
@@ -648,7 +649,7 @@ export class BravoClient extends FavroClient {
    *
    * {@link https://favro.com/developer/#get-all-custom-fields}
    */
-  async listCustomFields() {
+  async listCustomFieldDefinitions() {
     if (!this.cache.customFields) {
       const res = (await this.requestWithReturnedEntities(
         `customfields`,

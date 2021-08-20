@@ -79,6 +79,10 @@ export interface DataFavroResponsePaged<DataEntity extends DataAnyEntity> {
   pages: number;
   requestId: string;
   entities: DataEntity[];
+  /**
+   * In some scenarios we get back an object with just
+   * this field despite have a normal status code.*/
+  message?: string;
 }
 export type DataFavroResponse<EntityData extends DataAnyEntity> =
   | DataFavroResponsePaged<EntityData>

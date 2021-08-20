@@ -14,6 +14,7 @@ import {
   removeFromArray,
   wrapIfNotArray,
 } from '../utility.js';
+import type { BravoColumn } from './BravoColumn.js';
 
 /**
  * A Card update can be pretty complex, and to save API
@@ -297,6 +298,18 @@ export class BravoCardInstance extends BravoEntity<DataFavroCard> {
   }
 
   /**
+   * Get the list of Columns (statuses) that this Card Instance
+   * could be assigned to on its current Widget.
+   */
+  async listWidgetColumns() {
+    assertBravoClaim(
+      this.widgetCommonId,
+      'This card is not on a Widget can cannot have assignable Columns',
+    );
+    return await this._client.listColumns(this.widgetCommonId);
+  }
+
+  /**
    * Get the hydrated Column object for the Column (a.k.a. Status)
    * this card is in.
    */
@@ -312,6 +325,27 @@ export class BravoCardInstance extends BravoEntity<DataFavroCard> {
   }
 
   /**
+   * Set this Card's Column to a different one
+   */
+  async setColumn(columnId: string): Promise<BravoCardInstance>;
+  async setColumn(column: BravoColumn): Promise<BravoCardInstance>;
+  async setColumn(
+    columnOrColumnId: BravoColumn | string,
+  ): Promise<BravoCardInstance> {
+    const columnId =
+      typeof columnOrColumnId === 'string'
+        ? columnOrColumnId
+        : columnOrColumnId.columnId;
+    const widgetCommonId =
+      typeof columnOrColumnId === 'string'
+        ? this.widgetCommonId
+        : columnOrColumnId.widgetCommonId;
+    assertBravoClaim(columnId, 'No valid ColumnId provided');
+    await this.update({ columnId, widgetCommonId });
+    return this;
+  }
+
+  /**
    * Submit an update to Favro for this card.
    * If no argument is provided, uses
    * any changes made via this instance's `.updateBuilder` methods.
@@ -319,12 +353,17 @@ export class BravoCardInstance extends BravoEntity<DataFavroCard> {
   async update(data?: FavroApiParamsCardUpdate) {
     // TODO: Handle Custom Fields
     // TODO: Handle adding Attachments
+    const usingUpdateBuilder = !data;
     data ||= this.updateBuilder.toJSON();
     // Replace the update builder immediately, since
     // we then have to wait for the update to occur
     // the the user might want to start building a new update
     // before that returns.
-    this._updateBuilder = new BravoCardUpdateBuilder();
+    if (usingUpdateBuilder) {
+      // Only need to clear it if we *used* it, otherwise
+      // should leave it intact.
+      this._updateBuilder = new BravoCardUpdateBuilder();
+    }
     const updated = await this._client.updateCardInstanceById(
       this.cardId,
       data,

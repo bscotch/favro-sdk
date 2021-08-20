@@ -248,7 +248,41 @@ describe('BravoClient', function () {
       expect(byCardId!.equals(foundCard), 'can fetch by sequentialId').to.be
         .true;
     });
-    it('can update a cards built-in fields', async function () {
+
+    it("can update a card's column (status)", async function () {
+      // Add another column to the widget to ensure at least 2
+      await testWidget.createColumn(testColumnName + '2');
+
+      // Get all columns available to the Card
+      const columns = await testCard.listWidgetColumns();
+      expect(
+        columns.length,
+        'should have at least two columns',
+      ).to.be.greaterThan(1);
+
+      // Get the current column on the created Card on this board
+      const startingColumn = await testCard.getColumn();
+      assertBravoTestClaim(startingColumn, 'Should have found matching Column');
+
+      // Change the column to one of the others.
+      const endingColumn = columns.find(
+        (col) => col.columnId != startingColumn.columnId,
+      );
+      assertBravoTestClaim(
+        endingColumn,
+        'should have found a different column',
+      );
+      await testCard.setColumn(endingColumn);
+
+      // Make sure it truly changed!
+      await testCard.refresh();
+      expect(testCard.columnId, 'Test Card should have new columnId').to.equal(
+        endingColumn.columnId,
+      );
+      expect(testCard.columnId).to.not.equal(startingColumn.columnId);
+    });
+
+    it("can update a card's built-in fields", async function () {
       /**
        * Must be able to set/unset all of:
        * - ✔ name

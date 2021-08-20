@@ -176,6 +176,12 @@ export class FavroClient {
       this._requestsRemaining = 0;
     }
     assertBravoClaim(res.status < 300, `Failed with status ${res.status}`);
+    const parsedBody = await res.getParsedBody();
+    if (parsedBody && typeof parsedBody != 'string' && parsedBody.message) {
+      throw new BravoError(
+        `Unexpected combo of status code (${res.status}) and response body ("${parsedBody.message}")`,
+      );
+    }
     return res;
   }
 }

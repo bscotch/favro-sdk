@@ -73,7 +73,7 @@ export class FavroResponse<
     return res;
   }
 
-  private async getParsedBody() {
+  async getParsedBody() {
     if (typeof this._parsedBody != 'undefined') {
       return this._parsedBody;
     }
