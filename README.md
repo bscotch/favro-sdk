@@ -3,7 +3,9 @@
 <h1 align="center"> Bravo</h1>
 <h2 align="center">The <i>(unofficial)</i> Favro SDK</h2>
 
-> **⚠Warning⚠** *Bravo is in active development and may change substantially with any release. Check the changelog before updating!* 
+> **⚠Warning⚠** *Bravo is in active development and may change substantially with any release. Check the changelog before updating!*
+
+> **⚠Warning⚠** *Bravo features are likely under-tested as they come out, do your own testing before using in production, and use at your own risk!*
 
 ## Features
 
