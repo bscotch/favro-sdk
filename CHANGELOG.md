@@ -1,4 +1,25 @@
-# 0.1.0 (2021-08-19)
+# [0.2.0](https://github.com/bscotch/favro-sdk/compare/v0.1.0...v0.2.0) (2021-08-21)
+
+
+### Bug Fixes
+
+* The Custom Fields cache is not being cleared during full-cache clear. ([16eed35](https://github.com/bscotch/favro-sdk/commit/16eed35991d062040c6279fc1bdb5d2df191f026))
+
+
+### Features
+
+* Add general 'findCollection' method to Client ([01b1537](https://github.com/bscotch/favro-sdk/commit/01b1537db47ef1b3516c121c68502e14880eee59))
+* Add method to Card instances for fetching associated Custom Field definitions. ([24a3087](https://github.com/bscotch/favro-sdk/commit/24a3087f52ef50f699c4394a2f5156be71260813))
+* Add methods to Cards for getting and setting their Column/Status. ([4821578](https://github.com/bscotch/favro-sdk/commit/48215784d9c58252b35f393446359d8da51a0577))
+* Change method names for finding organization users, and create aliases in Organization classes. BREAKING ([c84ba50](https://github.com/bscotch/favro-sdk/commit/c84ba50977959da7c56e905bb1b9faf33d6030b4))
+* Remove member-finding aliases from Org instances and simplify the names of said methods in the Client. BREAKING ([b3e8a0f](https://github.com/bscotch/favro-sdk/commit/b3e8a0ff62bd2114d6dc1358b38d5e52ac1018b9))
+* Rename card methods to refer to Card 'Instances' to be more explicit about what's happening. ([a5aa22e](https://github.com/bscotch/favro-sdk/commit/a5aa22ec4cedee4774a0f2eb7443208aacb6f1b4))
+* Require including organizationId when instancing a BravoClient. Allowing setting it later by name makes many things confusing and weird. BREAKING ([e566707](https://github.com/bscotch/favro-sdk/commit/e5667077fb5bc66e84830df4a06e1f4b55b83ee9))
+* Update all dependencies and ensure tests pass. ([06a9e78](https://github.com/bscotch/favro-sdk/commit/06a9e789e436294e2b300fa9ce35e239e3b40f89))
+
+
+
+# [0.1.0](https://github.com/bscotch/favro-sdk/compare/2d90d6b8e58a72c5f3bd48efe0201f5b58bfaa96...v0.1.0) (2021-08-19)
 
 
 ### Bug Fixes
