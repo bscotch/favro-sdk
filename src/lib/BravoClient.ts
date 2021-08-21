@@ -9,6 +9,7 @@ import {
   find,
   findByField,
   findRequiredByField,
+  createIsMatchFilter,
   stringsMatch,
 } from './utility.js';
 import { BravoCollection } from './entities/BravoCollection';
@@ -35,7 +36,7 @@ import type {
 } from '$/types/FavroCardTypes.js';
 import { BravoCardInstance } from './entities/BravoCard.js';
 import { BravoCustomFieldDefinition } from './entities/BravoCustomField.js';
-import { DataFavroCustomField } from '$/types/FavroCustomFieldTypes.js';
+import { DataFavroCustomFieldDefinition } from '$/types/FavroCustomFieldTypes.js';
 import { FavroApiParamsCardUpdate } from '$/types/FavroCardUpdateTypes.js';
 import type { FavroResponse } from './clientLib/FavroResponse.js';
 import { readFileSync } from 'fs';
@@ -159,7 +160,7 @@ export class BravoClient extends FavroClient {
     field: 'email' | 'name' | 'userId',
     value: string | RegExp,
   ) {
-    return await this.findMember((user) => user[field]?.match(value));
+    return await this.findMember(createIsMatchFilter(value, field));
   }
 
   //#endregion
@@ -656,12 +657,27 @@ export class BravoClient extends FavroClient {
         { method: 'get' },
         BravoCustomFieldDefinition,
       )) as BravoResponseEntities<
-        DataFavroCustomField,
-        BravoCustomFieldDefinition
+        DataFavroCustomFieldDefinition,
+        BravoCustomFieldDefinition<any>
       >;
       this.cache.customFields = res;
     }
     return this.cache.customFields!;
+  }
+
+  /**
+   * Find a specific Custom Field definition by its unique ID.
+   */
+  async findCustomFieldDefinitionById(customFieldId: string) {
+    const defs = await this.listCustomFieldDefinitions();
+    const matching = await defs.find(
+      (def) => def.customFieldId === customFieldId,
+    );
+    assertBravoClaim(
+      matching,
+      `No custom field definition found for id ${customFieldId}`,
+    );
+    return matching;
   }
 
   //#endregion

@@ -143,3 +143,50 @@ export function wrapIfNotArray<T>(array: T | T[]): T[] {
   }
   return [array];
 }
+
+/**
+ * Check if a `string` matches a `pattern`, where if the
+ * `pattern` is a string a simple equality check is performed
+ * and if it is a RegExp a regex match is performed.
+ *
+ * This differs from the built-in `String.prototype.match`, which
+ * coerces the provided pattern to a RegExp.
+ */
+export function isMatch(stringToCheck: string, pattern: string | RegExp) {
+  const matches =
+    typeof pattern == 'string'
+      ? stringToCheck == pattern
+      : stringToCheck.match(pattern);
+  return !!matches;
+}
+
+/**
+ * Create a match filter for `Array.prototype.find` and similar,
+ * using {@link isMatch} to test strings for exact string matches
+ * or RegExp matches.
+ *
+ * @param {string} stringFieldName  If provided, match-testing will
+ * be run against `stringOrRecord[stringFieldName]` instead of `stringFieldOrName`.
+ *                                  .
+ */
+export function createIsMatchFilter(
+  pattern: string | RegExp,
+): (string: string) => boolean;
+export function createIsMatchFilter<R extends Record<string, any>>(
+  pattern: string | RegExp,
+  stringFieldName: keyof R,
+): (record: R) => boolean;
+export function createIsMatchFilter<R extends Record<string, any>>(
+  pattern: string | RegExp,
+  stringFieldName?: keyof R,
+): any {
+  return (stringOrRecord: string | R) => {
+    if (typeof stringOrRecord != 'string') {
+      if (!stringFieldName) {
+        return false;
+      }
+      return isMatch(stringOrRecord[stringFieldName], pattern);
+    }
+    return isMatch(stringOrRecord, pattern);
+  };
+}
