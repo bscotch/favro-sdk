@@ -15,6 +15,7 @@ import {
   wrapIfNotArray,
 } from '../utility.js';
 import type { BravoColumn } from './BravoColumn.js';
+import { BravoCustomFieldDefinition } from './BravoCustomField.js';
 
 /**
  * A Card update can be pretty complex, and to save API
@@ -238,17 +239,6 @@ export class BravoCardInstance extends BravoEntity<DataFavroCard> {
   }
 
   /**
-   * The column this card appears in (i.e. the status it has)
-   * on the current widget. */
-  get columnId() {
-    return this._data.columnId;
-  }
-
-  get parentCardId() {
-    return this._data.parentCardId;
-  }
-
-  /**
    * The widget that the current instance of this
    * card appears in. (A single card can live in,
    * and be fetched from, multiple Widgets.)
@@ -257,12 +247,39 @@ export class BravoCardInstance extends BravoEntity<DataFavroCard> {
     return this._data.widgetCommonId;
   }
 
+  /**
+   * The list of tag IDs associated with this card.
+   */
   get tags() {
     return [...this._data.tags];
   }
 
   get detailedDescription() {
     return this._data.detailedDescription;
+  }
+
+  /**
+   * The column this card appears in (i.e. the status it has)
+   * on the current widget. */
+  get columnId() {
+    return this._data.columnId;
+  }
+
+  /**
+   * Get the raw Custom Field IDs and values associated
+   * with this card. (These are global, not per-Widget.)
+   *
+   * These are typically a collection of IDs and values.
+   * For more human-friendly versions, with hydrated classes
+   * populating all of the info,
+   * see {@link BravoCardInstance.getCustomFields}.
+   */
+  get customFieldsValuesRaw() {
+    return [...this._data.customFields];
+  }
+
+  get parentCardId() {
+    return this._data.parentCardId;
   }
 
   get attachments() {
@@ -296,6 +313,51 @@ export class BravoCardInstance extends BravoEntity<DataFavroCard> {
   get updateBuilder() {
     return this._updateBuilder;
   }
+
+  /**
+   * Get the custom field definitions associated with
+   * the custom field values that are set on this card.
+   *
+   * Note that definitions are only discoverable for *set*
+   * custom field values on the card, even though in the Favro UI you
+   * can see others that are not set.
+   */
+  async getCustomFieldDefinitions() {
+    const cardFieldValueMap: {
+      [customFieldId: string]: BravoCustomFieldDefinition;
+    } = {};
+    const definitions = await this._client.listCustomFieldDefinitions();
+    for (const value of this.customFieldsValuesRaw) {
+      const definition = await definitions.findById(
+        'customFieldId',
+        value.customFieldId,
+      );
+      assertBravoClaim(
+        definition,
+        `Could not find Custom Field with ID ${value.customFieldId}`,
+      );
+      cardFieldValueMap[value.customFieldId] = definition;
+    }
+    return cardFieldValueMap;
+  }
+
+  // /**
+  //  * Get full information about the populated custom fields
+  //  * on this Card.
+  //  */
+  // async getCustomFieldsValues() {
+  //   const definitions = await this.getCustomFieldDefinitions();
+  //   const values: BravoCustomFieldValue[] = [];
+  //   for (const rawValue of this.customFieldsValuesRaw) {
+  //     values.push(
+  //       new BravoCustomFieldValue(
+  //         rawValue,
+  //         definitions[rawValue.customFieldId],
+  //       ),
+  //     );
+  //   }
+  //   return values;
+  // }
 
   /**
    * Get the list of Columns (statuses) that this Card Instance

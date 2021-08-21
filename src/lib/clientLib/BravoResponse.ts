@@ -32,6 +32,13 @@ export class BravoResponseEntities<
   private _entitiesCache: Entity[] = [];
   private _hydratedLatestPage = false;
   private _latestPage?: FavroResponse<EntityData>;
+  /**
+   * Entities to cache in a *map* while looping over entries,
+   * but with multiple caches (one for each identifier field).
+   */
+  private _entitiesCachedById: {
+    [identifierField: string]: { [id: string]: Entity };
+  } = {};
 
   constructor(
     private _client: BravoClient,
@@ -84,6 +91,28 @@ export class BravoResponseEntities<
     if (idx > -1) {
       // Will be cached if we found it, so can safely index the cache
       return this._entitiesCache[idx];
+    }
+  }
+
+  /**
+   * Find an entity by an identifier field.
+   */
+  async findById(identifierName: string, identifierValue: string) {
+    // Ensure we have the per-identifier name cache
+    this._entitiesCachedById[identifierName] ||= {};
+    const cache = this._entitiesCachedById[identifierName];
+    const entity = cache[identifierValue];
+    if (entity) {
+      return entity;
+    }
+
+    // Need to iterate over the list! But we can cache as we go.
+    for await (const entity of this) {
+      cache[identifierValue] ||= entity;
+      // @ts-expect-error
+      if (entity[identifierName] === identifierValue) {
+        return entity;
+      }
     }
   }
 
