@@ -1,7 +1,7 @@
 import { BravoClient } from '$lib/BravoClient';
 import { BravoEntity } from '$lib/BravoEntity';
 import type { FavroResponse } from './FavroResponse';
-import type { DataFavroCustomField } from '$/types/FavroCustomFieldTypes.js';
+import type { DataFavroCustomFieldDefinition } from '$/types/FavroCustomFieldTypes.js';
 import type { DataFavroWidget } from '$/types/FavroWidgetTypes.js';
 import type { BravoWidget } from '$entities/BravoWidget.js';
 import type { BravoCustomFieldDefinition } from '../entities/BravoCustomField.js';
@@ -12,8 +12,8 @@ export type BravoResponseWidgets = BravoResponseEntities<
 >;
 
 export type BravoResponseCustomFields = BravoResponseEntities<
-  DataFavroCustomField,
-  BravoCustomFieldDefinition
+  DataFavroCustomFieldDefinition,
+  BravoCustomFieldDefinition<any>
 >;
 
 export type BravoResponseEntitiesMatchFunction<Entity> = (
@@ -97,7 +97,10 @@ export class BravoResponseEntities<
   /**
    * Find an entity by an identifier field.
    */
-  async findById(identifierName: string, identifierValue: string) {
+  async findById(
+    identifierName: string,
+    identifierValue: string,
+  ): Promise<Entity | undefined> {
     // Ensure we have the per-identifier name cache
     this._entitiesCachedById[identifierName] ||= {};
     const cache = this._entitiesCachedById[identifierName];

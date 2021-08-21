@@ -1,6 +1,7 @@
 import type {
   DataFavroCard,
   DataFavroCardFavroAttachment,
+  DataFavroCustomFieldType,
 } from '$/types/FavroCardTypes.js';
 import type {
   FavroApiParamsCardUpdate,
@@ -9,13 +10,18 @@ import type {
 import { BravoEntity } from '$lib/BravoEntity.js';
 import { assertBravoClaim } from '../errors.js';
 import {
+  createIsMatchFilter,
   ensureArrayExistsAndAddUnique,
   ensureArrayExistsAndAddUniqueBy,
+  isMatch,
   removeFromArray,
   wrapIfNotArray,
 } from '../utility.js';
 import type { BravoColumn } from './BravoColumn.js';
-import { BravoCustomFieldDefinition } from './BravoCustomField.js';
+import {
+  BravoCustomField,
+  BravoCustomFieldDefinition,
+} from './BravoCustomField.js';
 
 /**
  * A Card update can be pretty complex, and to save API
@@ -315,18 +321,17 @@ export class BravoCardInstance extends BravoEntity<DataFavroCard> {
   }
 
   /**
-   * Get the custom field definitions associated with
-   * the custom field values that are set on this card.
+   * Get the custom field definitions and values associated with
+   * this card.
    *
-   * Note that definitions are only discoverable for *set*
-   * custom field values on the card, even though in the Favro UI you
-   * can see others that are not set.
+   * (Note that these are *sparse* -- only fields for which this
+   * card has a value are returned.)
    */
-  async getCustomFieldDefinitions() {
-    const cardFieldValueMap: {
-      [customFieldId: string]: BravoCustomFieldDefinition;
-    } = {};
+  async getCustomFields() {
+    const cardCustomFields: BravoCustomField<any>[] = [];
     const definitions = await this._client.listCustomFieldDefinitions();
+    // Loop over the values set on this card and find the associated
+    // definitions.
     for (const value of this.customFieldsValuesRaw) {
       const definition = await definitions.findById(
         'customFieldId',
@@ -336,28 +341,99 @@ export class BravoCardInstance extends BravoEntity<DataFavroCard> {
         definition,
         `Could not find Custom Field with ID ${value.customFieldId}`,
       );
-      cardFieldValueMap[value.customFieldId] = definition;
+      cardCustomFields.push(new BravoCustomField(definition, value));
     }
-    return cardFieldValueMap;
+    return cardCustomFields;
   }
 
-  // /**
-  //  * Get full information about the populated custom fields
-  //  * on this Card.
-  //  */
-  // async getCustomFieldsValues() {
-  //   const definitions = await this.getCustomFieldDefinitions();
-  //   const values: BravoCustomFieldValue[] = [];
-  //   for (const rawValue of this.customFieldsValuesRaw) {
-  //     values.push(
-  //       new BravoCustomFieldValue(
-  //         rawValue,
-  //         definitions[rawValue.customFieldId],
-  //       ),
-  //     );
-  //   }
-  //   return values;
-  // }
+  /**
+   * Get the current value of a Custom Status Field on this card,
+   * including field definition information. If the field is not
+   * set, will still return the definition with the value set to
+   * `undefined`.
+   *
+   * > 💡 *Note that this method (using `customFieldId`) is the
+   * only way to guarantee the desired field, since all Custom
+   * Fields are global in the Favro API.*
+   */
+  async getCustomFieldByFieldId<
+    FieldType extends DataFavroCustomFieldType = any,
+  >(customFieldId: string) {
+    const setFields = await this.getCustomFields();
+    const matchingField = setFields.find(
+      (field) => field.customFieldId == customFieldId,
+    );
+    if (matchingField) {
+      return matchingField as BravoCustomField<FieldType>;
+    }
+    // Otherwise this field either doesn't exist or is not set on this card.
+    // Find it from the global pool.
+    const definition = await this._client.findCustomFieldDefinitionById(
+      customFieldId,
+    );
+    return new BravoCustomField<FieldType>(definition);
+  }
+
+  /**
+   * Get the current value of a Custom Status Field on this card,
+   * searching by the Custom Field `name` and type `type`.
+   *
+   * > ⚠ Since Custom Fields are global in Favro, names can be changed,
+   * and names may not be unique, this method has caveats. Read the rest
+   * of this doc to fully understand them, and otherwise use the safer
+   * {@link getCustomFieldByFieldId} where possible.
+   *
+   * This method only returns a `BravoCustomField` instance if
+   * *either* of the following are true:
+   *
+   * - Exactly one field of type `type` on this Card matches the `name`; or
+   * - Exactly one of all of the Organization's Custom Fields of type `type` matches the `name`.
+   *
+   * If neither of these are true, then it is not possible for
+   * this method to guarantee returning the desired field and so
+   * an error will be thrown.
+   *
+   */
+  async getCustomFieldByName<FieldType extends DataFavroCustomFieldType = any>(
+    name: string | RegExp,
+    type: FieldType,
+  ) {
+    // Check the fields ON the Card first.
+    const fieldDefsOnCard = await this.getCustomFields();
+    const matchFilter = (
+      field: BravoCustomField<any> | BravoCustomFieldDefinition<FieldType>,
+    ) => {
+      return field.type === type && isMatch(field.name, name);
+    };
+    const matchingFieldsOnCard = fieldDefsOnCard.filter(matchFilter);
+    if (matchingFieldsOnCard.length === 1) {
+      return matchingFieldsOnCard[0] as BravoCustomField<FieldType>;
+    }
+    assertBravoClaim(
+      matchingFieldsOnCard.length == 0,
+      `Multiple Custom Fields on the Card match the name ${name} on this card.`,
+    );
+
+    // If exactly one Custom Field in the whole Organization matches,
+    // we're still giving the user what they want. (Probably.)
+    const allDefinitions = await this._client.listCustomFieldDefinitions();
+    const matchingDefinitions: BravoCustomField<FieldType>[] = [];
+    for await (const definition of allDefinitions) {
+      if (matchFilter(definition)) {
+        matchingDefinitions.push(new BravoCustomField(definition));
+        assertBravoClaim(
+          matchingDefinitions.length == 1,
+          'No matching fields found on the Card, ' +
+            'but more than one found in the global list of Custom Fields',
+        );
+      }
+    }
+    assertBravoClaim(
+      matchingDefinitions.length === 1,
+      'No matching fields found',
+    );
+    return matchingDefinitions[0];
+  }
 
   /**
    * Get the list of Columns (statuses) that this Card Instance

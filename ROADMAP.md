@@ -1,11 +1,16 @@
 ## Bravo Roadmap
 
-### User Stories
+### TODOs
 
-The things that we (Bscotch) want to enable via Bravo.
-
-- Find a card on a board by name, and update any of its Custom Status Fields to a different value (matching by *name*).
-  - Custom Fields are GLOBAL in the API, and there is no way to filter them by board. Thus we need to be able to fetch a SAMPLE card from a board (probably offline) and then use that as a reference to get the relevant Custom Field IDs.
+- Add test cases for the new Card methods that fetch Custom Field definitions & values.
+  - Add early test that assumes the test-target Favro organization has Custom Fields of each type.
+    - Require at least one case where two fields have the same name
+    - Require at least one case where a name is guaranteed to be unique
+  - `client.findCustomFieldDefinitionById`
+  - `card.getCustomFields`
+  - `card.getCustomFieldByFieldId`
+  - `card.getCustomFieldByName`
+- Once all of the getters are passing their tests, get to work on Custom Field Value setters.
 
 ### Feature List
 

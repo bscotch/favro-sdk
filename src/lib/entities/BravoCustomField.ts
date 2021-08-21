@@ -1,10 +1,13 @@
-import type { DataFavroCustomField } from '$/types/FavroCustomFieldTypes.js';
+import {
+  DataFavroCustomFieldsValues,
+  DataFavroCustomFieldType,
+} from '$/types/FavroCardTypes.js';
+import type { DataFavroCustomFieldDefinition } from '$/types/FavroCustomFieldTypes.js';
 import { BravoEntity } from '$lib/BravoEntity.js';
 
-export type BravoCustomFieldTypeName =
-  typeof BravoCustomFieldDefinition['typeNames'][number];
-
-export class BravoCustomFieldDefinition extends BravoEntity<DataFavroCustomField> {
+export class BravoCustomFieldDefinition<
+  TypeName extends DataFavroCustomFieldType,
+> extends BravoEntity<DataFavroCustomFieldDefinition<TypeName>> {
   get name() {
     return this._data.name;
   }
@@ -34,9 +37,10 @@ export class BravoCustomFieldDefinition extends BravoEntity<DataFavroCustomField
     return this._data.enabled;
   }
 
-  equals(org: BravoCustomFieldDefinition) {
+  equals(fieldDefinition: BravoCustomFieldDefinition<any>) {
     return (
-      this.hasSameConstructor(org) && this.customFieldId === org.customFieldId
+      this.hasSameConstructor(fieldDefinition) &&
+      this.customFieldId === fieldDefinition.customFieldId
     );
   }
 
@@ -56,5 +60,38 @@ export class BravoCustomFieldDefinition extends BravoEntity<DataFavroCustomField
       'Status',
       'Multiple select',
     ] as const;
+  }
+}
+
+/**
+ * A combination of a Custom Field Definition and (optional) Value,
+ * with helper methods for getting and setting the value on a card
+ * in a user-friendly way.
+ */
+export class BravoCustomField<TypeName extends DataFavroCustomFieldType> {
+  public readonly customFieldId: string;
+  public readonly type: TypeName;
+  private _value?: DataFavroCustomFieldsValues[TypeName];
+
+  constructor(
+    public readonly definition: BravoCustomFieldDefinition<TypeName>,
+    value?: DataFavroCustomFieldsValues[TypeName],
+  ) {
+    this.customFieldId = definition.customFieldId;
+    this.type = definition.type;
+    this._value = value;
+  }
+  get name() {
+    return this.definition.name;
+  }
+  set value(value: DataFavroCustomFieldsValues[TypeName]) {
+    this._value = value;
+  }
+  // @ts-expect-error
+  get value(): DataFavroCustomFieldsValues[TypeName] | undefined {
+    return this._value;
+  }
+  get hasValue() {
+    return !!this._value;
   }
 }

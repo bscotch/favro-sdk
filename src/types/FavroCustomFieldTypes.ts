@@ -10,20 +10,22 @@
  * {@link https://favro.com/developer/#custom-field-types}
  */
 
-import type { BravoCustomFieldTypeName } from '$/lib/entities/BravoCustomField.js';
+import type { DataFavroCustomFieldType } from './FavroCardTypes.js';
 
 /**
  * The definition data for a custom field.
  *
  * {@link https://favro.com/developer/#custom-field}
  */
-export interface DataFavroCustomField {
+export interface DataFavroCustomFieldDefinition<
+  FieldType extends DataFavroCustomFieldType = DataFavroCustomFieldType,
+> {
   /** The id of the organization that this custom field exists in. */
   organizationId: string;
   /** The id of the custom field. */
   customFieldId: string;
   /** Custom field type. */
-  type: BravoCustomFieldTypeName;
+  type: FieldType;
   /** The name of the custom field. */
   name: string;
   /** True if the custom field is currently enabled for the organization. */

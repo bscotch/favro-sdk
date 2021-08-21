@@ -53,6 +53,37 @@ export type FavroApiGetCardsParams =
 
 // FOR SETTING VALUES ON A CARD
 
+export type DataFavroCustomFieldType =
+  | 'Number'
+  | 'Time'
+  | 'Text'
+  | 'Rating'
+  | 'Vote'
+  | 'Checkbox'
+  | 'Date'
+  | 'Timeline'
+  | 'Link'
+  | 'Members'
+  | 'Tags'
+  | 'Status'
+  | 'Multiple select';
+
+export type DataFavroCustomFieldsValues = {
+  Number: DataFavroCardFieldNumber;
+  Time: DataFavroCardFieldTime;
+  Text: DataFavroCardFieldText;
+  Rating: DataFavroCardFieldRating;
+  Vote: DataFavroCardFieldVote;
+  Checkbox: DataFavroCardFieldCheckbox;
+  Date: DataFavroCardFieldDate;
+  Timeline: DataFavroCardFieldTimeline;
+  Link: DataFavroCardFieldLink;
+  Members: DataFavroCardFieldMembers;
+  Tags: DataFavroCardFieldTags;
+  Status: DataFavroCardFieldStatus;
+  'Multiple select': DataFavroCardFieldMultipleSelect;
+};
+
 /**
  * {@link https://favro.com/developer/#card-custom-fields}
  */
