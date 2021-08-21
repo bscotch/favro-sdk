@@ -177,5 +177,6 @@ export class BravoClientCache {
     this._collections = undefined;
     this._widgets.clear();
     this._columns.clear();
+    this._customFields = undefined;
   }
 }

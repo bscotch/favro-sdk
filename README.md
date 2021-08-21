@@ -162,6 +162,8 @@ All cards come with a handful of fields by default. These fields are global (not
 
 ### Custom Fields
 
+> ⚠ Custom Field data from the Favro API cannot be filtered by scope and does not contain scope information, unlike what you see in the Favro UI. This makes working with Custom Fields via the API (and Bravo) difficult. [Upvote the associated Favro Feature request!](https://favro.canny.io/feature-requests/p/webhooks-api-custom-fields-visibilityscope-information)
+
 The idea of "Custom Fields" is a bit confusing, since the Favro GUI doesn't make it clear which fields are built-in, or that the default "Status" field is a totally different kind of thing (a collection of "Columns"). Further, "Custom Fields" overlap many of the built-ins in *type*: you can have a Custom Status Field, or a Custom Members field, and so on.
 
 All fields that are neither the build-ins nor the Widget-specific "Status" (Column) fields are "Custom Fields".
@@ -179,7 +181,6 @@ Collectively, these prevent you from using existing Cards (fetched while narrowi
 
 Currently, the best way to find Custom Field identifiers for use by the Favro API (or Bravo) is to use a browser's dev tools in the web-app. For example, by using the browser's "Inspect element" on a Custom Field shown inside a card, you can find its ID in the HTML element's `id` field.
 
-[Upvote the associated Favro Feature request!](https://favro.canny.io/feature-requests/p/webhooks-api-custom-fields-visibilityscope-information)
 
 ## Tips, Tricks, and Limitations
 

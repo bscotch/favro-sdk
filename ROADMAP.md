@@ -1,17 +1,11 @@
 ## Bravo Roadmap
 
-### General TODO
-
-- Add 
-- Revisit "Custom Fields" implementation to make sure it reflects how Custom Fields are used.
-
 ### User Stories
 
 The things that we (Bscotch) want to enable via Bravo.
 
 - Find a card on a board by name, and update any of its Custom Status Fields to a different value (matching by *name*).
   - Custom Fields are GLOBAL in the API, and there is no way to filter them by board. Thus we need to be able to fetch a SAMPLE card from a board (probably offline) and then use that as a reference to get the relevant Custom Field IDs.
-  - 
 
 ### Feature List
 
@@ -74,7 +68,7 @@ Ordered hierarchically by the Favro data model (not by priority order):
   - 🔥 Cache cards to reduce API calls (cards change frequently, so this might be a bad idea anyway)
 - Custom Fields
   - ✔ Fetch and cache Custom Field definitions
-  - Add Card method to return hydrated Custom Field Definitions and Custom Field Values
+  - Add Card methods to return hydrated Custom Field Definitions and Custom Field Values
   - ~~Create Custom Field~~ (No API endpoint for this)
   - ~~Delete Custom Field~~ (No API endpoint for this)
   - ~~Update a Custom Field~~ (No API endpoint for this)
