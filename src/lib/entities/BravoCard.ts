@@ -531,7 +531,7 @@ export class BravoCardInstance extends BravoEntity<DataFavroCard> {
    */
   async refresh() {
     this._updateBuilder = new BravoCardUpdateBuilder();
-    const refreshed = await this._client.findCardInstanceById(this.cardId);
+    const refreshed = await this._client.findCardInstanceByCardId(this.cardId);
     this._data = refreshed._data;
     return this;
   }

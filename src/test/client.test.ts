@@ -250,7 +250,7 @@ describe('BravoClient', function () {
       ).to.be.true;
 
       // Fetch it again via cardId
-      const byCardId = await client.findCardInstanceById(foundCard.cardId);
+      const byCardId = await client.findCardInstanceByCardId(foundCard.cardId);
       expect(byCardId!.equals(foundCard), 'can fetch by sequentialId').to.be
         .true;
     });

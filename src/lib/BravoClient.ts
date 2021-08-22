@@ -555,7 +555,7 @@ export class BravoClient extends FavroClient {
    *
    * {@link https://favro.com/developer/#get-a-card}
    */
-  async findCardInstanceById(cardId: string) {
+  async findCardInstanceByCardId(cardId: string) {
     assertBravoClaim(cardId, `No cardId provided`);
     const res = (await this.requestWithReturnedEntities(
       `cards/${cardId}`,
