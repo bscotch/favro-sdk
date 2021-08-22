@@ -16,6 +16,7 @@
   - Timeline
   - Vote
   - Rating
+- Add "recipes" for common tasks to the README
 
 ### Feature List
 

@@ -10,7 +10,6 @@ import type {
 import { BravoEntity } from '$lib/BravoEntity.js';
 import { assertBravoClaim } from '../errors.js';
 import {
-  createIsMatchFilter,
   ensureArrayExistsAndAddUnique,
   ensureArrayExistsAndAddUniqueBy,
   isMatch,

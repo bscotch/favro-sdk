@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { BravoClient } from '$/lib/BravoClient.js';
 import { program as cli } from 'commander';
+// import { BravoClient } from '$/lib/BravoClient.js';
 
 // Kick it off
 cli
@@ -9,7 +9,7 @@ cli
   .option('--find-by-name', 'Find a specific organization')
   .parse();
 
-// Sample user options available via:
-const options = cli.opts();
+// // Sample user options available via:
+// const options = cli.opts();
 
-const client = new BravoClient();
+// const client = new BravoClient();
