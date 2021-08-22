@@ -1,6 +1,6 @@
 <p align="center"><i><a href="https://www.bscotch.net">Butterscotch Shenanigans</a> Presents:</i></p>
 
-<h1 align="center"> Bravo</h1>
+<h1 align="center">Bravo</h1>
 <h2 align="center">The <i>(unofficial)</i> Favro SDK</h2>
 
 > **⚠Warning⚠** *Bravo is in active development and may change substantially with any release. Check the changelog before updating!*
@@ -38,49 +38,46 @@ Then import Bravo into your Node project, instance a Bravo client, and you're al
 // ESM-style (Typescript)
 import {BravoClient} from '@bscotch/bravo';
 // -or-
-// CommonJS style (regular Node)
+// CommonJS-style (regular Node)
 const {BravoClient} = require('@bscotch/bravo');
 
+// Create a new Bravo Client, then start talking to Favro with it!
 const bravoClient = new BravoClient({
   token:'your-token',
   userEmail: 'your-favro-account-email',
   organizationId:'your-organization-id',
 });
-
-async function doFavroStuff() {
-  await bravoClient.getCurrentOrganization();
-  
-  // Find a Widget (a.k.a. Board)
-  const widget = await bravoClient.findWidgetByName('My To Do List');
-
-  // Add a card to that widget
-  const newCard = await widget.createCard({
-    name: 'Talk to so-and-so',
-    detailedDescription: 'We need to maximize synergy.'
-  });
-
-  // Find the userId for an assignee
-  const assignee = await bravoClient.findMemberByName('Scam Likely');
-
-  // Use the update-builder to create and send an update
-  // that covers multiple fields.
-  newCard.updateBuilder
-    .assign([assignee.userId])
-    .setStartDate(new Date())
-    .addTagsByName(['todo']);
-  // Submit and clear the update-builder's changes
-  await newCard.update();
-
-  // Add an attachment
-  await newCard.attach('some-data.txt', "Ooooh, a text file!");
-  // If no data is provided, treats the path as an actual
-  // file and uploads its contents
-  await newCard.attach('path/to/a/file.txt');
-
-  // Delete the card
-  await newCard.delete();
-}
 ```
+
+## Table of Contents
+1. [Features](#features)
+2. [Why?](#why)
+3. [Quick Start](#quick-start)
+4. [Table of Contents](#table-of-contents)
+5. [Authentication](#authentication)
+6. [Dependencies](#dependencies)
+7. [Recipes](#recipes)
+   1. [Create a Bravo Client](#create-a-bravo-client)
+   2. [Create a New Card](#create-a-new-card)
+   3. [Search Existing Cards](#search-existing-cards)
+   4. [Update Build-In Fields](#update-build-in-fields)
+   5. [Add a Card Attachment](#add-a-card-attachment)
+   6. [Ensure up-to-date data (clear caches)](#ensure-up-to-date-data-clear-caches)
+8. [The Favro Data Model](#the-favro-data-model)
+   1. [Collections](#collections)
+   2. [Widgets (a.k.a. "Boards")](#widgets-aka-boards)
+   3. [Columns (a.k.a. "Board Statuses")](#columns-aka-board-statuses)
+   4. [Cards](#cards)
+   5. [Built-In Card Fields](#built-in-card-fields)
+   6. [Custom Fields](#custom-fields)
+9. [Tips, Tricks, and Limitations](#tips-tricks-and-limitations)
+   1. [API Rate Limits](#api-rate-limits)
+   2. [Searching](#searching)
+   3. [Limited Markdown](#limited-markdown)
+   4. [Identifiers](#identifiers)
+      1. [Card Sequential IDs](#card-sequential-ids)
+      2. [Widget-specific `cardId`s](#widget-specific-cardids)
+   5. [Creating Boards](#creating-boards)
 
 ## Authentication
 
@@ -94,6 +91,117 @@ To have Bravo access Favro on your behalf, you'll need to provide it with the cr
 
 - [**Node.js v14+**](https://nodejs.org/)
 - ⚠ Does not work in browser environments!
+
+## Recipes
+
+In this section you'll find examples of common things you might want to do with the Favro API via Bravo.
+
+### Create a Bravo Client
+
+The Bravo Client is the central tool for interacting with Favro. It has methods for all of the core Favro API functionality, though many of those methods return instances of other Favro objects (Widgets, Cards, Custom Fields, etc). Those other hydrated objects have convenience methods to make it even easier to work with the Favro API.
+
+```ts
+const {BravoClient} = require('@bscotch/bravo');
+
+const bravoClient = new BravoClient({
+  token:'your-token',
+  userEmail: 'your-favro-account-email',
+  organizationId:'your-organization-id',
+});
+```
+
+### Create a New Card
+
+If you know the ID of the Widget you want to add it to, create the Card directly from the Client method:
+
+```ts
+const card = await bravoClient.createCard({
+  widgetCommonId: 'the-widget-id',
+  name: 'Talk to so-and-so',
+  detailedDescription: 'We need to maximize synergy.'
+});
+```
+
+You can also create Cards from a Widget instance:
+
+```ts
+// Find the Widget you want to add a Card to
+const widget = await bravoClient.findWidgetByName('My To Do List');
+
+// Create the new Card
+const card = await widget.createCard({
+  name: 'Talk to so-and-so',
+  detailedDescription: 'We need to maximize synergy.'
+});
+```
+
+### Search Existing Cards
+
+Reflecting how the Favro API works, what you think of as a single Card is actually a separate Card Instance per Widget that the Card lives on, each with its own data.
+
+There are many ways to find cards. The narrower you scope the request the better, and starting with a Widget is the best way since some Card data is Widget-scoped.
+
+Find all cards on a Widget:
+
+```ts
+const cards = await bravoClient.listCardInstances({widgetCommonId: 'the-widget-id'});
+// or, if you already have a Widget instance:
+const cards = await widget.listCardInstances();
+```
+
+Find all instances of a Card using the Card's index (the one shown in the Favro app):
+
+```ts
+const cardInstances = await bravoClient.findCardInstancesBySequentialId(1234);
+```
+
+Find a single instance of a Card based on its Widget-specific ID:
+
+```ts
+const cardInstances = await bravoClient.findCardInstanceByCardId('the-cardId');
+```
+
+### Update Build-In Fields
+
+```ts
+// Find the userId for an assignee
+const assignee = await bravoClient.findMemberByName('Scam Likely');
+
+// Use the update-builder to create and send an update
+// that covers multiple built-in fields.
+card.updateBuilder
+  .assign([assignee.userId])
+  .setStartDate(new Date())
+  .addTagsByName(['todo']);
+// Submit the update-builder's changes
+await card.update();
+```
+
+### Add a Card Attachment
+
+```ts
+// Provide a file name and the raw data
+await card.attach('some-data.txt', "Ooooh, a text file!");
+
+// Or, provide a path to a local file to upload
+await card.attach('path/to/a/file.txt');
+```
+
+### Ensure up-to-date data (clear caches)
+
+Bravo Clients cache data to reduce API calls and improve performance. Caching is always a double-edged sword -- whenever you need to guarantee that the data returned by Bravo reflects exactly what is stored by Favro, you'll want to clear the client's cache.
+
+Cards have their own mechanism to ensure they are up-to-date, since they are the type of entity for which you'll most likely want to ensure that.
+
+```ts
+// Clear ALL caches. Only clears the cache for subsequent Bravo method calls.
+// (If you have stored some value in a variable it will not necessarily be cleared.)
+bravoClient.clearCache();
+
+// Update the local data for a single card
+await card.refresh();
+```
+
 
 ## The Favro Data Model
 
