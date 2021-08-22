@@ -2,15 +2,20 @@
 
 ### TODOs
 
-- Add test cases for the new Card methods that fetch Custom Field definitions & values.
-  - Add early test that assumes the test-target Favro organization has Custom Fields of each type.
-    - Require at least one case where two fields have the same name
-    - Require at least one case where a name is guaranteed to be unique
-  - `client.findCustomFieldDefinitionById`
-  - `card.getCustomFields`
-  - `card.getCustomFieldByFieldId`
-  - `card.getCustomFieldByName`
-- Once all of the getters are passing their tests, get to work on Custom Field Value setters.
+- Once all of the getters are passing their tests, get to work on Custom Field Value setters. Priority order:
+  - Text
+  - Status
+  - Members
+  - Tags
+  - Number
+  - Checkbox
+  - Date
+  - Multiple select
+  - Link
+  - Time
+  - Timeline
+  - Vote
+  - Rating
 
 ### Feature List
 

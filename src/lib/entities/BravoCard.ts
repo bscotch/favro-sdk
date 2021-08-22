@@ -281,7 +281,7 @@ export class BravoCardInstance extends BravoEntity<DataFavroCard> {
    * see {@link BravoCardInstance.getCustomFields}.
    */
   get customFieldsValuesRaw() {
-    return [...this._data.customFields];
+    return this._data.customFields ? [...this._data.customFields] : [];
   }
 
   get parentCardId() {

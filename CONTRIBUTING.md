@@ -42,6 +42,12 @@ namely formatting them as `<type>: <subject>` where `type` is one of:
 + perf: A code change that improves performance
 + chore: Changes to the build process or auxiliary tools and libraries such as documentation generation
 
+## Test Environment Setup
+
+Testing Bravo requires that it have access to a real Favro Organization,
+and that the tester/developer do some initial setup. See the root test
+file for instructions ([`src/test/client.test.ts`](src/test/client.test.ts)).
+
 ## Contributing Code
 
 The fastest way to get fixes and features into Bravo is to submit them yourself! By forking this repo and making changes, you can have your own version of Bravo that works however you want.
@@ -51,7 +57,7 @@ If you want to bring your changes back into the main Bravo repo, you can make a 
 + Code must be fully typed Typescript (no `as any` or `//@ts-ignore` unless absolutely necessary).
 + If adding a similar feature to something that already exists, the code must follow a similar pattern and re-use as much existing code as possible (minimal DRY violations).
 + Names of variables, methods, etc. must be consistent with those already in the project.
-+ There must be test cases that cover your changes/additions (see `src/test/index.ts`). We don't require unit tests, just functional tests.
++ There must be test cases that cover your changes/additions (see `src/test/`). We don't require unit tests, just functional tests.
 + The pull request must be git-rebase-able on the HEAD of the `develop` branch without conflict.
 + Commit messages must follow the project conventions (below).
 
@@ -76,10 +82,6 @@ and cloning locally:
 
 + Open a terminal in the root of this project.
   + Run `npm install`
-  + Run `npm run build`
+  + Follow test setup instructions in `src/test/client.test.ts`
   + Run `npm test`
 + If all tests are passing, you're good to go!
-
-## How to test your code
-
-In the terminal, run: `npm test`

@@ -98,6 +98,7 @@ export class FavroClient {
    * when the limit will be reset.
    */
   protected _requestsRemaining = Infinity;
+  protected _requestsMade = 0;
   protected _limitResetsAt?: Date;
   private _backendId?: string;
 
@@ -119,6 +120,14 @@ export class FavroClient {
 
   get organizationId(): string | undefined {
     return this._organizationId;
+  }
+
+  get requestStats() {
+    return {
+      total: this._requestsMade,
+      remaining: this._requestsRemaining,
+      limitResetsAt: this._limitResetsAt,
+    };
   }
 
   /**
@@ -156,6 +165,7 @@ export class FavroClient {
         : this._organizationId,
       'X-Favro-Backend-Identifier': options?.backendId || this._backendId!,
     });
+    this._requestsMade++;
     const res = new FavroResponse<EntityData, this>(
       this,
       await fetch(url, {

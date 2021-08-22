@@ -50,7 +50,7 @@ export class BravoResponseEntities<
 
   /**
    * A generator for iterating over the entities without having to
-   * deal with paging. Will fetch next pages from the API while behind
+   * deal with paging. Will fetch next pages from the API behind
    * the scenes until exhausted. Populates a cache in the process,
    * so that subsequent iteration will not require additional API calls.
    * @example
@@ -73,6 +73,24 @@ export class BravoResponseEntities<
         }
       }
     }
+  }
+
+  /**
+   * Filter all entities by a match function. Note that this
+   * requires exhaustively paging all entities, which can be
+   * both slow and make a lot of API calls depending on the
+   * source of these entities.
+   */
+  async filter(matchFunction: BravoResponseEntitiesMatchFunction<Entity>) {
+    const matches: Entity[] = [];
+    let idx = 0;
+    for await (const entity of this) {
+      if (await matchFunction(entity, idx)) {
+        matches.push(entity);
+      }
+      idx++;
+    }
+    return matches;
   }
 
   async findIndex(matchFunction: BravoResponseEntitiesMatchFunction<Entity>) {
