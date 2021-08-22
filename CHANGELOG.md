@@ -1,3 +1,13 @@
+# [0.3.0](https://github.com/bscotch/favro-sdk/compare/v0.2.0...v0.3.0) (2021-08-22)
+
+
+### Features
+
+* Add Card methods for fetching associated Custom Field definitions and values. ([de0188d](https://github.com/bscotch/favro-sdk/commit/de0188dc06d84f91f3f150deaffcadedc0af589b))
+* Add Client method to find a Custom Field by its ID. ([631630e](https://github.com/bscotch/favro-sdk/commit/631630e6f826b69c751d7a3a7418abc5d809011f))
+
+
+
 # [0.2.0](https://github.com/bscotch/favro-sdk/compare/v0.1.0...v0.2.0) (2021-08-21)
 
 
