@@ -1,3 +1,12 @@
+# [0.4.0](https://github.com/bscotch/favro-sdk/compare/v0.3.0...v0.4.0) (2021-08-22)
+
+
+### Features
+
+* Change the name of the method for finding a card by its cardId to be more precise. ([0e81a9b](https://github.com/bscotch/favro-sdk/commit/0e81a9bd16a828260392578a9f85b54cfe0f8579))
+
+
+
 # [0.3.0](https://github.com/bscotch/favro-sdk/compare/v0.2.0...v0.3.0) (2021-08-22)
 
 
