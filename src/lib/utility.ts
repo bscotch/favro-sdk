@@ -190,3 +190,50 @@ export function createIsMatchFilter<R extends Record<string, any>>(
     return isMatch(stringOrRecord, pattern);
   };
 }
+
+type ObjectWithStringField<
+  StringField extends string,
+  StringFieldValue extends string,
+> = Record<StringField, StringFieldValue> & Record<string, any>;
+/**
+ * If the first parameter is a string, return it. If it
+ * is an object, return the value of the `fieldName` property
+ * (expected to be a string).
+ *
+ * This is useful for functions that accept either a string or
+ * an object that has a field containing that same string.
+ */
+export function stringOrObjectToString<S extends string>(
+  string: S,
+  fieldIfObject: string,
+): S;
+export function stringOrObjectToString<K extends string, V extends string>(
+  object: ObjectWithStringField<K, V>,
+  fieldIfObject: K,
+): V;
+export function stringOrObjectToString<K extends string, V extends string>(
+  stringOrObject: V | ObjectWithStringField<K, V>,
+  fieldIfObject: K,
+): V {
+  if (typeof stringOrObject == 'string') {
+    return stringOrObject;
+  } else {
+    const value = stringOrObject[fieldIfObject];
+    assertBravoClaim(
+      typeof value == 'string',
+      `Field ${fieldIfObject} not found in object`,
+    );
+    return stringOrObject[fieldIfObject];
+  }
+}
+
+export function stringsOrObjectsToStrings<K extends string, V extends string>(
+  stringsOrObjects: (V | ObjectWithStringField<K, V>)[],
+  fieldIfObject: K,
+): V[] {
+  // @ts-expect-error
+  return stringsOrObjects.map((stringOrObject) =>
+    // @ts-expect-error
+    stringOrObjectToString(stringOrObject, fieldIfObject),
+  );
+}
