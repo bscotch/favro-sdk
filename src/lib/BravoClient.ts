@@ -582,7 +582,7 @@ export class BravoClient extends FavroClient {
    *
    * {@link https://favro.com/developer/#update-a-card}
    */
-  async updateCardInstanceById(
+  async updateCardInstanceByCardId(
     cardId: string,
     options: FavroApiParamsCardUpdate,
   ) {
