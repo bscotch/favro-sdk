@@ -60,9 +60,10 @@ const bravoClient = new BravoClient({
    1. [Create a Bravo Client](#create-a-bravo-client)
    2. [Create a New Card](#create-a-new-card)
    3. [Search Existing Cards](#search-existing-cards)
-   4. [Update Build-In Fields](#update-build-in-fields)
-   5. [Add a Card Attachment](#add-a-card-attachment)
-   6. [Ensure up-to-date data (clear caches)](#ensure-up-to-date-data-clear-caches)
+   4. [Update a Common Field on a Card](#update-a-common-field-on-a-card)
+   5. [Batch-Update a Card's Common Fields](#batch-update-a-cards-common-fields)
+   6. [Add a Card Attachment](#add-a-card-attachment)
+   7. [Ensure up-to-date data (clear caches)](#ensure-up-to-date-data-clear-caches)
 8. [The Favro Data Model](#the-favro-data-model)
    1. [Collections](#collections)
    2. [Widgets (a.k.a. "Boards")](#widgets-aka-boards)
@@ -122,7 +123,7 @@ const card = await bravoClient.createCard({
 });
 ```
 
-You can also create Cards from a Widget instance:
+You can also create new Cards from a Widget instance:
 
 ```ts
 // Find the Widget you want to add a Card to
@@ -161,20 +162,46 @@ Find a single instance of a Card based on its Widget-specific ID:
 const cardInstances = await bravoClient.findCardInstanceByCardId('the-cardId');
 ```
 
-### Update Build-In Fields
+### Update a Common Field on a Card
+
+All Cards have a handful of built-in fields. You can update these one at a time on a card via a BravoCard instance's helper methods:
 
 ```ts
-// Find the userId for an assignee
+await card.updateName('new name');
+await card.updateDescription('new description');
+await card.update();
+```
+
+### Batch-Update a Card's Common Fields
+
+Update a bunch of fields at the same time to reduce API calls. You can do this by creating a raw update object, or by using an "Update Builder" as a helper to create such an object. You can even re-use an Update Builder instance to update other Cards!
+
+```ts
+// Send a raw multi-field update via the Client.
+// Your IDE will help you fill this out correctly if
+// it supports Typescript!
+await bravoClient.updateCardInstanceByCardId('the-card-id', {
+  name: 'A new name!',
+  detailedDescription: 'A new description!'
+});
+```
+
+```ts
+// Find a user to assign in the batch update
 const assignee = await bravoClient.findMemberByName('Scam Likely');
 
 // Use the update-builder to create and send an update
 // that covers multiple built-in fields.
-card.updateBuilder
-  .assign([assignee.userId])
+const updateBuilder = card.createNewUpdateBuilder();
+updateBuilder
+  .assign([assignee])
   .setStartDate(new Date())
-  .addTagsByName(['todo']);
+  .addTagsByName(['todo'])
+  .archive();
 // Submit the update-builder's changes
-await card.update();
+await card.update(updateBuilder);
+// Update another card the same way
+await someOtherCard.update(updateBuilder);
 ```
 
 ### Add a Card Attachment

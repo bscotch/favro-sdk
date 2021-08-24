@@ -2,7 +2,7 @@
 
 ### TODOs
 
-- Once all of the getters are passing their tests, get to work on Custom Field Value setters. Priority order:
+- Setters for Custom Field Value setters (in priority order):
   - Text
   - Status
   - Members
@@ -16,7 +16,6 @@
   - Timeline
   - Vote
   - Rating
-- Add "recipes" for common tasks to the README
 
 ### Feature List
 
