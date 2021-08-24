@@ -7,6 +7,7 @@ import type {
   FavroApiParamsCardUpdate,
   FavroApiParamsCardUpdateArrayField,
 } from '$/types/FavroCardUpdateTypes.js';
+import { ExtractKeysByValue } from '$/types/Utility.js';
 import { BravoEntity } from '$lib/BravoEntity.js';
 import { assertBravoClaim } from '../errors.js';
 import {
@@ -14,6 +15,7 @@ import {
   ensureArrayExistsAndAddUniqueBy,
   isMatch,
   removeFromArray,
+  stringsOrObjectsToStrings,
   wrapIfNotArray,
 } from '../utility.js';
 import type { BravoColumn } from './BravoColumn.js';
@@ -21,6 +23,7 @@ import {
   BravoCustomField,
   BravoCustomFieldDefinition,
 } from './BravoCustomField.js';
+import type { BravoUser } from './users.js';
 
 /**
  * A Card update can be pretty complex, and to save API
@@ -29,7 +32,7 @@ import {
  * easy to construct a complex update with a chaining-based
  * approach.
  */
-class BravoCardUpdateBuilder {
+export class BravoCardUpdateBuilder {
   private update: FavroApiParamsCardUpdate = {};
   constructor() {}
 
@@ -43,28 +46,34 @@ class BravoCardUpdateBuilder {
     return this;
   }
 
-  assign(userIds: string[]) {
+  assign(usersOrIds: (string | BravoUser)[]) {
     return this.addToUniqueArray(
       'addAssignmentIds',
-      userIds,
+      stringsOrObjectsToStrings(usersOrIds, 'userId'),
       'removeAssignmentIds',
     );
   }
 
-  unassign(userIds: string[]) {
+  unassign(usersOrIds: (string | BravoUser)[]) {
     return this.addToUniqueArray(
       'removeAssignmentIds',
-      userIds,
+      stringsOrObjectsToStrings(usersOrIds, 'userId'),
       'addAssignmentIds',
     );
   }
 
-  completeAssignment(userIds: string[]) {
-    return this.setAssignmentCompletion(userIds, true);
+  completeAssignment(usersOrIds: (string | BravoUser)[]) {
+    return this.setAssignmentCompletion(
+      stringsOrObjectsToStrings(usersOrIds, 'userId'),
+      true,
+    );
   }
 
-  uncompleteAssignment(userIds: string[]) {
-    return this.setAssignmentCompletion(userIds, false);
+  uncompleteAssignment(usersOrIds: (string | BravoUser)[]) {
+    return this.setAssignmentCompletion(
+      stringsOrObjectsToStrings(usersOrIds, 'userId'),
+      false,
+    );
   }
 
   addTagsByName(names: string[]) {
