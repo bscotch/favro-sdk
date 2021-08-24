@@ -38,6 +38,10 @@ import type { BravoWidget } from '$entities/BravoWidget.js';
 import type { BravoColumn } from '$/lib/entities/BravoColumn.js';
 import { BravoCardInstance } from '$/lib/entities/BravoCard.js';
 import fetch from 'node-fetch';
+import {
+  stringOrObjectToString,
+  stringsOrObjectsToStrings,
+} from '$/lib/utility.js';
 
 /**
  * @note A root .env file must be populated with the required
@@ -150,6 +154,18 @@ describe('BravoClient', function () {
       }
       await collection.delete();
     }
+  });
+
+  it('utility functions behave', async function () {
+    expect(stringOrObjectToString({ hello: 'world' }, 'hello')).to.equal(
+      'world',
+    );
+    expect(
+      stringsOrObjectsToStrings(
+        ['one', { hello: 'two' }, { hello: 'three', goodbye: 10 }],
+        'hello',
+      ),
+    ).to.eql(['one', 'two', 'three']);
   });
 
   it('can list organizations', async function () {
@@ -288,7 +304,7 @@ describe('BravoClient', function () {
       expect(testCard.columnId).to.not.equal(startingColumn.columnId);
     });
 
-    it("can update a card's built-in fields", async function () {
+    it("can batch-update a card's built-in fields", async function () {
       /**
        * Must be able to set/unset all of:
        * - ✔ name
@@ -307,7 +323,8 @@ describe('BravoClient', function () {
       const newDescription = '# New Description\n\nHello!';
       const testDate = new Date();
       const tagName = 'totally-real-tag';
-      testCard.updateBuilder
+      let updateBuilder = testCard.createNewUpdateBuilder();
+      updateBuilder
         .setName(newName)
         .setDescription(newDescription)
         .assign([user.userId])
@@ -322,7 +339,7 @@ describe('BravoClient', function () {
         .setStartDate(testDate)
         .setDueDate(testDate)
         .archive();
-      await testCard.update();
+      await testCard.update(updateBuilder);
       expect(testCard.detailedDescription).to.equal(newDescription);
       expect(testCard.name).to.equal(newName);
       expect(testCard.assignments[0].userId).to.equal(user.userId);
@@ -333,13 +350,14 @@ describe('BravoClient', function () {
       expect(testCard.archived).to.equal(true);
 
       // Unset unsettable values
-      testCard.updateBuilder
+      updateBuilder = testCard.createNewUpdateBuilder();
+      updateBuilder
         .unarchive()
         .removeTagsByName([tagName])
         .uncompleteAssignment([user.userId])
         .unsetDueDate()
         .unsetStartDate();
-      await testCard.update();
+      await testCard.update(updateBuilder);
       expect(testCard.archived).to.equal(false);
       expect(testCard.dueDate).to.be.null;
       expect(testCard.startDate).to.be.null;
@@ -349,10 +367,17 @@ describe('BravoClient', function () {
       // Need to unset the assigned user separately,
       // since we wanted to check that we could uncomplete
       // that user's assignment in the last step.
-      testCard.updateBuilder.unassign([user.userId]);
-      await testCard.update();
+      updateBuilder = testCard.createNewUpdateBuilder();
+      updateBuilder.unassign([user.userId]);
+      await testCard.update(updateBuilder);
       expect(testCard.assignments).to.be.empty;
     });
+    it("can singly update a Card's built-in fields", async function () {
+      const newTitle = 'singleton update';
+      await testCard.setName(newTitle);
+      expect(testCard.name).to.equal(testCard.name);
+    });
+
     it('can add attachment to a card (and remove it)', async function () {
       const filename = 'hi.txt';
       const attachedText = 'Hello World!';

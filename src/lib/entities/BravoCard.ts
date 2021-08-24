@@ -210,8 +210,6 @@ export class BravoCardUpdateBuilder {
  * *global* data and its data associated with a specific Widget.
  */
 export class BravoCardInstance extends BravoEntity<DataFavroCard> {
-  private _updateBuilder = new BravoCardUpdateBuilder();
-
   get name() {
     return this._data.name;
   }
@@ -609,19 +607,9 @@ export class BravoCardInstance extends BravoEntity<DataFavroCard> {
    * If no argument is provided, uses
    * any changes made via this instance's `.updateBuilder` methods.
    */
-  async update(data?: FavroApiParamsCardUpdate) {
-    // TODO: Handle Custom Fields
-    // TODO: Handle adding Attachments
-    const usingUpdateBuilder = !data;
-    data ||= this.updateBuilder.toJSON();
-    // Replace the update builder immediately, since
-    // we then have to wait for the update to occur
-    // the the user might want to start building a new update
-    // before that returns.
-    if (usingUpdateBuilder) {
-      // Only need to clear it if we *used* it, otherwise
-      // should leave it intact.
-      this._updateBuilder = new BravoCardUpdateBuilder();
+  async update(data: FavroApiParamsCardUpdate | BravoCardUpdateBuilder) {
+    if (data instanceof BravoCardUpdateBuilder) {
+      data = data.toJSON();
     }
     const updated = await this._client.updateCardInstanceByCardId(
       this.cardId,
@@ -652,7 +640,6 @@ export class BravoCardInstance extends BravoEntity<DataFavroCard> {
    * data is up-to-date.
    */
   async refresh() {
-    this._updateBuilder = new BravoCardUpdateBuilder();
     const refreshed = await this._client.findCardInstanceByCardId(this.cardId);
     this._data = refreshed._data;
     return this;
@@ -665,6 +652,10 @@ export class BravoCardInstance extends BravoEntity<DataFavroCard> {
    */
   async delete(everywhere = false) {
     return this._client.deleteCardInstance(this.cardId, everywhere);
+  }
+
+  createNewUpdateBuilder() {
+    return new BravoCardUpdateBuilder();
   }
 
   equals(org: BravoCardInstance) {
