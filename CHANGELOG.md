@@ -1,3 +1,22 @@
+# [0.5.0](https://github.com/bscotch/favro-sdk/compare/v0.4.0...v0.5.0) (2021-08-26)
+
+
+### Bug Fixes
+
+* Setting and checking Custom Status ('Single Select') fields yields errors. ([d34b2b6](https://github.com/bscotch/favro-sdk/commit/d34b2b67ff49032ea252a2d401d481c9ca735996))
+* The caching mechanism for searching an entity response array by ID is storing the wrong values. ([223ad66](https://github.com/bscotch/favro-sdk/commit/223ad669eb0ebb1b011380bfbe8da01092b778dc))
+
+
+### Features
+
+* Add Custom Field setters for Text, Votes, Ratings, Numbers, ([e854e97](https://github.com/bscotch/favro-sdk/commit/e854e972166abffef3d5212d45fa82fd9f09aa6e))
+* Add methods for all common-field upates to Card instances. ([0e51f9b](https://github.com/bscotch/favro-sdk/commit/0e51f9bbd462ec302f011420576c09065b675c13))
+* Add methods to simplify allowing other method arguments to be supplied as class instances or raw strings. ([a14ee8e](https://github.com/bscotch/favro-sdk/commit/a14ee8ead92489416e7ac26472710d21c866e012))
+* Allow Card UpdateBuilder methods that update user-related fields to use BravoUser objects or userId strings. ([7fff8a3](https://github.com/bscotch/favro-sdk/commit/7fff8a31a93128d1ac3f49181f812d6d52a4c25d))
+* Change the UpdateBuilder to be explicitly used for updates instead of as a side effect. BREAKING ([91fb2a0](https://github.com/bscotch/favro-sdk/commit/91fb2a0747bc2ee4b73ee9f7ceddab2631fc926f))
+
+
+
 # [0.4.0](https://github.com/bscotch/favro-sdk/compare/v0.3.0...v0.4.0) (2021-08-22)
 
 
