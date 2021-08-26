@@ -10,10 +10,10 @@
   - ✅ Checkbox
   - ✅ Date
   - ✅ Link
-  - 😒 Status
+  - ✅ Status
+  - Multiple select
   - Members
   - Tags
-  - Multiple select
   - Timeline
   - ~~Time~~ (only used in Enterprise)
 - Are custom fields unsettable? Maybe by sending a `null`?

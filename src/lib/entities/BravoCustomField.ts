@@ -7,6 +7,14 @@ import type { DataFavroCustomFieldDefinition } from '$/types/FavroCustomFieldTyp
 import { BravoEntity } from '$lib/BravoEntity.js';
 import { assertBravoClaim, BravoError } from '../errors.js';
 
+type DataFavroCustomFieldTypeWithChoices =
+  | 'Multiple select'
+  | 'Single select'
+  | 'Tags';
+
+type CustomFieldOption =
+  DataFavroCustomFieldDefinition<DataFavroCustomFieldTypeWithChoices>['customFieldItems'];
+
 type BravoHumanFriendlyFieldValues = {
   Number: number;
   Time: number;
@@ -25,15 +33,10 @@ type BravoHumanFriendlyFieldValues = {
   };
   Link: { url: string; text: string };
   Members: string[];
-  Tags: string[];
-  'Single select': string;
-  'Multiple select': string;
+  Tags: CustomFieldOption[];
+  'Single select': CustomFieldOption;
+  'Multiple select': CustomFieldOption[];
 };
-
-type DataFavroCustomFieldTypeWithChoices =
-  | 'Multiple select'
-  | 'Single select'
-  | 'Tags';
 
 export class BravoCustomFieldDefinition<
   TypeName extends DataFavroCustomFieldType,
@@ -140,7 +143,9 @@ export class BravoCustomField<TypeName extends DataFavroCustomFieldType> {
    * Whether or not there was a defined value provided
    * upon instantiation.*/
   get isSet() {
-    return this.value !== undefined;
+    return Array.isArray(this.value)
+      ? this.value.length > 0
+      : this.value !== undefined;
   }
 
   /**
@@ -148,8 +153,8 @@ export class BravoCustomField<TypeName extends DataFavroCustomFieldType> {
    * the current value. Returns undefined if unset, and
    * throws if the field type does not include options.
    */
-  get chosenOption(): TypeName extends DataFavroCustomFieldTypeWithChoices
-    ? { customFieldItemId: string; name: string } | undefined
+  get chosenOptions(): TypeName extends DataFavroCustomFieldTypeWithChoices
+    ? { customFieldItemId: string; name: string }[]
     : never {
     const { type: fieldType, isSet } = this;
     assertBravoClaim(
@@ -158,12 +163,15 @@ export class BravoCustomField<TypeName extends DataFavroCustomFieldType> {
     );
     if (!isSet) {
       // @ts-expect-error
-      return;
+      return [];
     }
     // @ts-expect-error
-    return this.customFieldItems!.find(
-      (i) => i.customFieldItemId === (this.value as unknown as string),
-    )!;
+    return (this.value as { customFieldId: string; value: string[] }).value.map(
+      (chosenId) =>
+        this.customFieldItems!.find(
+          (option) => option.customFieldItemId == chosenId,
+        )!,
+    );
   }
 
   get humanFriendlyValue():
@@ -171,7 +179,6 @@ export class BravoCustomField<TypeName extends DataFavroCustomFieldType> {
     | undefined {
     const type = this.type;
     const value = this.value;
-    console.log({ type, value });
     if (value === undefined) {
       return;
     }
@@ -214,13 +221,13 @@ export class BravoCustomField<TypeName extends DataFavroCustomFieldType> {
         return (value as DataFavroCustomFieldsValues['Members']).value;
       case 'Tags':
         // @ts-expect-error
-        return (value as DataFavroCustomFieldsValues['Tags']).value;
+        return this.chosenOptions;
       case 'Single select':
         // @ts-expect-error
-        return (value as DataFavroCustomFieldsValues['Single select']).value;
+        return this.chosenOptions[0];
       case 'Multiple select':
         // @ts-expect-error
-        return (value as DataFavroCustomFieldsValues['Multiple select']).value;
+        return this.chosenOptions;
       default:
         throw new BravoError(`Unknown custom field type: ${type}`);
     }

@@ -65,7 +65,20 @@ const customFieldUniquenessTestType = 'Text';
 const sandboxRoot = './sandbox';
 const samplesRoot = './samples';
 
-export class BravoTestError extends Error {
+/**
+ * Some upstream tests cannot be skipped since the create
+ * dependencies. To allow skipping most tests during active
+ * development, set this to `true`
+ */
+const SKIP_SKIPPABLE = false;
+
+function canSkip(test: Mocha.Context) {
+  if (SKIP_SKIPPABLE) {
+    test.skip();
+  }
+}
+
+class BravoTestError extends Error {
   constructor(message: string) {
     super(message);
     this.name = 'BravoTestError';
@@ -95,14 +108,17 @@ async function getCustomFieldByType<FieldType extends DataFavroCustomFieldType>(
 ) {
   const fields = await client.listCustomFieldDefinitions();
   const field = await fields.find((field) => {
-    console.log('TYPE', field.type);
     return field.type === type;
   });
   assertBravoTestClaim(field, `No ${type} custom field found`);
   const onCard = await card.getCustomField<FieldType>(field.customFieldId);
   assertBravoTestClaim(
     onCard.isSet === expectToBeSet,
-    `Custom Field in unexpected state`,
+    `Custom Field not ${expectToBeSet ? 'set' : 'unset'}: ${JSON.stringify(
+      [onCard.value, onCard.humanFriendlyValue],
+      null,
+      2,
+    )}`,
   );
   return onCard;
 }
@@ -198,11 +214,13 @@ describe('BravoClient', function () {
   });
 
   it('can list organizations', async function () {
+    canSkip(this);
     const organizations = await client.listOrganizations();
     expect(organizations.length).to.be.greaterThan(0);
   });
 
   it('can find a specific organization', async function () {
+    canSkip(this);
     const org = await client.findOrganizationById(organizationId);
     assertBravoTestClaim(org, 'Org not found');
     assertBravoTestClaim(
@@ -221,6 +239,7 @@ describe('BravoClient', function () {
   });
 
   it('can find a specific user by email', async function () {
+    canSkip(this);
     const me = await client.findMemberByEmail(myUserEmail)!;
     expect(me).to.exist;
     expect(me!.email).to.equal(myUserEmail);
@@ -233,6 +252,7 @@ describe('BravoClient', function () {
     });
 
     it('can find created collection', async function () {
+      canSkip(this);
       const foundCollection = await client.findCollectionByName(
         testCollectionName.toLocaleLowerCase(),
         { ignoreCase: true },
@@ -252,6 +272,7 @@ describe('BravoClient', function () {
     });
 
     it('can find created widget', async function () {
+      canSkip(this);
       // Grab the first widget found
       const widget = await testCollection.findWidgetByName(
         testWidgetName.toLocaleLowerCase(),
@@ -269,6 +290,7 @@ describe('BravoClient', function () {
       expect(testColumn).to.exist;
     });
     it('can find a created column', async function () {
+      canSkip(this);
       const foundColumn = await testWidget.findColumnByName(testColumnName);
       assertBravoTestClaim(foundColumn);
       expect(foundColumn!.equals(testColumn)).to.be.true;
@@ -279,6 +301,7 @@ describe('BravoClient', function () {
       expect(testCard).to.exist;
     });
     it('can fetch a created card', async function () {
+      canSkip(this);
       this.timeout(8000);
 
       const foundCard = await testWidget.findCardInstanceByName(testCardName);
@@ -301,6 +324,7 @@ describe('BravoClient', function () {
     });
 
     it("can update a card's column (status)", async function () {
+      canSkip(this);
       // Add another column to the widget to ensure at least 2
       await testWidget.createColumn(testColumnName + '2');
 
@@ -334,6 +358,7 @@ describe('BravoClient', function () {
     });
 
     it("can batch-update a card's built-in fields", async function () {
+      canSkip(this);
       /**
        * Must be able to set/unset all of:
        * - ✔ name
@@ -402,12 +427,14 @@ describe('BravoClient', function () {
       expect(testCard.assignments).to.be.empty;
     });
     it("can singly update a Card's built-in fields", async function () {
+      canSkip(this);
       const newTitle = 'singleton update';
       await testCard.setName(newTitle);
       expect(testCard.name).to.equal(testCard.name);
     });
 
     it('can add attachment to a card (and remove it)', async function () {
+      canSkip(this);
       const filename = 'hi.txt';
       const attachedText = 'Hello World!';
       const attachment = await client.addAttachmentToCardInstance(
@@ -432,6 +459,7 @@ describe('BravoClient', function () {
     // CUSTOM FIELDS
 
     it('can find unique custom fields by name or id', async function () {
+      canSkip(this);
       // NOTE: requires manual creation of a unique Custom Text field named 'Unique Text Field'
       const fields = await client.listCustomFieldDefinitions();
       const uniqueFields = await fields.filter(
@@ -449,6 +477,7 @@ describe('BravoClient', function () {
     });
 
     it('can find non-unique custom fields by name', async function () {
+      canSkip(this);
       // NOTE: requires manual creation of at least two Custom Text fields named 'Repeated Text Field'
       const fields = await client.listCustomFieldDefinitions();
       const nonUniqueFields = await fields.filter(
@@ -465,6 +494,7 @@ describe('BravoClient', function () {
     });
 
     it('can find unique custom fields by name from a Card (when not set)', async function () {
+      canSkip(this);
       const field = await testCard.getCustomFieldByName(
         customFieldUniqueName,
         customFieldUniquenessTestType,
@@ -474,6 +504,7 @@ describe('BravoClient', function () {
     });
 
     it('fails when trying to find a non-unique field by name from a Card (when not set)', async function () {
+      canSkip(this);
       await expectAsyncError(() =>
         testCard.getCustomFieldByName(
           customFieldRepeatedName,
@@ -483,6 +514,7 @@ describe('BravoClient', function () {
     });
 
     it('can update a Custom Text Field', async function () {
+      // canSkip(this);
       const customField = await getCustomFieldByType(client, testCard, 'Text');
       await testCard.setCustomText(customField, 'New Custom Field Text');
       const updatedField = await testCard.getCustomField(customField);
@@ -490,6 +522,7 @@ describe('BravoClient', function () {
     });
 
     it('can update a Custom Link Field', async function () {
+      canSkip(this);
       const customField = await getCustomFieldByType(client, testCard, 'Link');
       const link = { url: 'https://www.google.com', text: 'Google!' };
       await testCard.setCustomLink(customField, link.url, link.text);
@@ -499,6 +532,7 @@ describe('BravoClient', function () {
     });
 
     it('can update a Custom Date Field', async function () {
+      canSkip(this);
       const customField = await getCustomFieldByType(client, testCard, 'Date');
       const now = new Date();
       await testCard.setCustomDate(customField, now);
@@ -509,6 +543,7 @@ describe('BravoClient', function () {
     });
 
     it('can update a Custom Number Field', async function () {
+      canSkip(this);
       const customField = await getCustomFieldByType(
         client,
         testCard,
@@ -520,6 +555,7 @@ describe('BravoClient', function () {
     });
 
     it('can update a Custom Vote Field', async function () {
+      canSkip(this);
       const customField = await getCustomFieldByType(
         client,
         testCard,
@@ -532,6 +568,7 @@ describe('BravoClient', function () {
     });
 
     it('can update a Custom Rating Field', async function () {
+      canSkip(this);
       const customField = await getCustomFieldByType(
         client,
         testCard,
@@ -553,7 +590,7 @@ describe('BravoClient', function () {
       assertBravoClaim(newStatusId, 'Should have a status ID');
       await testCard.setCustomStatusByStatusId(customField, newStatusId);
       const updatedField = await testCard.getCustomField(customField);
-      expect(updatedField.chosenOption?.customFieldItemId).to.equal(
+      expect(updatedField.chosenOptions[0].customFieldItemId).to.equal(
         newStatusId,
       );
     });
