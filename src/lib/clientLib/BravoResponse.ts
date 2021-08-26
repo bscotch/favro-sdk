@@ -37,7 +37,7 @@ export class BravoResponseEntities<
    * but with multiple caches (one for each identifier field).
    */
   private _entitiesCachedById: {
-    [identifierField: string]: { [id: string]: Entity };
+    [identifierName: string]: { [identifierValue: string]: Entity };
   } = {};
 
   constructor(
@@ -121,15 +121,16 @@ export class BravoResponseEntities<
   ): Promise<Entity | undefined> {
     // Ensure we have the per-identifier name cache
     this._entitiesCachedById[identifierName] ||= {};
-    const cache = this._entitiesCachedById[identifierName];
-    const entity = cache[identifierValue];
-    if (entity) {
-      return entity;
+    const cache = this._entitiesCachedById[identifierName]!;
+    if (cache[identifierValue]) {
+      return cache[identifierValue];
     }
 
     // Need to iterate over the list! But we can cache as we go.
     for await (const entity of this) {
-      cache[identifierValue] ||= entity;
+      // @ts-expect-error
+      const entityIdValue = entity[identifierName];
+      cache[entityIdValue] ||= entity;
       // @ts-expect-error
       if (entity[identifierName] === identifierValue) {
         return entity;
