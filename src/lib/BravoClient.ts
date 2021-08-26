@@ -13,7 +13,7 @@ import {
   stringsMatch,
 } from './utility.js';
 import { BravoCollection } from './entities/BravoCollection';
-import { BravoUser } from '$entities/users';
+import { BravoUser } from '$/lib/entities/BravoUser';
 import { BravoOrganization } from '$entities/BravoOrganization';
 import { BravoWidget } from '$entities/BravoWidget.js';
 import type { DataFavroWidget } from '$/types/FavroWidgetTypes.js';

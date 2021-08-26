@@ -8,6 +8,9 @@ type EmptyArray = [];
 
 export type AnyFunction = (...args: any[]) => any;
 
+export type RequiredBy<T, K extends keyof T> = Omit<T, K> &
+  Required<Pick<T, K>>;
+
 export type ReplaceArrayIndices<
   AnyArray extends any[],
   ReplaceIndices extends number,

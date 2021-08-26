@@ -1,11 +1,11 @@
-import type {
-  DataFavroCollectionMember,
-  DataFavroOrganizationMember,
-  DataFavroUser,
-} from '$types/FavroApiTypes';
+import type { DataFavroUser } from '$types/FavroApiTypes';
 import { BravoEntity } from '$lib/BravoEntity.js';
 
-export class BravoUserBase<
+/**
+ * Base User class, reflecting the bare minimum info returned
+ * by various endpoints (just a UserId).
+ */
+class BravoUserBase<
   UserData extends { userId: string },
 > extends BravoEntity<UserData> {
   get userId() {
@@ -18,6 +18,10 @@ export class BravoUserBase<
   }
 }
 
+/**
+ * A hydrated User entity, as returned from the Users API
+ * endpoint.
+ */
 export class BravoUser extends BravoUserBase<DataFavroUser> {
   get name() {
     return this._data.name;
@@ -28,21 +32,7 @@ export class BravoUser extends BravoUserBase<DataFavroUser> {
   }
 
   /** Role in the organization */
-  get role() {
+  get organizationRole() {
     return this._data.organizationRole;
-  }
-}
-
-export class BravoOrganizationMember extends BravoUserBase<DataFavroOrganizationMember> {
-  /** Role in the organization */
-  get role() {
-    return this._data.role;
-  }
-}
-
-export class BravoCollectionMember extends BravoUserBase<DataFavroCollectionMember> {
-  /** Role in the collection */
-  get role() {
-    return this._data.role;
   }
 }

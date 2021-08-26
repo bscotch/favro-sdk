@@ -1,7 +1,7 @@
 import type {
   DataFavroCardFieldNumber,
   DataFavroCardFieldText,
-  DataFavroCardFieldStatus,
+  DataFavroCardFieldSingleSelect,
   DataFavroCardFieldMultipleSelect,
   DataFavroCardFieldCheckbox,
   DataFavroCardFieldDate,
@@ -57,21 +57,24 @@ interface DataFavroCardFieldVoteUpdate {
  *
  * {@link https://favro.com/developer/#card-custom-field-parameters}
  */
-export type FavroApiParamsCardUpdateCustomField = { customFieldId: string } & (
+export type FavroApiParamsCardUpdateCustomField = {
+  customFieldId: string;
+} & FavroApiParamsCardCustomField;
+
+export type FavroApiParamsCardCustomField =
   | DataFavroCardFieldCheckbox
   | DataFavroCardFieldDate
   | DataFavroCardFieldLink
   | DataFavroCardFieldMultipleSelect
   | DataFavroCardFieldNumber
   | DataFavroCardFieldRating
-  | DataFavroCardFieldStatus
+  | DataFavroCardFieldSingleSelect
   | DataFavroCardFieldText
   | DataFavroCardFieldTimeline
   | DataFavroCardFieldMembersUpdate
   | DataFavroCardFieldTagsUpdate
   | DataFavroCardFieldTimeUpdate
-  | DataFavroCardFieldVoteUpdate
-);
+  | DataFavroCardFieldVoteUpdate;
 
 export type FavroApiParamsCardUpdateField = keyof FavroApiParamsCardUpdate;
 
@@ -150,7 +153,7 @@ export interface FavroApiParamsCardUpdate {
    * @note Value objects are VERY similar to those that appear in the same
    * field upon fetching a Card, but there are some differences.
    */
-  customFields?: unknown[];
+  customFields?: FavroApiParamsCardUpdateCustomField[];
   /** The list of card favro attachment that will be added to the card.*/
   addFavroAttachments?: DataFavroCardFavroAttachment[];
   /**

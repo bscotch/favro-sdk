@@ -21,7 +21,7 @@
  *    - Tags
  *    - Text
  *    - Number
- *    - Status
+ *    - Single select
  *    - Multiple Select
  *    - Link
  *    - Date
@@ -33,15 +33,18 @@ import { BravoClient } from '$lib/BravoClient.js';
 import { expect } from 'chai';
 import fs from 'fs-extra';
 import dotenv from 'dotenv';
+import fetch from 'node-fetch';
 import type { BravoCollection } from '$entities/BravoCollection.js';
 import type { BravoWidget } from '$entities/BravoWidget.js';
 import type { BravoColumn } from '$/lib/entities/BravoColumn.js';
-import { BravoCardInstance } from '$/lib/entities/BravoCard.js';
-import fetch from 'node-fetch';
+import type { BravoCardInstance } from '$/lib/entities/BravoCard.js';
 import {
   stringOrObjectToString,
   stringsOrObjectsToStrings,
 } from '$/lib/utility.js';
+import type { DataFavroCustomFieldType } from '$/types/FavroCardTypes.js';
+import { assertBravoClaim } from '$/lib/errors.js';
+import type { BravoUser } from '$/lib/entities/BravoUser.js';
 
 /**
  * @note A root .env file must be populated with the required
@@ -77,6 +80,31 @@ function assertBravoTestClaim(
   if (!claim) {
     throw new BravoTestError(message);
   }
+}
+
+/**
+ * Get a custom field, and its value on a card, by custom field type.
+ *
+ * We don't care which custom field we get, just that it is of the right type.
+ */
+async function getCustomFieldByType<FieldType extends DataFavroCustomFieldType>(
+  client: BravoClient,
+  card: BravoCardInstance,
+  type: FieldType,
+  expectToBeSet = false,
+) {
+  const fields = await client.listCustomFieldDefinitions();
+  const field = await fields.find((field) => {
+    console.log('TYPE', field.type);
+    return field.type === type;
+  });
+  assertBravoTestClaim(field, `No ${type} custom field found`);
+  const onCard = await card.getCustomField<FieldType>(field.customFieldId);
+  assertBravoTestClaim(
+    onCard.isSet === expectToBeSet,
+    `Custom Field in unexpected state`,
+  );
+  return onCard;
 }
 
 async function expectAsyncError(
@@ -128,6 +156,7 @@ describe('BravoClient', function () {
   let testCollection: BravoCollection;
   let testColumn: BravoColumn;
   let testCard: BravoCardInstance;
+  let testUser: BravoUser;
 
   // !!!
   // Tests are in a specific order to ensure that dependencies
@@ -187,8 +216,8 @@ describe('BravoClient', function () {
     expect(partialUsers.length, 'has partial users').to.be.greaterThan(0);
     const fullUsers = await client.listMembers();
     expect(fullUsers.length, 'has full users').to.be.greaterThan(0);
-    const me = fullUsers.find((u) => u.email == myUserEmail);
-    assertBravoTestClaim(me, 'Current user somehow not found in org');
+    testUser = fullUsers.find((u) => u.email == myUserEmail)!;
+    assertBravoTestClaim(testUser, 'Current user somehow not found in org');
   });
 
   it('can find a specific user by email', async function () {
@@ -453,27 +482,85 @@ describe('BravoClient', function () {
       );
     });
 
-    xit('can update a Custom Text Field', async function () {});
-
-    xit('can find a globally non-unique field by name when only one is set on a Card', async function () {
-      // When getting Custom Fields by name from a Card, the name must either
-      // be uniquely used by Custom Fields that have values *on that card* or,
-      // if the former isn't true, then the name must be globally unique.
+    it('can update a Custom Text Field', async function () {
+      const customField = await getCustomFieldByType(client, testCard, 'Text');
+      await testCard.setCustomText(customField, 'New Custom Field Text');
+      const updatedField = await testCard.getCustomField(customField);
+      expect(updatedField.humanFriendlyValue).to.equal('New Custom Field Text');
     });
 
-    xit('fails when trying to find a non-unique field by name on a Card (when set)', async function () {});
+    it('can update a Custom Link Field', async function () {
+      const customField = await getCustomFieldByType(client, testCard, 'Link');
+      const link = { url: 'https://www.google.com', text: 'Google!' };
+      await testCard.setCustomLink(customField, link.url, link.text);
+      const updatedField = await testCard.getCustomField(customField);
+      assertBravoTestClaim(updatedField.humanFriendlyValue);
+      expect(updatedField.humanFriendlyValue).to.eql(link);
+    });
 
-    xit('can update a Custom Status Field', async function () {});
+    it('can update a Custom Date Field', async function () {
+      const customField = await getCustomFieldByType(client, testCard, 'Date');
+      const now = new Date();
+      await testCard.setCustomDate(customField, now);
+      const updatedField = await testCard.getCustomField(customField);
+      expect(updatedField.humanFriendlyValue?.getTime()).to.equal(
+        now.getTime(),
+      );
+    });
+
+    it('can update a Custom Number Field', async function () {
+      const customField = await getCustomFieldByType(
+        client,
+        testCard,
+        'Number',
+      );
+      await testCard.setCustomNumber(customField, 99);
+      const updatedField = await testCard.getCustomField(customField);
+      expect(updatedField.humanFriendlyValue).to.equal(99);
+    });
+
+    it('can update a Custom Vote Field', async function () {
+      const customField = await getCustomFieldByType(
+        client,
+        testCard,
+        'Voting',
+      );
+      await testCard.setCustomVote(customField, true);
+      const updatedField = await testCard.getCustomField(customField);
+      expect(updatedField.humanFriendlyValue?.tally).to.equal(1);
+      expect(updatedField.humanFriendlyValue?.voters).to.eql([testUser.userId]);
+    });
+
+    it('can update a Custom Rating Field', async function () {
+      const customField = await getCustomFieldByType(
+        client,
+        testCard,
+        'Rating',
+      );
+      await testCard.setCustomRating(customField, 3);
+      const updatedField = await testCard.getCustomField(customField);
+      expect(updatedField.humanFriendlyValue).to.equal(3);
+    });
+
+    it('can update a Custom Status Field', async function () {
+      // Find a custom text field to test
+      const customField = await getCustomFieldByType(
+        client,
+        testCard,
+        'Single select',
+      );
+      const newStatusId = customField.customFieldItems[0].customFieldItemId;
+      assertBravoClaim(newStatusId, 'Should have a status ID');
+      await testCard.setCustomStatusByStatusId(customField, newStatusId);
+      const updatedField = await testCard.getCustomField(customField);
+      expect(updatedField.chosenOption?.customFieldItemId).to.equal(
+        newStatusId,
+      );
+    });
 
     xit('can update a Custom Tags Field', async function () {});
 
     xit('can update a Custom Members Field', async function () {});
-
-    xit('can update a Custom Link Field', async function () {});
-
-    xit('can update a Custom Date Field', async function () {});
-
-    xit('can update a Custom Number Field', async function () {});
 
     xit('can update a Custom Muliple Select Field', async function () {});
 

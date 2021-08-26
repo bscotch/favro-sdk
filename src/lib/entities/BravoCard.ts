@@ -1,209 +1,21 @@
 import type {
   DataFavroCard,
-  DataFavroCardFavroAttachment,
   DataFavroCustomFieldType,
 } from '$/types/FavroCardTypes.js';
-import type {
-  FavroApiParamsCardUpdate,
-  FavroApiParamsCardUpdateArrayField,
-} from '$/types/FavroCardUpdateTypes.js';
+import type { FavroApiParamsCardUpdate } from '$/types/FavroCardUpdateTypes.js';
 import { ExtractKeysByValue } from '$/types/Utility.js';
 import { BravoEntity } from '$lib/BravoEntity.js';
 import { assertBravoClaim } from '../errors.js';
+import { isMatch } from '../utility.js';
 import {
-  ensureArrayExistsAndAddUnique,
-  ensureArrayExistsAndAddUniqueBy,
-  isMatch,
-  removeFromArray,
-  stringsOrObjectsToStrings,
-  wrapIfNotArray,
-} from '../utility.js';
+  BravoCardUpdateBuilder,
+  CustomFieldOrId,
+} from './BravoCardUpdateBuilder';
 import type { BravoColumn } from './BravoColumn.js';
 import {
   BravoCustomField,
   BravoCustomFieldDefinition,
 } from './BravoCustomField.js';
-import type { BravoUser } from './users.js';
-
-/**
- * A Card update can be pretty complex, and to save API
- * calls its best to do all desired updates in one go
- * where possible. The Update Builder makes it (relatively)
- * easy to construct a complex update with a chaining-based
- * approach.
- */
-export class BravoCardUpdateBuilder {
-  private update: FavroApiParamsCardUpdate = {};
-  constructor() {}
-
-  setName(name: string) {
-    this.update.name = name;
-    return this;
-  }
-
-  setDescription(description: string) {
-    this.update.detailedDescription = description;
-    return this;
-  }
-
-  assign(usersOrIds: (string | BravoUser)[]) {
-    return this.addToUniqueArray(
-      'addAssignmentIds',
-      stringsOrObjectsToStrings(usersOrIds, 'userId'),
-      'removeAssignmentIds',
-    );
-  }
-
-  unassign(usersOrIds: (string | BravoUser)[]) {
-    return this.addToUniqueArray(
-      'removeAssignmentIds',
-      stringsOrObjectsToStrings(usersOrIds, 'userId'),
-      'addAssignmentIds',
-    );
-  }
-
-  completeAssignment(usersOrIds: (string | BravoUser)[]) {
-    return this.setAssignmentCompletion(
-      stringsOrObjectsToStrings(usersOrIds, 'userId'),
-      true,
-    );
-  }
-
-  uncompleteAssignment(usersOrIds: (string | BravoUser)[]) {
-    return this.setAssignmentCompletion(
-      stringsOrObjectsToStrings(usersOrIds, 'userId'),
-      false,
-    );
-  }
-
-  addTagsByName(names: string[]) {
-    return this.addToUniqueArray('addTags', names, 'removeTags');
-  }
-
-  removeTagsByName(names: string[]) {
-    return this.addToUniqueArray('removeTags', names, 'addTags');
-  }
-
-  addTagsById(ids: string[]) {
-    return this.addToUniqueArray('addTagIds', ids, 'removeTagIds');
-  }
-
-  removeTagsById(ids: string[]) {
-    return this.addToUniqueArray('removeTagIds', ids, 'addTagIds');
-  }
-
-  setStartDate(date: Date | null) {
-    this.update.startDate = date?.toISOString() || null;
-    return this;
-  }
-
-  unsetStartDate() {
-    return this.setStartDate(null);
-  }
-
-  setDueDate(date: Date | null) {
-    this.update.dueDate = date?.toISOString() || null;
-    return this;
-  }
-
-  unsetDueDate() {
-    return this.setDueDate(null);
-  }
-
-  removeAttachments(fileUrls: string[]) {
-    return this.addToUniqueArray('removeAttachments', fileUrls);
-  }
-
-  addFavroAttachments(favroItems: DataFavroCardFavroAttachment[]) {
-    this.update.addFavroAttachments ||= [];
-    ensureArrayExistsAndAddUniqueBy(
-      this.update.addFavroAttachments,
-      'itemCommonId',
-      favroItems,
-    );
-    return this;
-  }
-
-  removeFavroAttachmentsById(itemCommonIds: string[]) {
-    return this.addToUniqueArray('removeFavroAttachmentIds', itemCommonIds);
-  }
-
-  archive() {
-    this.update.archive = true;
-    return this;
-  }
-
-  unarchive() {
-    this.update.archive = false;
-    return this;
-  }
-
-  addToWidget(
-    widgetCommonId: string,
-    options?: Pick<
-      FavroApiParamsCardUpdate,
-      | 'columnId'
-      | 'laneId'
-      | 'dragMode'
-      | 'position'
-      | 'listPosition'
-      | 'sheetPosition'
-      | 'parentCardId'
-    >,
-  ) {
-    Object.assign({
-      widgetCommonId,
-      ...options,
-    });
-    return this;
-  }
-
-  /**
-   * Get a plain update object that can be directly used
-   * by the Favro Card Update endpoint.
-   */
-  toJSON() {
-    return {
-      ...this.update,
-    };
-  }
-
-  private setAssignmentCompletion(
-    userIds: string | string[],
-    completed: boolean,
-  ) {
-    const updateObjs = wrapIfNotArray(userIds).map((userId) => ({
-      userId,
-      completed,
-    }));
-    this.update.completeAssignments ||= [];
-    ensureArrayExistsAndAddUniqueBy(
-      this.update.completeAssignments,
-      'userId',
-      updateObjs,
-    );
-    return this;
-  }
-
-  /**
-   * Utility method for adding a value to one array (uniquely)
-   * while optionally ensuring that the same value does NOT
-   * appear in another array, e.g. to prevent an "add" and "remove"
-   * version of the same action from both containing the same value.
-   */
-  private addToUniqueArray<Field extends FavroApiParamsCardUpdateArrayField>(
-    updateField: Field,
-    values: FavroApiParamsCardUpdate[Field],
-    opposingField?: FavroApiParamsCardUpdateArrayField,
-  ) {
-    this.update[updateField] ||= [];
-    ensureArrayExistsAndAddUnique(this.update[updateField], values);
-    if (opposingField) {
-      removeFromArray(this.update[opposingField], values);
-    }
-    return this;
-  }
-}
 
 /**
  * A Card "Instance" represents the combination of a Card's
@@ -317,7 +129,7 @@ export class BravoCardInstance extends BravoEntity<DataFavroCard> {
   }
 
   //#region UPDATE SHORTCUTS FOR INDIVIDUAL FIELDS
-  private async updateCommonField<
+  private async updateField<
     Method extends ExtractKeysByValue<
       BravoCardUpdateBuilder,
       (...args: any[]) => any
@@ -331,112 +143,170 @@ export class BravoCardInstance extends BravoEntity<DataFavroCard> {
   }
 
   async setName(...args: Parameters<BravoCardUpdateBuilder['setName']>) {
-    return await this.updateCommonField('setName', ...args);
+    return await this.updateField('setName', ...args);
   }
 
   async setDescription(
     ...args: Parameters<BravoCardUpdateBuilder['setDescription']>
   ) {
-    return await this.updateCommonField('setDescription', ...args);
+    return await this.updateField('setDescription', ...args);
   }
 
   async assign(...args: Parameters<BravoCardUpdateBuilder['assign']>) {
-    return await this.updateCommonField('assign', ...args);
+    return await this.updateField('assign', ...args);
   }
 
   async unassign(...args: Parameters<BravoCardUpdateBuilder['unassign']>) {
-    return await this.updateCommonField('unassign', ...args);
+    return await this.updateField('unassign', ...args);
   }
 
   async completeAssignment(
     ...args: Parameters<BravoCardUpdateBuilder['completeAssignment']>
   ) {
-    return await this.updateCommonField('completeAssignment', ...args);
+    return await this.updateField('completeAssignment', ...args);
   }
 
   async uncompleteAssignment(
     ...args: Parameters<BravoCardUpdateBuilder['uncompleteAssignment']>
   ) {
-    return await this.updateCommonField('uncompleteAssignment', ...args);
+    return await this.updateField('uncompleteAssignment', ...args);
   }
 
   async addTagsByName(
     ...args: Parameters<BravoCardUpdateBuilder['addTagsByName']>
   ) {
-    return await this.updateCommonField('addTagsByName', ...args);
+    return await this.updateField('addTagsByName', ...args);
   }
 
   async removeTagsByName(
     ...args: Parameters<BravoCardUpdateBuilder['removeTagsByName']>
   ) {
-    return await this.updateCommonField('removeTagsByName', ...args);
+    return await this.updateField('removeTagsByName', ...args);
   }
 
   async addTagsById(
     ...args: Parameters<BravoCardUpdateBuilder['addTagsById']>
   ) {
-    return await this.updateCommonField('addTagsById', ...args);
+    return await this.updateField('addTagsById', ...args);
   }
 
   async removeTagsById(
     ...args: Parameters<BravoCardUpdateBuilder['removeTagsById']>
   ) {
-    return await this.updateCommonField('removeTagsById', ...args);
+    return await this.updateField('removeTagsById', ...args);
   }
 
   async setStartDate(
     ...args: Parameters<BravoCardUpdateBuilder['setStartDate']>
   ) {
-    return await this.updateCommonField('setStartDate', ...args);
+    return await this.updateField('setStartDate', ...args);
   }
 
   async unsetStartDate(
     ...args: Parameters<BravoCardUpdateBuilder['unsetStartDate']>
   ) {
-    return await this.updateCommonField('unsetStartDate', ...args);
+    return await this.updateField('unsetStartDate', ...args);
   }
 
   async setDueDate(...args: Parameters<BravoCardUpdateBuilder['setDueDate']>) {
-    return await this.updateCommonField('setDueDate', ...args);
+    return await this.updateField('setDueDate', ...args);
   }
 
   async unsetDueDate(
     ...args: Parameters<BravoCardUpdateBuilder['unsetDueDate']>
   ) {
-    return await this.updateCommonField('unsetDueDate', ...args);
+    return await this.updateField('unsetDueDate', ...args);
   }
 
   async removeAttachments(
     ...args: Parameters<BravoCardUpdateBuilder['removeAttachments']>
   ) {
-    return await this.updateCommonField('removeAttachments', ...args);
+    return await this.updateField('removeAttachments', ...args);
   }
 
   async addFavroAttachments(
     ...args: Parameters<BravoCardUpdateBuilder['addFavroAttachments']>
   ) {
-    return await this.updateCommonField('addFavroAttachments', ...args);
+    return await this.updateField('addFavroAttachments', ...args);
   }
 
   async removeFavroAttachmentsById(
     ...args: Parameters<BravoCardUpdateBuilder['removeFavroAttachmentsById']>
   ) {
-    return await this.updateCommonField('removeFavroAttachmentsById', ...args);
+    return await this.updateField('removeFavroAttachmentsById', ...args);
   }
 
   async archive(...args: Parameters<BravoCardUpdateBuilder['archive']>) {
-    return await this.updateCommonField('archive', ...args);
+    return await this.updateField('archive', ...args);
   }
 
   async unarchive(...args: Parameters<BravoCardUpdateBuilder['unarchive']>) {
-    return await this.updateCommonField('unarchive', ...args);
+    return await this.updateField('unarchive', ...args);
   }
 
   async addToWidget(
     ...args: Parameters<BravoCardUpdateBuilder['addToWidget']>
   ) {
-    return await this.updateCommonField('addToWidget', ...args);
+    return await this.updateField('addToWidget', ...args);
   }
+  //#endregion
+
+  //#region CUSTOM FIELDS
+
+  async setCustomStatusByStatusId(
+    ...args: Parameters<BravoCardUpdateBuilder['setCustomStatusByStatusId']>
+  ) {
+    return await this.updateField('setCustomStatusByStatusId', ...args);
+  }
+
+  async setCustomStatusByStatusName(
+    ...args: Parameters<BravoCardUpdateBuilder['setCustomStatusByStatusName']>
+  ) {
+    return await this.updateField('setCustomStatusByStatusName', ...args);
+  }
+
+  async setCustomText(
+    ...args: Parameters<BravoCardUpdateBuilder['setCustomText']>
+  ) {
+    return await this.updateField('setCustomText', ...args);
+  }
+
+  async setCustomNumber(
+    ...args: Parameters<BravoCardUpdateBuilder['setCustomNumber']>
+  ) {
+    return await this.updateField('setCustomNumber', ...args);
+  }
+
+  async setCustomCheckbox(
+    ...args: Parameters<BravoCardUpdateBuilder['setCustomCheckbox']>
+  ) {
+    return await this.updateField('setCustomCheckbox', ...args);
+  }
+
+  async setCustomLink(
+    ...args: Parameters<BravoCardUpdateBuilder['setCustomLink']>
+  ) {
+    return await this.updateField('setCustomLink', ...args);
+  }
+
+  async setCustomVote(
+    ...args: Parameters<BravoCardUpdateBuilder['setCustomVote']>
+  ) {
+    return await this.updateField('setCustomVote', ...args);
+  }
+
+  async setCustomDate(
+    ...args: Parameters<BravoCardUpdateBuilder['setCustomDate']>
+  ) {
+    return await this.updateField('setCustomDate', ...args);
+  }
+
+  async setCustomRating(
+    ...args: Parameters<BravoCardUpdateBuilder['setCustomRating']>
+  ) {
+    return await this.updateField('setCustomRating', ...args);
+  }
+
   //#endregion
 
   /**
@@ -475,10 +345,14 @@ export class BravoCardInstance extends BravoEntity<DataFavroCard> {
    * only way to guarantee the desired field, since all Custom
    * Fields are global in the Favro API.*
    */
-  async getCustomFieldByFieldId<
-    FieldType extends DataFavroCustomFieldType = any,
-  >(customFieldId: string) {
+  async getCustomField<FieldType extends DataFavroCustomFieldType = any>(
+    customFieldOrId: CustomFieldOrId<FieldType>,
+  ) {
     const setFields = await this.getCustomFields();
+    const customFieldId =
+      typeof customFieldOrId == 'string'
+        ? customFieldOrId
+        : customFieldOrId.customFieldId;
     const matchingField = setFields.find(
       (field) => field.customFieldId == customFieldId,
     );
@@ -500,7 +374,7 @@ export class BravoCardInstance extends BravoEntity<DataFavroCard> {
    * > ⚠ Since Custom Fields are global in Favro, names can be changed,
    * and names may not be unique, this method has caveats. Read the rest
    * of this doc to fully understand them, and otherwise use the safer
-   * {@link getCustomFieldByFieldId} where possible.
+   * {@link getCustomField} where possible.
    *
    * This method only returns a `BravoCustomField` instance if
    * *either* of the following are true:

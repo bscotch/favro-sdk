@@ -1,6 +1,6 @@
 import { assertBravoClaim } from '$lib/errors.js';
 import type { BravoOrganization } from '$entities/BravoOrganization.js';
-import type { BravoUser } from '$entities/users';
+import type { BravoUser } from '$/lib/entities/BravoUser';
 import type { BravoCollection } from '$entities/BravoCollection.js';
 import type {
   BravoResponseCustomFields,

@@ -58,14 +58,14 @@ export type DataFavroCustomFieldType =
   | 'Time'
   | 'Text'
   | 'Rating'
-  | 'Vote'
+  | 'Voting'
   | 'Checkbox'
   | 'Date'
   | 'Timeline'
   | 'Link'
   | 'Members'
   | 'Tags'
-  | 'Status'
+  | 'Single select'
   | 'Multiple select';
 
 export type DataFavroCustomFieldsValues = {
@@ -73,14 +73,14 @@ export type DataFavroCustomFieldsValues = {
   Time: DataFavroCardFieldTime;
   Text: DataFavroCardFieldText;
   Rating: DataFavroCardFieldRating;
-  Vote: DataFavroCardFieldVote;
+  Voting: DataFavroCardFieldVote;
   Checkbox: DataFavroCardFieldCheckbox;
   Date: DataFavroCardFieldDate;
   Timeline: DataFavroCardFieldTimeline;
   Link: DataFavroCardFieldLink;
   Members: DataFavroCardFieldMembers;
   Tags: DataFavroCardFieldTags;
-  Status: DataFavroCardFieldStatus;
+  'Single select': DataFavroCardFieldSingleSelect;
   'Multiple select': DataFavroCardFieldMultipleSelect;
 };
 
@@ -95,7 +95,7 @@ export type DataFavroCardCustomField = { customFieldId: string } & (
   | DataFavroCardFieldMultipleSelect
   | DataFavroCardFieldNumber
   | DataFavroCardFieldRating
-  | DataFavroCardFieldStatus
+  | DataFavroCardFieldSingleSelect
   | DataFavroCardFieldTags
   | DataFavroCardFieldText
   | DataFavroCardFieldTime
@@ -107,6 +107,8 @@ export interface DataFavroCardFieldNumber {
   /** The total value of the field. */
   total: number;
 }
+
+export type DataFavroRating = 0 | 1 | 2 | 3 | 4 | 5;
 
 export interface DataFavroCardFieldTimeUserReport {
   /** The id of the user entry. */
@@ -135,7 +137,7 @@ export interface DataFavroCardFieldText {
 }
 export interface DataFavroCardFieldRating {
   /** The value of the field. Valid value is integer from 0 to 5. */
-  total: 0 | 1 | 2 | 3 | 4 | 5;
+  total: DataFavroRating;
 }
 export interface DataFavroCardFieldVote {
   /** The id array of users that vote for the field. */
@@ -177,7 +179,7 @@ interface DataFavroCardFieldTags {
   /** The id array of tags that are added to card. */
   value: string[];
 }
-export interface DataFavroCardFieldStatus {
+export interface DataFavroCardFieldSingleSelect {
   /** The id array of item that are added to card. */
   value: string[];
 }

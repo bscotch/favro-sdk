@@ -1,6 +1,5 @@
 import type { DataFavroOrganization } from '$types/FavroApiTypes';
 import { BravoEntity } from '$lib/BravoEntity.js';
-import { BravoOrganizationMember } from './users.js';
 
 /** Hydrated Favro Organization. */
 export class BravoOrganization extends BravoEntity<DataFavroOrganization> {
@@ -9,9 +8,7 @@ export class BravoOrganization extends BravoEntity<DataFavroOrganization> {
   }
 
   get sharedToUsers() {
-    return this._data.sharedToUsers.map(
-      (u) => new BravoOrganizationMember(this._client, u),
-    );
+    return [...this._data.sharedToUsers];
   }
 
   get organizationId() {

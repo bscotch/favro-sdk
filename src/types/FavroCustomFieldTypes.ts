@@ -31,10 +31,12 @@ export interface DataFavroCustomFieldDefinition<
   /** True if the custom field is currently enabled for the organization. */
   enabled: boolean;
   /** The list of items that this custom field can have in case it is a selectable one. */
-  customFieldItems?: {
-    /** The id of the custom field item. */
-    customFieldItemId: string;
-    /** The name of the custom field item. */
-    name: string;
-  }[];
+  customFieldItems: FieldType extends 'Single select' | 'Multiple Select'
+    ? {
+        /** The id of the custom field item. */
+        customFieldItemId: string;
+        /** The name of the custom field item. */
+        name: string;
+      }[]
+    : undefined;
 }

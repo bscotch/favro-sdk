@@ -3,19 +3,20 @@
 ### TODOs
 
 - Setters for Custom Field Value setters (in priority order):
-  - Text
-  - Status
+  - ✅ Text
+  - ✅ Vote
+  - ✅ Rating
+  - ✅ Number
+  - ✅ Checkbox
+  - ✅ Date
+  - ✅ Link
+  - 😒 Status
   - Members
   - Tags
-  - Number
-  - Checkbox
-  - Date
   - Multiple select
-  - Link
-  - Time
   - Timeline
-  - Vote
-  - Rating
+  - ~~Time~~ (only used in Enterprise)
+- Are custom fields unsettable? Maybe by sending a `null`?
 
 ### Feature List
 
