@@ -1,3 +1,12 @@
+# [0.6.0](https://github.com/bscotch/favro-sdk/compare/v0.5.0...v0.6.0) (2021-08-27)
+
+
+### Features
+
+* Add setter methods for Custom Multiple Select fields. Also rename Single Select methods. BREAKING ([30cd60b](https://github.com/bscotch/favro-sdk/commit/30cd60b327aa4af04a4109a91b80280d5bbc0d65))
+
+
+
 # [0.5.0](https://github.com/bscotch/favro-sdk/compare/v0.4.0...v0.5.0) (2021-08-26)
 
 
