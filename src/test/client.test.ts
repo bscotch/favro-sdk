@@ -580,6 +580,7 @@ describe('BravoClient', function () {
     });
 
     it('can update a Custom Status Field', async function () {
+      canSkip(this);
       // Find a custom text field to test
       const customField = await getCustomFieldByType(
         client,
@@ -588,7 +589,7 @@ describe('BravoClient', function () {
       );
       const newStatusId = customField.customFieldItems[0].customFieldItemId;
       assertBravoClaim(newStatusId, 'Should have a status ID');
-      await testCard.setCustomStatusByStatusId(customField, newStatusId);
+      await testCard.setCustomSingleSelect(customField, newStatusId);
       const updatedField = await testCard.getCustomField(customField);
       expect(updatedField.chosenOptions[0].customFieldItemId).to.equal(
         newStatusId,
@@ -599,7 +600,22 @@ describe('BravoClient', function () {
 
     xit('can update a Custom Members Field', async function () {});
 
-    xit('can update a Custom Muliple Select Field', async function () {});
+    it('can update a Custom Muliple Select Field', async function () {
+      const customField = await getCustomFieldByType(
+        client,
+        testCard,
+        'Multiple select',
+      );
+      const newStatuses = customField.customFieldItems!;
+      assertBravoClaim(newStatuses.length, 'Should have a status ID');
+      await testCard.setCustomMulipleSelect(customField, newStatuses);
+      const updatedField = await testCard.getCustomField(customField);
+      const expectedIds = newStatuses.map((s) => s.customFieldItemId).sort();
+      const actualIds = updatedField.chosenOptions
+        .map((o) => o.customFieldItemId)
+        .sort();
+      expect(expectedIds).to.eql(actualIds);
+    });
 
     it('can delete a created card', async function () {
       // Can't delete the last column, so we need to make another to delete!

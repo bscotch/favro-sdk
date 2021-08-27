@@ -15,6 +15,7 @@ import {
   createIsMatchFilter,
   ensureArrayExistsAndAddUnique,
   ensureArrayExistsAndAddUniqueBy,
+  isMatch,
   removeFromArray,
   stringsOrObjectsToStrings,
   wrapIfNotArray,
@@ -188,14 +189,20 @@ export class BravoCardUpdateBuilder {
     return this;
   }
 
-  setCustomStatusByStatusId(
+  setCustomSingleSelect(
     customFieldOrId: CustomFieldOrId<'Single select'>,
-    statusId: string,
+    statusOrId: string | { customFieldItemId: string; name: string },
   ) {
-    return this.setCustomFieldUniquely(customFieldOrId, { value: [statusId] });
+    return this.setCustomFieldUniquely(customFieldOrId, {
+      value: [
+        typeof statusOrId == 'string'
+          ? statusOrId
+          : statusOrId.customFieldItemId,
+      ],
+    });
   }
 
-  setCustomStatusByStatusName(
+  setCustomSingleSelectByName(
     customFieldId: CustomFieldOrId<'Single select'>,
     statusName: string | RegExp,
     fieldDefinition:
@@ -210,10 +217,7 @@ export class BravoCardUpdateBuilder {
       status,
       `No status matching ${statusName} found on custom field ${customFieldId}`,
     );
-    return this.setCustomStatusByStatusId(
-      customFieldId,
-      status.customFieldItemId,
-    );
+    return this.setCustomSingleSelect(customFieldId, status.customFieldItemId);
   }
 
   setCustomText(customFieldId: CustomFieldOrId<'Text'>, text: string) {
@@ -264,6 +268,39 @@ export class BravoCardUpdateBuilder {
     rating: DataFavroRating,
   ) {
     return this.setCustomFieldUniquely(customFieldId, { total: rating });
+  }
+
+  setCustomMulipleSelect(
+    customFieldOrId: CustomFieldOrId<'Multiple select'>,
+    optionOrIds: (string | { customFieldItemId: string; name: string })[],
+  ) {
+    return this.setCustomFieldUniquely(customFieldOrId, {
+      value: optionOrIds.map((o) =>
+        typeof o == 'string' ? o : o.customFieldItemId,
+      ),
+    });
+  }
+
+  setCustomMulipleSelectByName(
+    customFieldId: CustomFieldOrId<'Multiple select'>,
+    optionNames: (string | RegExp)[],
+    fieldDefinition:
+      | DataFavroCustomFieldDefinition
+      | BravoCustomFieldDefinition<'Multiple select'>
+      | BravoCustomField<'Multiple select'>,
+  ) {
+    assertBravoClaim(optionNames.length > 0, 'No option names provided');
+    const matchingOptions = fieldDefinition.customFieldItems!.filter((item) =>
+      optionNames.some((name) => isMatch(item.name, name)),
+    );
+    assertBravoClaim(
+      matchingOptions.length === optionNames.length,
+      `Expected to find ${optionNames.length} matching options, but found ${matchingOptions.length}.`,
+    );
+    return this.setCustomMulipleSelect(
+      customFieldId,
+      matchingOptions.map((o) => o.customFieldItemId),
+    );
   }
 
   // TODO: Map these onto Card methods & test

@@ -253,16 +253,16 @@ export class BravoCardInstance extends BravoEntity<DataFavroCard> {
 
   //#region CUSTOM FIELDS
 
-  async setCustomStatusByStatusId(
-    ...args: Parameters<BravoCardUpdateBuilder['setCustomStatusByStatusId']>
+  async setCustomSingleSelect(
+    ...args: Parameters<BravoCardUpdateBuilder['setCustomSingleSelect']>
   ) {
-    return await this.updateField('setCustomStatusByStatusId', ...args);
+    return await this.updateField('setCustomSingleSelect', ...args);
   }
 
-  async setCustomStatusByStatusName(
-    ...args: Parameters<BravoCardUpdateBuilder['setCustomStatusByStatusName']>
+  async setCustomSingleSelectByName(
+    ...args: Parameters<BravoCardUpdateBuilder['setCustomSingleSelectByName']>
   ) {
-    return await this.updateField('setCustomStatusByStatusName', ...args);
+    return await this.updateField('setCustomSingleSelectByName', ...args);
   }
 
   async setCustomText(
@@ -305,6 +305,18 @@ export class BravoCardInstance extends BravoEntity<DataFavroCard> {
     ...args: Parameters<BravoCardUpdateBuilder['setCustomRating']>
   ) {
     return await this.updateField('setCustomRating', ...args);
+  }
+
+  async setCustomMulipleSelect(
+    ...args: Parameters<BravoCardUpdateBuilder['setCustomMulipleSelect']>
+  ) {
+    return await this.updateField('setCustomMulipleSelect', ...args);
+  }
+
+  async setCustomMulipleSelectByName(
+    ...args: Parameters<BravoCardUpdateBuilder['setCustomMulipleSelectByName']>
+  ) {
+    return await this.updateField('setCustomMulipleSelectByName', ...args);
   }
 
   //#endregion
