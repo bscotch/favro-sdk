@@ -1,3 +1,13 @@
+# [0.8.0](https://github.com/bscotch/favro-sdk/compare/v0.7.0...v0.8.0) (2021-08-28)
+
+
+### Features
+
+* Add new importsNotUsedAsValues field to tsconfig to make it easy to catch imports that should be type-imports, and fix all discovered errors. ([84f07d6](https://github.com/bscotch/favro-sdk/commit/84f07d67d6722d9b6f2975497b84c49c84b62cbe))
+* Add Tag management methods to the Client and improve related methods on Cards. BREAKING ([4f364e5](https://github.com/bscotch/favro-sdk/commit/4f364e585bd4bdbeb0a0287d48c4e7c29cf94597))
+
+
+
 # [0.7.0](https://github.com/bscotch/favro-sdk/compare/v0.6.0...v0.7.0) (2021-08-28)
 
 
