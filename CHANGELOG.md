@@ -1,3 +1,12 @@
+# [0.7.0](https://github.com/bscotch/favro-sdk/compare/v0.6.0...v0.7.0) (2021-08-28)
+
+
+### Features
+
+* Add methods for setting Custom Members fields. ([24af17d](https://github.com/bscotch/favro-sdk/commit/24af17d1d1c1d27ce82b97365194d3c453b4f2ec))
+
+
+
 # [0.6.0](https://github.com/bscotch/favro-sdk/compare/v0.5.0...v0.6.0) (2021-08-27)
 
 
