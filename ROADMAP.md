@@ -12,10 +12,11 @@
   - ✅ Link
   - ✅ Status
   - ✅ Multiple select
-  - Members
+  - ✅ Members
   - Timeline
   - Tags
   - ~~Time~~ (only used in Enterprise)
+- Clean up all ONE MILLION types. Probably need to wrap in namespaces to keep it manageable.
 - Are custom fields unsettable? Maybe by sending a `null`?
 
 ### Feature List

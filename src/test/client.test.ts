@@ -580,7 +580,7 @@ describe('BravoClient', function () {
     });
 
     it('can update a Custom Status Field', async function () {
-      canSkip(this);
+      // canSkip(this);
       // Find a custom text field to test
       const customField = await getCustomFieldByType(
         client,
@@ -598,7 +598,21 @@ describe('BravoClient', function () {
 
     xit('can update a Custom Tags Field', async function () {});
 
-    xit('can update a Custom Members Field', async function () {});
+    it('can update a Custom Members Field', async function () {
+      canSkip(this);
+      const customField = await getCustomFieldByType(
+        client,
+        testCard,
+        'Members',
+      );
+      await testCard.addCustomMembers(customField, [testUser]);
+      await testCard.completeCustomMembers(customField, [testUser]);
+      let updatedField = await testCard.getCustomField(customField);
+      expect(updatedField.assignedTo).to.eql([testUser.userId]);
+      await testCard.removeCustomMembers(customField, [testUser]);
+      updatedField = await testCard.getCustomField(customField);
+      expect(updatedField.assignedTo).to.eql([]);
+    });
 
     it('can update a Custom Muliple Select Field', async function () {
       const customField = await getCustomFieldByType(

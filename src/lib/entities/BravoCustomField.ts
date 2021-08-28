@@ -174,6 +174,16 @@ export class BravoCustomField<TypeName extends DataFavroCustomFieldType> {
     );
   }
 
+  get assignedTo(): TypeName extends 'Members' ? string[] : never {
+    const { type: fieldType } = this;
+    assertBravoClaim(
+      fieldType === 'Members',
+      `Fields of type ${fieldType} do not have members assigned to them.`,
+    );
+    // @ts-expect-error
+    return this.value?.value || [];
+  }
+
   get humanFriendlyValue():
     | BravoHumanFriendlyFieldValues[TypeName]
     | undefined {
@@ -218,7 +228,7 @@ export class BravoCustomField<TypeName extends DataFavroCustomFieldType> {
         return (value as DataFavroCustomFieldsValues['Link']).link;
       case 'Members':
         // @ts-expect-error
-        return (value as DataFavroCustomFieldsValues['Members']).value;
+        return this.assignedTo;
       case 'Tags':
         // @ts-expect-error
         return this.chosenOptions;

@@ -10,26 +10,31 @@ import type {
   DataFavroCardFieldTimeline,
   DataFavroCardFavroAttachment,
   DataFavroCardFieldTimeUserReport,
+  DataFavroCustomFieldType,
 } from './FavroCardTypes';
 import { ExtractKeysByValue } from './Utility.js';
 
-interface DataFavroCardFieldMembersUpdate {
-  /** The list of members, that will be added to the card custom field (array of userIds).*/
-  addUserIds: string[];
-  /** The list of members, that will be removed from card custom field (array of userIds).*/
-  removeUserIds: string[];
-  /** The list of card assignment, that will update their statuses on the custom field accordingly.*/
-  completeUsers: string[];
+export interface DataFavroCardFieldMembersUpdate {
+  members: {
+    /** The list of members, that will be added to the card custom field (array of userIds).*/
+    addUserIds: string[];
+    /** The list of members, that will be removed from card custom field (array of userIds).*/
+    removeUserIds: string[];
+    /** The list of card assignment, that will update their statuses on the custom field accordingly.*/
+    completeUsers: { userId: string; completed: boolean }[];
+  };
 }
 interface DataFavroCardFieldTagsUpdate {
-  /** The list of tag names or card tags that will be added to this card custom field. If the tag does not exist in the organization it will be created.*/
-  addTags: string[];
-  /** A list of tagIds that will be added to this card custom field.*/
-  addTagIds: string[];
-  /** The list of tag names, that will be removed from this card custom field.*/
-  removeTags: string[];
-  /** The list of tag IDs, that will be removed from this card custom field.*/
-  removeTagIds: string[];
+  tags: {
+    /** The list of tag names or card tags that will be added to this card custom field. If the tag does not exist in the organization it will be created.*/
+    addTags: string[];
+    /** A list of tagIds that will be added to this card custom field.*/
+    addTagIds: string[];
+    /** The list of tag names, that will be removed from this card custom field.*/
+    removeTags: string[];
+    /** The list of tag IDs, that will be removed from this card custom field.*/
+    removeTagIds: string[];
+  };
 }
 
 interface DataFavroCardFieldTimeUpdate {
@@ -41,7 +46,7 @@ interface DataFavroCardFieldTimeUpdate {
   removeUserReports: DataFavroCardFieldTimeUserReport;
 }
 
-interface DataFavroCardFieldVoteUpdate {
+interface DataFavroCardFieldVotingUpdate {
   /**
    * The value to determine the field should be either voted or unvoted.
    *
@@ -57,27 +62,43 @@ interface DataFavroCardFieldVoteUpdate {
  *
  * {@link https://favro.com/developer/#card-custom-field-parameters}
  */
-export type FavroApiParamsCardUpdateCustomField = {
+export type FavroApiParamsCardUpdateCustomField<
+  FieldType extends DataFavroCustomFieldType = any,
+> = {
   customFieldId: string;
-} & FavroApiParamsCardCustomField;
+} & FavroApiParamsCardCustomField<FieldType>;
 
-export type FavroApiParamsCardCustomField =
-  | DataFavroCardFieldCheckbox
-  | DataFavroCardFieldDate
-  | DataFavroCardFieldLink
-  | DataFavroCardFieldMultipleSelect
-  | DataFavroCardFieldNumber
-  | DataFavroCardFieldRating
-  | DataFavroCardFieldSingleSelect
-  | DataFavroCardFieldText
-  | DataFavroCardFieldTimeline
-  | DataFavroCardFieldMembersUpdate
-  | DataFavroCardFieldTagsUpdate
-  | DataFavroCardFieldTimeUpdate
-  | DataFavroCardFieldVoteUpdate;
+export type FavroApiParamsCardCustomField<
+  FieldType extends DataFavroCustomFieldType = any,
+> = FavroApiParamsCardCustomFields[FieldType];
+
+/**
+ * Map of Custom Field Types to their respective
+ * update object shapes.
+ */
+type FavroApiParamsCardCustomFields = {
+  Checkbox: DataFavroCardFieldCheckbox;
+  Date: DataFavroCardFieldDate;
+  Link: DataFavroCardFieldLink;
+  'Multiple select': DataFavroCardFieldMultipleSelect;
+  Number: DataFavroCardFieldNumber;
+  Rating: DataFavroCardFieldRating;
+  'Single select': DataFavroCardFieldSingleSelect;
+  Text: DataFavroCardFieldText;
+  Timeline: DataFavroCardFieldTimeline;
+  Members: DataFavroCardFieldMembersUpdate;
+  Tags: DataFavroCardFieldTagsUpdate;
+  Time: DataFavroCardFieldTimeUpdate;
+  Voting: DataFavroCardFieldVotingUpdate;
+};
 
 export type FavroApiParamsCardUpdateField = keyof FavroApiParamsCardUpdate;
 
+/**
+ * Fields for a Card update request whose values are arrays.
+ *
+ * Useful for generic methods that act on arrays.
+ */
 export type FavroApiParamsCardUpdateArrayField = ExtractKeysByValue<
   Required<FavroApiParamsCardUpdate>,
   any[]

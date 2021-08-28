@@ -308,15 +308,39 @@ export class BravoCardInstance extends BravoEntity<DataFavroCard> {
   }
 
   async setCustomMulipleSelect(
-    ...args: Parameters<BravoCardUpdateBuilder['setCustomMulipleSelect']>
+    ...args: Parameters<BravoCardUpdateBuilder['setCustomMultipleSelect']>
   ) {
-    return await this.updateField('setCustomMulipleSelect', ...args);
+    return await this.updateField('setCustomMultipleSelect', ...args);
   }
 
   async setCustomMulipleSelectByName(
-    ...args: Parameters<BravoCardUpdateBuilder['setCustomMulipleSelectByName']>
+    ...args: Parameters<BravoCardUpdateBuilder['setCustomMultipleSelectByName']>
   ) {
-    return await this.updateField('setCustomMulipleSelectByName', ...args);
+    return await this.updateField('setCustomMultipleSelectByName', ...args);
+  }
+
+  async addCustomMembers(
+    ...args: Parameters<BravoCardUpdateBuilder['addCustomMembers']>
+  ) {
+    return await this.updateField('addCustomMembers', ...args);
+  }
+
+  async removeCustomMembers(
+    ...args: Parameters<BravoCardUpdateBuilder['removeCustomMembers']>
+  ) {
+    return await this.updateField('removeCustomMembers', ...args);
+  }
+
+  async completeCustomMembers(
+    ...args: Parameters<BravoCardUpdateBuilder['completeCustomMembers']>
+  ) {
+    return await this.updateField('completeCustomMembers', ...args);
+  }
+
+  async uncompleteCustomMembers(
+    ...args: Parameters<BravoCardUpdateBuilder['uncompleteCustomMembers']>
+  ) {
+    return await this.updateField('uncompleteCustomMembers', ...args);
   }
 
   //#endregion

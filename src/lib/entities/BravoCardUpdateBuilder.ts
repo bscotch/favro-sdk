@@ -7,11 +7,13 @@ import {
   FavroApiParamsCardCustomField,
   FavroApiParamsCardUpdate,
   FavroApiParamsCardUpdateArrayField,
+  FavroApiParamsCardUpdateCustomField,
 } from '$/types/FavroCardUpdateTypes.js';
 import { DataFavroCustomFieldDefinition } from '$/types/FavroCustomFieldTypes.js';
 import { RequiredBy } from '$/types/Utility.js';
 import { assertBravoClaim } from '../errors.js';
 import {
+  addToUniqueArrayBy,
   createIsMatchFilter,
   ensureArrayExistsAndAddUnique,
   ensureArrayExistsAndAddUniqueBy,
@@ -270,7 +272,7 @@ export class BravoCardUpdateBuilder {
     return this.setCustomFieldUniquely(customFieldId, { total: rating });
   }
 
-  setCustomMulipleSelect(
+  setCustomMultipleSelect(
     customFieldOrId: CustomFieldOrId<'Multiple select'>,
     optionOrIds: (string | { customFieldItemId: string; name: string })[],
   ) {
@@ -281,8 +283,8 @@ export class BravoCardUpdateBuilder {
     });
   }
 
-  setCustomMulipleSelectByName(
-    customFieldId: CustomFieldOrId<'Multiple select'>,
+  setCustomMultipleSelectByName(
+    customFieldOrId: CustomFieldOrId<'Multiple select'>,
     optionNames: (string | RegExp)[],
     fieldDefinition:
       | DataFavroCustomFieldDefinition
@@ -297,13 +299,84 @@ export class BravoCardUpdateBuilder {
       matchingOptions.length === optionNames.length,
       `Expected to find ${optionNames.length} matching options, but found ${matchingOptions.length}.`,
     );
-    return this.setCustomMulipleSelect(
-      customFieldId,
+    return this.setCustomMultipleSelect(
+      customFieldOrId,
       matchingOptions.map((o) => o.customFieldItemId),
     );
   }
 
   // TODO: Map these onto Card methods & test
+  private updateCustomMembers(
+    customFieldOrId: CustomFieldOrId<'Members'>,
+    members: (string | BravoUser)[],
+    action: 'add' | 'remove' | 'complete' | 'uncomplete',
+  ) {
+    const userIds = stringsOrObjectsToStrings(members, 'userId');
+    const customFieldId =
+      typeof customFieldOrId == 'string'
+        ? customFieldOrId
+        : customFieldOrId.customFieldId;
+    let update = this.update.customFields.find(
+      (f) => f.customFieldId == customFieldId,
+    ) as FavroApiParamsCardUpdateCustomField<'Members'> | undefined;
+    if (!update) {
+      update = {
+        customFieldId,
+        members: {
+          addUserIds: [],
+          removeUserIds: [],
+          completeUsers: [],
+        },
+      };
+      this.update.customFields.push(update);
+    }
+    if (action == 'add') {
+      update.members.addUserIds = userIds;
+    } else if (action == 'remove') {
+      update.members.removeUserIds = userIds;
+    } else if (action == 'complete') {
+      addToUniqueArrayBy(
+        update.members.completeUsers,
+        'userId',
+        userIds.map((u) => ({ userId: u, completed: true })),
+      );
+    } else if (action == 'uncomplete') {
+      addToUniqueArrayBy(
+        update.members.completeUsers,
+        'userId',
+        userIds.map((u) => ({ userId: u, completed: false })),
+      );
+    }
+    return this;
+  }
+
+  addCustomMembers(
+    customFieldOrId: CustomFieldOrId<'Members'>,
+    users: (string | BravoUser)[],
+  ) {
+    return this.updateCustomMembers(customFieldOrId, users, 'add');
+  }
+
+  removeCustomMembers(
+    customFieldOrId: CustomFieldOrId<'Members'>,
+    users: (string | BravoUser)[],
+  ) {
+    return this.updateCustomMembers(customFieldOrId, users, 'remove');
+  }
+
+  completeCustomMembers(
+    customFieldOrId: CustomFieldOrId<'Members'>,
+    users: (string | BravoUser)[],
+  ) {
+    return this.updateCustomMembers(customFieldOrId, users, 'complete');
+  }
+
+  uncompleteCustomMembers(
+    customFieldOrId: CustomFieldOrId<'Members'>,
+    users: (string | BravoUser)[],
+  ) {
+    return this.updateCustomMembers(customFieldOrId, users, 'uncomplete');
+  }
 
   /**
    * Get a plain update object that can be directly used
@@ -344,10 +417,8 @@ export class BravoCardUpdateBuilder {
     opposingField?: FavroApiParamsCardUpdateArrayField,
   ) {
     this.update[updateField] ||= [];
-    // @ts-expect-error
     ensureArrayExistsAndAddUnique(this.update[updateField], values);
     if (opposingField) {
-      // @ts-expect-error
       removeFromArray(this.update[opposingField], values);
     }
     return this;

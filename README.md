@@ -74,11 +74,12 @@ const bravoClient = new BravoClient({
 9. [Tips, Tricks, and Limitations](#tips-tricks-and-limitations)
    1. [API Rate Limits](#api-rate-limits)
    2. [Searching](#searching)
-   3. [Limited Markdown](#limited-markdown)
-   4. [Identifiers](#identifiers)
+   3. [Member fields & "completion"](#member-fields--completion)
+   4. [Limited Markdown](#limited-markdown)
+   5. [Identifiers](#identifiers)
       1. [Card Sequential IDs](#card-sequential-ids)
       2. [Widget-specific `cardId`s](#widget-specific-cardids)
-   5. [Creating Boards](#creating-boards)
+   6. [Creating Boards](#creating-boards)
 
 ## Authentication
 
@@ -345,6 +346,20 @@ The Favro API does provide some filtering options, e.g. to restrict the "get Car
 To _find_ something via the API then requires an exhaustive search followed by local filtering. Bravo adds some convenience methods for things like finding a card by name, but it does so by doing an exhaustive search behind the scenes.
 
 Bravo does some caching and lazy-loading to reduce the impact of this on the number of API requests it makes, but the end result is always going to be that search functionality in Bravo has to consume a lot of API requests, especially if you have a lot of stuff in Favro.
+
+### Member fields & "completion"
+
+Cards have a default Members field, and also allows for Custom Members fields. You'll notice that, via the Favro webapp, if you click the "Mark as complete" button you'll get a checkmark next to your avatar *in every Members-type field*. (And all will be unchecked if you then mark as incomplete.) But via the API, you mark a user "complete" via the built-in *or* via the Custom Members field.
+
+So what happens when you mark a user as complete via the API, given the combinations of ways a user can be assigned to any subset of the default and any Custom Members fields?
+
+- All Member field "completion" statuses are **completely independent** via the API.
+- The Favro webapp will show checkmarks correctly by field -- if you used the API to mark the default field "complete" but not a Custom Field, you'll see the checkmark in the default Members assignment but not the Custom one.
+- The Favro webapp will only show the Card as "complete" if *all* Member fields are complete.
+- The Favro webapp couples completion state between all fields when you use the "Mark as (in)complete" button.
+- If you use the context menu for an individual Member field in the Favro webapp, you can separately manage completion state between fields via the app.
+- The Favro API *does not* provide a way for you to obtain a user's "complete" status for a Custom Members field via the API. You can *set* the state but not *get* the state! ([Upvote the feature request!](https://favro.canny.io/feature-requests/p/favro-api-return-complete-state-for-custom-members-fields))
+
 
 ### Limited Markdown
 
