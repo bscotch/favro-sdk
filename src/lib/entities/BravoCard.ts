@@ -3,7 +3,7 @@ import type {
   DataFavroCustomFieldType,
 } from '$/types/FavroCardTypes.js';
 import type { FavroApiParamsCardUpdate } from '$/types/FavroCardUpdateTypes.js';
-import { ExtractKeysByValue } from '$/types/Utility.js';
+import type { ExtractKeysByValue } from '$/types/Utility.js';
 import { BravoEntity } from '$lib/BravoEntity.js';
 import { assertBravoClaim } from '../errors.js';
 import { isMatch } from '../utility.js';
@@ -184,16 +184,12 @@ export class BravoCardInstance extends BravoEntity<DataFavroCard> {
     return await this.updateField('removeTagsByName', ...args);
   }
 
-  async addTagsById(
-    ...args: Parameters<BravoCardUpdateBuilder['addTagsById']>
-  ) {
-    return await this.updateField('addTagsById', ...args);
+  async addTags(...args: Parameters<BravoCardUpdateBuilder['addTags']>) {
+    return await this.updateField('addTags', ...args);
   }
 
-  async removeTagsById(
-    ...args: Parameters<BravoCardUpdateBuilder['removeTagsById']>
-  ) {
-    return await this.updateField('removeTagsById', ...args);
+  async removeTags(...args: Parameters<BravoCardUpdateBuilder['removeTags']>) {
+    return await this.updateField('removeTags', ...args);
   }
 
   async setStartDate(

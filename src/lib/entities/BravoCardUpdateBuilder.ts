@@ -1,16 +1,16 @@
-import {
+import type {
   DataFavroCardFavroAttachment,
   DataFavroCustomFieldType,
   DataFavroRating,
 } from '$/types/FavroCardTypes.js';
-import {
+import type {
   FavroApiParamsCardCustomField,
   FavroApiParamsCardUpdate,
   FavroApiParamsCardUpdateArrayField,
   FavroApiParamsCardUpdateCustomField,
 } from '$/types/FavroCardUpdateTypes.js';
-import { DataFavroCustomFieldDefinition } from '$/types/FavroCustomFieldTypes.js';
-import { RequiredBy } from '$/types/Utility.js';
+import type { DataFavroCustomFieldDefinition } from '$/types/FavroCustomFieldTypes.js';
+import type { RequiredBy } from '$/types/Utility.js';
 import { assertBravoClaim } from '../errors.js';
 import {
   addToUniqueArrayBy,
@@ -22,11 +22,12 @@ import {
   stringsOrObjectsToStrings,
   wrapIfNotArray,
 } from '../utility.js';
-import {
+import type {
   BravoCustomField,
   BravoCustomFieldDefinition,
 } from './BravoCustomField.js';
-import { BravoUser } from './BravoUser.js';
+import type { BravoTagDefinition } from './BravoTag.js';
+import type { BravoUser } from './BravoUser.js';
 
 export type CustomFieldOrId<FieldType extends DataFavroCustomFieldType = any> =
   | string
@@ -95,12 +96,14 @@ export class BravoCardUpdateBuilder {
     return this.addToUniqueArray('removeTags', names, 'addTags');
   }
 
-  addTagsById(ids: string[]) {
-    return this.addToUniqueArray('addTagIds', ids, 'removeTagIds');
+  addTags(tagDefinitionsOrIds: (string | BravoTagDefinition)[]) {
+    const tagIds = stringsOrObjectsToStrings(tagDefinitionsOrIds, 'tagId');
+    return this.addToUniqueArray('addTagIds', tagIds, 'removeTagIds');
   }
 
-  removeTagsById(ids: string[]) {
-    return this.addToUniqueArray('removeTagIds', ids, 'addTagIds');
+  removeTags(tagDefinitionsOrIds: (string | BravoTagDefinition)[]) {
+    const tagIds = stringsOrObjectsToStrings(tagDefinitionsOrIds, 'tagId');
+    return this.addToUniqueArray('removeTagIds', tagIds, 'addTagIds');
   }
 
   setStartDate(date: Date | null) {

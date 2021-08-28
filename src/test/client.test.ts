@@ -45,6 +45,7 @@ import {
 import type { DataFavroCustomFieldType } from '$/types/FavroCardTypes.js';
 import { assertBravoClaim } from '$/lib/errors.js';
 import type { BravoUser } from '$/lib/entities/BravoUser.js';
+import type { BravoTagDefinition } from '$/lib/entities/BravoTag.js';
 
 /**
  * @note A root .env file must be populated with the required
@@ -58,6 +59,7 @@ const testCollectionName = '___BRAVO_TEST_COLLECTION';
 const testWidgetName = '___BRAVO_TEST_WIDGET';
 const testColumnName = '___BRAVO_TEST_COLUMN';
 const testCardName = '___BRAVO_TEST_CARD';
+const testTagName = '___BRAVO_TEST_TAG';
 const customFieldUniqueName = `Unique Text Field`;
 const customFieldRepeatedName = `Repeated Text Field`;
 const customFieldUniquenessTestType = 'Text';
@@ -173,6 +175,7 @@ describe('BravoClient', function () {
   let testColumn: BravoColumn;
   let testCard: BravoCardInstance;
   let testUser: BravoUser;
+  let testTag: BravoTagDefinition;
 
   // !!!
   // Tests are in a specific order to ensure that dependencies
@@ -185,6 +188,7 @@ describe('BravoClient', function () {
     // Clean up any leftover remote testing content
     // (Since names aren't required to be unique, there could be quite a mess!)
     // NOTE:
+    await (await client.findTagDefinitionByName(testTagName))?.delete();
     while (true) {
       const collection = await client.findCollectionByName(testCollectionName);
       if (!collection) {
@@ -245,7 +249,36 @@ describe('BravoClient', function () {
     expect(me!.email).to.equal(myUserEmail);
   });
 
-  describe('Collections', function () {
+  describe('Tags', function () {
+    it('can create a tag', async function () {
+      const tag = await client.createTagDefinition({
+        name: testTagName,
+        color: 'purple',
+      });
+      expect(tag.name).to.equal(testTagName);
+      expect(tag.color).to.equal('purple');
+      testTag = tag;
+    });
+
+    it('can find tags', async function () {
+      const tags = await client.listTagDefinitions();
+      const matchingTestTag = await tags.find(
+        (tag) => tag.name === testTagName,
+      );
+      assertBravoClaim(matchingTestTag, 'Tag not found');
+      expect(
+        testTag.equals(matchingTestTag),
+        'Should find created tag with exhaustive search by name',
+      ).to.be.true;
+
+      expect(
+        testTag.equals((await tags.findById('tagId', testTag.tagId))!),
+        'Should be able to find tag using find-by-id cache',
+      ).to.be.true;
+    });
+  });
+
+  xdescribe('Collections', function () {
     it('can create a collection', async function () {
       testCollection = await client.createCollection(testCollectionName);
       assertBravoTestClaim(testCollection, 'Collection not created');

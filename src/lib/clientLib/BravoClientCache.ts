@@ -4,6 +4,7 @@ import type { BravoUser } from '$/lib/entities/BravoUser';
 import type { BravoCollection } from '$entities/BravoCollection.js';
 import type {
   BravoResponseCustomFields,
+  BravoResponseTags,
   BravoResponseWidgets,
 } from './BravoResponse.js';
 import type { BravoColumn } from '../entities/BravoColumn.js';
@@ -33,6 +34,12 @@ export class BravoClientCache {
    * filtering options for Custom Fields
    */
   protected _customFields?: BravoResponseCustomFields;
+
+  /**
+   * Tags are handled like Custom Fields, since they are global
+   * and not meaningfully searchable via the API.
+   */
+  protected _tags?: BravoResponseTags;
 
   get collections() {
     // @ts-expect-error
@@ -64,6 +71,13 @@ export class BravoClientCache {
   }
   set customFields(customFields: BravoResponseCustomFields) {
     this._customFields = customFields;
+  }
+
+  get tags() {
+    return this._tags;
+  }
+  set tags(tags: BravoResponseTags | undefined) {
+    this._tags = tags;
   }
 
   /**
@@ -178,5 +192,6 @@ export class BravoClientCache {
     this._widgets.clear();
     this._columns.clear();
     this._customFields = undefined;
+    this._tags = undefined;
   }
 }

@@ -26,8 +26,8 @@ import type {
 } from '$/types/FavroApiTypes';
 import type { OptionsBravoCreateWidget } from '$/types/ParameterOptions.js';
 import { BravoColumn } from './entities/BravoColumn.js';
-import { DataFavroColumn } from '$/types/FavroColumnTypes.js';
-import { ArrayMatchFunction } from '$/types/Utility.js';
+import type { DataFavroColumn } from '$/types/FavroColumnTypes.js';
+import type { ArrayMatchFunction, RequiredBy } from '$/types/Utility.js';
 import type {
   DataFavroCard,
   DataFavroCardAttachment,
@@ -36,11 +36,13 @@ import type {
 } from '$/types/FavroCardTypes.js';
 import { BravoCardInstance } from './entities/BravoCard.js';
 import { BravoCustomFieldDefinition } from './entities/BravoCustomField.js';
-import { DataFavroCustomFieldDefinition } from '$/types/FavroCustomFieldTypes.js';
-import { FavroApiParamsCardUpdate } from '$/types/FavroCardUpdateTypes.js';
+import type { DataFavroCustomFieldDefinition } from '$/types/FavroCustomFieldTypes.js';
+import type { FavroApiParamsCardUpdate } from '$/types/FavroCardUpdateTypes.js';
 import type { FavroResponse } from './clientLib/FavroResponse.js';
 import { readFileSync } from 'fs';
 import { basename } from 'path';
+import { BravoTagDefinition } from './entities/BravoTag.js';
+import type { FavroDataTypes } from '$/types/FavroTagTypes.js';
 
 /**
  * The `BravoClient` class should be singly-instanced for a given
@@ -160,7 +162,9 @@ export class BravoClient extends FavroClient {
     field: 'email' | 'name' | 'userId',
     value: string | RegExp,
   ) {
-    return await this.findMember(createIsMatchFilter(value, field));
+    const user = await this.findMember(createIsMatchFilter(value, field));
+    assertBravoClaim(user, `No user found with ${field} matching ${value}`);
+    return user;
   }
 
   //#endregion
@@ -635,6 +639,89 @@ export class BravoClient extends FavroClient {
       url += `?everywhere=true`;
     }
     await this.deleteEntity(url);
+  }
+
+  //#endregion
+
+  //#region TAGS
+
+  /**
+   * Get and cache *all* tags. Lazy-loads and caches to reduce API calls.
+   *
+   * {@link https://favro.com/developer/#get-all-tags}
+   */
+  async listTagDefinitions() {
+    if (!this.cache.tags) {
+      const res = (await this.requestWithReturnedEntities(
+        `tags`,
+        { method: 'get' },
+        BravoTagDefinition,
+      )) as BravoResponseEntities<
+        FavroDataTypes.Tag.Definition,
+        BravoTagDefinition
+      >;
+      this.cache.tags = res;
+    }
+    return this.cache.tags!;
+  }
+
+  async createTagDefinition(
+    options: Partial<
+      Omit<FavroDataTypes.Tag.Definition, 'tagId' | 'organizationId'>
+    >,
+  ) {
+    const res = (await this.requestWithReturnedEntities(
+      `tags`,
+      {
+        method: 'post',
+        body: options,
+      },
+      BravoTagDefinition,
+    )) as BravoResponseEntities<
+      FavroDataTypes.Tag.Definition,
+      BravoTagDefinition
+    >;
+    return await res.getFirstEntity();
+  }
+
+  async updateTagDefinition(
+    options: RequiredBy<
+      Partial<Omit<FavroDataTypes.Tag.Definition, 'organizationId'>>,
+      'tagId'
+    >,
+  ) {
+    const res = (await this.requestWithReturnedEntities(
+      `tags`,
+      {
+        method: 'put',
+        body: options,
+      },
+      BravoTagDefinition,
+    )) as BravoResponseEntities<
+      FavroDataTypes.Tag.Definition,
+      BravoTagDefinition
+    >;
+    return await res.getFirstEntity();
+  }
+
+  async findTagDefinitionById(tagId: string) {
+    const tags = await this.listTagDefinitions();
+    const tag = await tags.findById('tagId', tagId);
+    assertBravoClaim(tag, `No tag found with id ${tagId}`);
+    return tag;
+  }
+
+  async findTagDefinitionByName(name: string | RegExp) {
+    const tags = await this.listTagDefinitions();
+    return await tags.find(createIsMatchFilter(name, 'name'));
+  }
+
+  async deleteTagById(tagId: string) {
+    await this.deleteEntity(`tags/${tagId}`);
+    // The caching method makes it hard to invalidate a single
+    // tag entry (since it's all lazy-loaded), so for now do it
+    // the DUMB WAY: clear the entire tags cache.
+    this.cache.tags = undefined;
   }
 
   //#endregion
