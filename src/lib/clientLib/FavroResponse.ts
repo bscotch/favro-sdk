@@ -1,6 +1,6 @@
-import { Response } from 'node-fetch';
+import type { Response } from 'node-fetch';
 import { URL } from 'url';
-import {
+import type {
   DataFavroResponse,
   DataFavroResponsePaged,
 } from '$/types/FavroApiTypes';

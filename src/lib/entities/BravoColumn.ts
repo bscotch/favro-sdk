@@ -1,5 +1,5 @@
 import { BravoEntity } from '$lib/BravoEntity.js';
-import { DataFavroColumn } from '$/types/FavroColumnTypes.js';
+import type { DataFavroColumn } from '$/types/FavroColumnTypes.js';
 
 /**
  * A Favro Column is one of the available values for the default

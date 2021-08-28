@@ -1,6 +1,6 @@
 /** Which pane its in: backlog (left) or board (right) */
 
-import { OptionWidgetColor } from '$entities/BravoWidget.js';
+import type { OptionWidgetColor } from '$entities/BravoWidget.js';
 
 export type OptionWidgetType = 'backlog' | 'board';
 export type OptionWidgetRole = 'owners' | 'fullMembers' | 'guests';

@@ -1,5 +1,5 @@
 import type { DataAnyEntity } from '$/types/FavroApiTypes.js';
-import { BravoClient } from './BravoClient.js';
+import type { BravoClient } from './BravoClient.js';
 
 /**
  * Base class for Favro Entities (wrapping raw API data)

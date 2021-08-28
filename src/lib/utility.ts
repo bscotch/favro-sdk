@@ -1,4 +1,4 @@
-import { ArrayMatchFunction } from '$/types/Utility.js';
+import type { ArrayMatchFunction } from '$/types/Utility.js';
 import { assertBravoClaim } from './errors.js';
 
 export function stringsMatchIgnoringCase(string1: string, string2: string) {

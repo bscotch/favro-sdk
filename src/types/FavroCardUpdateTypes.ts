@@ -12,7 +12,7 @@ import type {
   DataFavroCardFieldTimeUserReport,
   DataFavroCustomFieldType,
 } from './FavroCardTypes';
-import { ExtractKeysByValue } from './Utility.js';
+import type { ExtractKeysByValue } from './Utility.js';
 
 export interface DataFavroCardFieldMembersUpdate {
   members: {
