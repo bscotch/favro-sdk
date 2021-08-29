@@ -1,3 +1,12 @@
+# [1.0.0](https://github.com/bscotch/favro-sdk/compare/v0.9.0...v1.0.0) (2021-08-29)
+
+
+### Features
+
+* Completely redo all Favro Api types into the FavroApi namespace. ([076f992](https://github.com/bscotch/favro-sdk/commit/076f992d28acf653568ead229d329edc1831027e))
+
+
+
 # [0.9.0](https://github.com/bscotch/favro-sdk/compare/v0.8.0...v0.9.0) (2021-08-29)
 
 
