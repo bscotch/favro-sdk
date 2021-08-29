@@ -55,8 +55,9 @@ const bravoClient = new BravoClient({
 3. [Quick Start](#quick-start)
 4. [Table of Contents](#table-of-contents)
 5. [Authentication](#authentication)
-6. [Dependencies](#dependencies)
-7. [Recipes](#recipes)
+6. [Favro API types](#favro-api-types)
+7. [Dependencies](#dependencies)
+8. [Recipes](#recipes)
    1. [Create a Bravo Client](#create-a-bravo-client)
    2. [Create a New Card](#create-a-new-card)
    3. [Search Existing Cards](#search-existing-cards)
@@ -64,14 +65,14 @@ const bravoClient = new BravoClient({
    5. [Batch-Update a Card's Common Fields](#batch-update-a-cards-common-fields)
    6. [Add a Card Attachment](#add-a-card-attachment)
    7. [Ensure up-to-date data (clear caches)](#ensure-up-to-date-data-clear-caches)
-8. [The Favro Data Model](#the-favro-data-model)
+9. [The Favro Data Model](#the-favro-data-model)
    1. [Collections](#collections)
    2. [Widgets (a.k.a. "Boards")](#widgets-aka-boards)
    3. [Columns (a.k.a. "Board Statuses")](#columns-aka-board-statuses)
    4. [Cards](#cards)
    5. [Built-In Card Fields](#built-in-card-fields)
    6. [Custom Fields](#custom-fields)
-9. [Tips, Tricks, and Limitations](#tips-tricks-and-limitations)
+10. [Tips, Tricks, and Limitations](#tips-tricks-and-limitations)
    1. [API Rate Limits](#api-rate-limits)
    2. [Searching](#searching)
    3. [Member fields & "completion"](#member-fields--completion)
@@ -88,6 +89,22 @@ To have Bravo access Favro on your behalf, you'll need to provide it with the cr
 1. `FAVRO_TOKEN`: Your Favro API token. To create one, go to your Profile, then "API Tokens" &rarr; "New API Token".
 2. `FAVRO_USER_EMAIL`: Your Favro account email.
 3. `FAVRO_ORGANIZATION_ID`: The Organization ID that you are targeting. You can get your Organization ID from the URL when using Favro in a browser. Favro URLs look like this: `favro.com/organization/{organizationId}`.
+
+## Favro API types
+
+Bravo contains full Typescript typings and TSDoc annotation for the data structures returned by [the Favro API](https://favro.com/developer/). The types are importable and can be used separately from Bravo. Types are organized in nested namespaces to keep them organized, and to keep from polluting the global search-scope for autocomplete services in your IDE.
+
+The root `FavroApi` namespace is exported at the entrypoint of this package, so you can import it along with the BravoClient:
+
+```ts
+import {BravoClient, FavroApi} from '@bscotch/bravo';
+
+// Create aliases to make using the more deeply nested
+// typings easier to access.
+type CardModel = FavroApi.Card.Model;
+```
+
+As long as your IDE has good Typescript support, you should be able to quickly navigate the `FavroApi` namespace to find the types you need.
 
 ## Dependencies
 
