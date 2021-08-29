@@ -1,6 +1,11 @@
 /**
- * Typings for the data models used by the Favro API.
- * See {@link https://favro.com/developer}
+ * Typings for the data models used by the Favro API, as
+ * a collection of namespaces per general data type (e.g. Widget, Card)
+ * containing interfaces and types for each data model.
+ *
+ * 📄 https://favro.com/developer
+ *
+ * @public
  */
 export namespace FavroApi {
   /**
@@ -29,9 +34,11 @@ export namespace FavroApi {
 
   /**
    * The standardized pageable format returned by much of the
-   * Favro API {@see https://favro.com/developer/#pagination }.
+   * Favro API
    *
-   * @template DataEntity The shape of the data structure specific to
+   * 📄 https://favro.com/developer/#pagination
+   *
+   * @typeParam DataEntity - The shape of the data structure specific to
    *                      the endpoint being paginated.
    */
   export interface ResponsePaged<DataEntity extends Record<string, any>> {
@@ -69,7 +76,7 @@ export namespace FavroApi {
    */
   export namespace Organization {
     /**
-     * Helper types for the values of {@link Organization.Model} fields.
+     * Helper types for the values of {@link FavroApi.Organization.Model} fields.
      */
     export namespace ModelFieldValue {
       export type Role =
@@ -98,7 +105,7 @@ export namespace FavroApi {
   /** Favro API Model model for Collections. */
   export namespace Collection {
     /**
-     * Helper types for the values of {@link Collection.Model} fields.
+     * Helper types for the values of {@link FavroApi.Collection.Model} fields.
      */
     export namespace ModelFieldValue {
       export type ColorBackground =
@@ -122,7 +129,9 @@ export namespace FavroApi {
       }
     }
 
-    /** {@link https://favro.com/developer/#collections} */
+    /**
+     * 📄 https://favro.com/developer/#collections
+     */
     export interface Model {
       /** The id of the collection. */
       collectionId: string;
@@ -146,7 +155,7 @@ export namespace FavroApi {
   /** Favro API Model models for Users */
   export namespace User {
     /**
-     * Helper types for the values of {@link User.Model}
+     * Helper types for the values of {@link FavroApi.User.Model}
      */
     export namespace ModelFieldValue {}
     export interface Model {
@@ -162,7 +171,8 @@ export namespace FavroApi {
    */
   export namespace Tag {
     export namespace ModelFieldValue {
-      /** {@link https://favro.com/developer/#tag-colors} */
+      /**
+       * 📄 https://favro.com/developer/#tag-colors */
       export type Color =
         | 'blue'
         | 'purple'
@@ -179,7 +189,8 @@ export namespace FavroApi {
 
     /**
      * The data model for a Tag returned from the Favro API.
-     * See {@link https://favro.com/developer/#tag} */
+     *
+     * 📄 https://favro.com/developer/#tag */
     export interface Model {
       tagId: string;
       organizationId: string;
@@ -193,7 +204,7 @@ export namespace FavroApi {
    */
   export namespace Widget {
     /**
-     * Helper types for the values of {@link Widget.Model} fields.
+     * Helper types for the values of {@link FavroApi.Widget.Model} fields.
      */
     export namespace ModelFieldValue {
       export type Color =
@@ -239,7 +250,7 @@ export namespace FavroApi {
     /**
      * The data model for the request body when creating a widget.
      *
-     * See {@link https://favro.com/developer/#update-a-widget}
+     * 📄 https://favro.com/developer/#update-a-widget
      */
     export type Create = { collectionId: string } & Partial<
       Pick<Model, 'name' | 'type' | 'color' | 'ownerRole' | 'editRole'>
@@ -252,7 +263,8 @@ export namespace FavroApi {
   export namespace Column {
     /**
      * The data model for Columns returned from the Favro API.
-     * {@link https://favro.com/developer/#column-object}
+     *
+     * 📄 https://favro.com/developer/#column-object
      */
     export interface Model {
       /** The id of the column. */
@@ -283,18 +295,18 @@ export namespace FavroApi {
    */
   export namespace CustomFieldDefinition {
     /**
-     * @alias {@link CustomFieldType}
+     * Alias for {@link FavroApi.CustomFieldType}
      */
     export type Type = CustomFieldType;
 
     /**
-     * Helper types for the values of {@link CustomFieldDefinition.Model} fields.
+     * Helper types for the values of {@link FavroApi.CustomFieldDefinition.Model} fields.
      *
      * 📄 https://favro.com/developer/#custom-field-types
      */
     export namespace ModelFieldValue {
       /**
-       * @alias {@link CustomFieldType}
+       * Alias for {@link FavroApi.CustomFieldType}
        */
       export type FieldType = Type;
 
@@ -313,7 +325,7 @@ export namespace FavroApi {
     /**
      * The Favro API data model for a Custom Field
      *
-     * {@link https://favro.com/developer/#custom-field}
+     * 📄 https://favro.com/developer/#custom-field
      */
     export interface Model<
       FieldType extends CustomFieldDefinition.ModelFieldValue.FieldType = any,
@@ -340,19 +352,19 @@ export namespace FavroApi {
 
   /**
    * Favro API Model models for Custom Field Values,
-   * when they are set on a {@link Card}. For the *definitions*
-   * of Custom Fields, see {@link CustomFieldDefinition}.
+   * when they are set on a {@link FavroApi.Card}. For the *definitions*
+   * of Custom Fields, see {@link FavroApi.CustomFieldDefinition}.
    *
    * 📄 https://favro.com/developer/#card-custom-fields
    */
   export namespace CustomFieldValue {
     /**
-     * @alias {@link CustomFieldType}
+     * Alias for {@link FavroApi.CustomFieldType}
      */
     export type Type = CustomFieldType;
 
     /**
-     * Helper types for the values of {@link CustomFieldValue.Model}
+     * Helper types for the values of {@link FavroApi.CustomFieldValue.Model}
      * fields.
      * 📄 https://favro.com/developer/#card-custom-fields
      */
@@ -362,7 +374,7 @@ export namespace FavroApi {
 
     /**
      * Data models for Custom Field Values returned from the Favro API,
-     * based on the {@link CustomFieldType} of that field.
+     * based on the {@link FavroApi.CustomFieldType} of that field.
      */
     export interface Models {
       Number: {
@@ -467,14 +479,14 @@ export namespace FavroApi {
      * @example
      * // Create an alias for a specific type of Custom Field Value
      * type CustomFieldValueSingleSelect =
-     *   FavroApi.CustomFieldValue.Model<'Single select'>;
+     *   FavroApi.CustomFieldValue.Model\<'Single select'\>;
      *
      * // Or keep things generic for narrowing later
-     * function somethingGeneric<
+     * function somethingGeneric\<
      *  Type extends FavroApi.CustomFieldValue.Type
-     * >(customFieldValue: FavorApi.CustomFieldValue.Model<Type>) {
+     * \>(customFieldValue: FavorApi.CustomFieldValue.Model\<Type\>) \{
      *  // ... do stuff
-     * }
+     * \}
      */
     export type Model<FieldType extends CustomFieldType = any> =
       Models[FieldType];
@@ -485,7 +497,7 @@ export namespace FavroApi {
     /**
      * Data structures used to update Custom Field values on cards.
      * These are not used by themselves; they are sent as an array
-     * of such structures when {@link Card.UpdateBody updating a card},
+     * of such structures when updating a card ({@link FavroApi.Card.UpdateBody }),
      * via the `customFields` field.
      *
      * 📄 https://favro.com/developer/#card-custom-field-parameters
@@ -526,7 +538,10 @@ export namespace FavroApi {
          */
         value: boolean;
       };
-      /** @private */
+      /**
+       * Not yet implemented.
+       *
+       * @alpha */
       Time: {
         customFieldId: string;
       };
@@ -538,13 +553,14 @@ export namespace FavroApi {
    * data returned from the Favro API consists of
    * Widget-specific Card "instances", with some
    * Card-global common properties, some common but Widget-specific
-   * properties, and Card-global {@link CustomFieldValue Custom Field values}.
+   * properties, and Card-global Custom Field values
+   * ({@link FavroApi.CustomFieldValue}).
    *
    * 📄 https://favro.com/developer/#card
    */
   export namespace Card {
     /**
-     * Helper types for the values of {@link Card.Model} fields.
+     * Helper types for the values of {@link FavroApi.Card.Model} fields.
      */
     export namespace ModelFieldValue {
       /** 📄 https://favro.com/developer/#card-assignment */

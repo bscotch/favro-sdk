@@ -129,10 +129,12 @@ export class FavroClient {
   }
 
   /**
-   * General API request function against Favro's HTTP API {@link https://favro.com/developer/}.
+   * General API request function against Favro's HTTP API.
    * Defaults to a GET request. Default headers are automatically handled.
    *
-   * @param url Relative to the base URL {@link https://favro.com/api/v1}
+   * 📄 https://favro.com/developer/
+   *
+   * @param url - Relative to the base URL https://favro.com/api/v1
    */
   async request<EntityData extends Record<string, any> | null = null>(
     url: string,

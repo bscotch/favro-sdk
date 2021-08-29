@@ -53,6 +53,8 @@ type ConstructorFavroEntity<EntityData extends Record<string, any>> = new (
  * const newCollection = await client.createCollection('My New Collection');
  * await newCollection.delete();
  * // ^^ shortcut for `await client.deleteCollection(newCollection.collectionId)`
+ *
+ * @public
  */
 export class BravoClient extends FavroClient {
   //#region Organizations
@@ -223,7 +225,8 @@ export class BravoClient extends FavroClient {
    * Returns the cached result of the first call until
    * the cache is cleared.
    * (Does not include archived)
-   * {@see https://favro.com/developer/#get-all-collections }
+   *
+   * 📄 https://favro.com/developer/#get-all-collections
    */
   async listCollections() {
     const org = await this.getCurrentOrganization();
@@ -435,7 +438,7 @@ export class BravoClient extends FavroClient {
    * List the Columns (Statuses) attached to a Widget.
    * Results are cached by Widget.
    *
-   * {@link https://favro.com/developer/#get-all-columns
+   * 📄 https://favro.com/developer/#get-all-columns
    */
   async listColumns(widgetCommonId: string) {
     if (!this.cache.getColumns(widgetCommonId)) {
@@ -532,7 +535,7 @@ export class BravoClient extends FavroClient {
    * The `sequentialId` is the numeric part of the incrementing
    * ID shown in the card's UI and shareable URL.
    *
-   * @param cardSequentialId The card's number as shown in the UI
+   * @param cardSequentialId - The card's number as shown in the UI
    *                         (can be just the number or include the prefix)
    */
   async findCardInstancesBySequentialId(cardSequentialId: number | string) {
@@ -545,9 +548,9 @@ export class BravoClient extends FavroClient {
    * or to ensure that the local copy of a specific card's
    * content is up-to-date prior to taking some action.
    *
-   * @param cardId The Widget-specific `cardId` (not the `commonCardId`!)
+   * @param cardId - The Widget-specific `cardId` (not the `commonCardId`!)
    *
-   * {@link https://favro.com/developer/#get-a-card}
+   * 📄 https://favro.com/developer/#get-a-card
    */
   async findCardInstanceByCardId(cardId: string) {
     assertBravoClaim(cardId, `No cardId provided`);
@@ -568,13 +571,13 @@ export class BravoClient extends FavroClient {
    * Update a card, given its ID and a collection of changes
    * you want to make.
    *
-   * @param cardId The Widget-specific `cardId` (not the `commonCardId`!)
+   * @param cardId - The Widget-specific `cardId` (not the `commonCardId`!)
    *
    * @remarks Custom Fields are hard to update this way, since
    * they require knowing the correct identifiers for both
    * fields and values.
    *
-   * {@link https://favro.com/developer/#update-a-card}
+   * 📄 https://favro.com/developer/#update-a-card
    */
   async updateCardInstanceByCardId(
     cardId: string,
@@ -596,7 +599,7 @@ export class BravoClient extends FavroClient {
 
   /**
    * Upload an attachment to a card.
-   * @param data  If not provided, assumes `filename` exists and
+   * @param data - If not provided, assumes `filename` exists and
    *              attempts to use its content.
    */
   async addAttachmentToCardInstance(
@@ -622,7 +625,7 @@ export class BravoClient extends FavroClient {
    * delete the card *everywhere* instead of only the widget
    * in which it it has the given `cardId`
    *
-   * {@link https://favro.com/developer/#delete-a-card}
+   * 📄 https://favro.com/developer/#delete-a-card
    */
   async deleteCardInstance(cardId: string, everywhere = false) {
     let url = `cards/${cardId}`;
@@ -639,7 +642,7 @@ export class BravoClient extends FavroClient {
   /**
    * Get and cache *all* tags. Lazy-loads and caches to reduce API calls.
    *
-   * {@link https://favro.com/developer/#get-all-tags}
+   * 📄 https://favro.com/developer/#get-all-tags
    */
   async listTagDefinitions() {
     if (!this.cache.tags) {
@@ -715,7 +718,7 @@ export class BravoClient extends FavroClient {
    * (The Favro API does not provide any filter options, so
    * Custom Fields can be obtained 1 at a time or 1 page at a time.)
    *
-   * {@link https://favro.com/developer/#get-all-custom-fields}
+   * 📄  https://favro.com/developer/#get-all-custom-fields
    */
   async listCustomFieldDefinitions() {
     if (!this.cache.customFields) {

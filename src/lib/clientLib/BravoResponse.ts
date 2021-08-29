@@ -59,7 +59,7 @@ export class BravoResponseEntities<
    * the scenes until exhausted. Populates a cache in the process,
    * so that subsequent iteration will not require additional API calls.
    * @example
-   * for await (let entity of this){}
+   * for await (let entity of this)\{\}
    */
   async *[Symbol.asyncIterator]() {
     // Ensure everything we've got so far is properly hydrated etc

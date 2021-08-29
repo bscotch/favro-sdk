@@ -369,7 +369,7 @@ export class BravoCardInstance extends BravoEntity<FavroApi.Card.Model> {
    * set, will still return the definition with the value set to
    * `undefined`.
    *
-   * > 💡 *Note that this method (using `customFieldId`) is the
+   * \> 💡 *Note that this method (using `customFieldId`) is the
    * only way to guarantee the desired field, since all Custom
    * Fields are global in the Favro API.*
    */
@@ -399,7 +399,7 @@ export class BravoCardInstance extends BravoEntity<FavroApi.Card.Model> {
    * Get the current value of a Custom Status Field on this card,
    * searching by the Custom Field `name` and type `type`.
    *
-   * > ⚠ Since Custom Fields are global in Favro, names can be changed,
+   * \> ⚠ Since Custom Fields are global in Favro, names can be changed,
    * and names may not be unique, this method has caveats. Read the rest
    * of this doc to fully understand them, and otherwise use the safer
    * {@link getCustomField} where possible.
@@ -524,7 +524,7 @@ export class BravoCardInstance extends BravoEntity<FavroApi.Card.Model> {
 
   /**
    * Upload an attachment to this card.
-   * @param data  If not provided, assumes `filename` exists and
+   * @param data - If not provided, assumes `filename` exists and
    *              attempts to use its content.
    */
   async attach(filename: string, data?: string | Buffer) {
