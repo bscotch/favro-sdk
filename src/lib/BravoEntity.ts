@@ -1,10 +1,9 @@
-import type { DataAnyEntity } from '$/types/FavroApiTypes.js';
 import type { BravoClient } from './BravoClient.js';
 
 /**
  * Base class for Favro Entities (wrapping raw API data)
  */
-export abstract class BravoEntity<EntityData extends DataAnyEntity> {
+export abstract class BravoEntity<EntityData extends Record<string, any>> {
   protected _deleted = false;
 
   constructor(protected _client: BravoClient, protected _data: EntityData) {}

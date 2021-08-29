@@ -1,12 +1,11 @@
 import { assertBravoClaim, BravoError } from '$lib/errors.js';
 import fetch from 'node-fetch';
 import { URL } from 'url';
-import type {
-  DataAnyEntity,
-  OptionFavroHttpMethod,
-} from '$/types/FavroApiTypes';
+import type { FavroApi } from '$/types/FavroApiTypes';
 import { FavroResponse } from '$lib/clientLib/FavroResponse';
 import { toBase64 } from '$lib/utility.js';
+
+type OptionFavroHttpMethod = 'get' | 'post' | 'put' | 'delete';
 
 export interface OptionsFavroRequest {
   method?: OptionFavroHttpMethod;
@@ -136,7 +135,7 @@ export class FavroClient {
    *
    * @param url Relative to the base URL {@link https://favro.com/api/v1}
    */
-  async request<EntityData extends DataAnyEntity | null = null>(
+  async request<EntityData extends Record<string, any> | null = null>(
     url: string,
     options?: OptionsFavroRequest,
   ): Promise<FavroResponse<EntityData, this>> {

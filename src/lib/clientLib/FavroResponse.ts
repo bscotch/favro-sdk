@@ -1,9 +1,6 @@
 import type { Response } from 'node-fetch';
 import { URL } from 'url';
-import type {
-  DataFavroResponse,
-  DataFavroResponsePaged,
-} from '$/types/FavroApiTypes';
+import type { FavroApi } from '$/types/FavroApiTypes';
 import { BravoError } from '../errors.js';
 import type { FavroClient } from './FavroClient.js';
 
@@ -16,7 +13,7 @@ export class FavroResponse<
    * If not defined, have not tried to obtain the body.
    * If null, have tried to obtain, but there wasn't one.
    */
-  private _parsedBody?: null | undefined | DataFavroResponse<DataEntity>;
+  private _parsedBody?: null | undefined | FavroApi.Response<DataEntity>;
 
   constructor(protected _client: Client, protected _response: Response) {}
 
@@ -63,7 +60,7 @@ export class FavroResponse<
       return;
     }
     const body =
-      (await this.getParsedBody()) as DataFavroResponsePaged<DataEntity>;
+      (await this.getParsedBody()) as FavroApi.ResponsePaged<DataEntity>;
     const urlInst = new URL(this._response.url);
     urlInst.searchParams.set('requestId', body.requestId);
     urlInst.searchParams.set('page', `${body.page + 1}`);
@@ -82,11 +79,11 @@ export class FavroResponse<
       this._parsedBody = null;
       return this._parsedBody;
     }
-    let responseBody: string | DataFavroResponse<DataEntity> = (
+    let responseBody: string | FavroApi.Response<DataEntity> = (
       await this._response.buffer()
     ).toString('utf8');
     try {
-      responseBody = JSON.parse(responseBody) as DataFavroResponse<DataEntity>;
+      responseBody = JSON.parse(responseBody) as FavroApi.Response<DataEntity>;
       this._parsedBody = responseBody;
       return this._parsedBody;
     } catch {

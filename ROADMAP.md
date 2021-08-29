@@ -1,21 +1,6 @@
 ## Bravo Roadmap
 
 ### TODOs
-
-- Setters for Custom Field Value setters (in priority order):
-  - ✅ Text
-  - ✅ Vote
-  - ✅ Rating
-  - ✅ Number
-  - ✅ Checkbox
-  - ✅ Date
-  - ✅ Link
-  - ✅ Status
-  - ✅ Multiple select
-  - ✅ Members
-  - Timeline
-  - Tags
-  - ~~Time~~ (only used in Enterprise)
 - Clean up all ONE MILLION types. Probably need to wrap in namespaces to keep it manageable.
 - Are custom fields unsettable? Maybe by sending a `null`?
 
@@ -75,7 +60,20 @@ Ordered hierarchically by the Favro data model (not by priority order):
   - ✔ Compose a card URL
   - ✔ Update a Card's built-in fields
   - ✔ Add an attachment to a card
-  - 🔜 Update a Card's Custom Fields
+  - ✔ Update a Card's Custom Fields
+    - ✔ Text
+    - ✔ Vote
+    - ✔ Rating
+    - ✔ Number
+    - ✔ Checkbox
+    - ✔ Date
+    - ✔ Link
+    - ✔ Status
+    - ✔ Multiple select
+    - ✔ Members
+    - ✔ Tags
+    - 🔥 Timeline
+    - ~~Time~~ (only used in Enterprise)
   - 🔥 Find card by field value, including Custom Fields
   - 🔥 Cache cards to reduce API calls (cards change frequently, so this might be a bad idea anyway)
 - Custom Fields

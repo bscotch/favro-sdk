@@ -1,4 +1,4 @@
-import type { DataFavroUser } from '$types/FavroApiTypes';
+import type { FavroApi } from '$types/FavroApiTypes';
 import { BravoEntity } from '$lib/BravoEntity.js';
 
 /**
@@ -22,7 +22,7 @@ class BravoUserBase<
  * A hydrated User entity, as returned from the Users API
  * endpoint.
  */
-export class BravoUser extends BravoUserBase<DataFavroUser> {
+export class BravoUser extends BravoUserBase<FavroApi.User.Data> {
   get name() {
     return this._data.name;
   }

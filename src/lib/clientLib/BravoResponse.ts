@@ -5,7 +5,7 @@ import type { DataFavroCustomFieldDefinition } from '$/types/FavroCustomFieldTyp
 import type { DataFavroWidget } from '$/types/FavroWidgetTypes.js';
 import type { BravoWidget } from '$entities/BravoWidget.js';
 import type { BravoCustomFieldDefinition } from '../entities/BravoCustomField.js';
-import type { FavroDataTypes } from '$/types/FavroTagTypes.js';
+import type { FavroApiData } from '$/types/FavroTagTypes.js';
 import type { BravoTagDefinition } from '../entities/BravoTag.js';
 
 export type BravoResponseWidgets = BravoResponseEntities<
@@ -19,7 +19,7 @@ export type BravoResponseCustomFields = BravoResponseEntities<
 >;
 
 export type BravoResponseTags = BravoResponseEntities<
-  FavroDataTypes.Tag.Definition,
+  FavroApiData.Tag.Definition,
   BravoTagDefinition
 >;
 

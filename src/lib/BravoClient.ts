@@ -17,13 +17,7 @@ import { BravoUser } from '$/lib/entities/BravoUser';
 import { BravoOrganization } from '$entities/BravoOrganization';
 import { BravoWidget } from '$entities/BravoWidget.js';
 import type { DataFavroWidget } from '$/types/FavroWidgetTypes.js';
-import type {
-  OptionFavroCollectionVisibility,
-  OptionFavroCollectionColorBackground,
-  OptionFavroCollectionRole,
-  DataAnyEntity,
-  ConstructorFavroEntity,
-} from '$/types/FavroApiTypes';
+import type { FavroApi } from '$/types/FavroApiTypes';
 import type { OptionsBravoCreateWidget } from '$/types/ParameterOptions.js';
 import { BravoColumn } from './entities/BravoColumn.js';
 import type { DataFavroColumn } from '$/types/FavroColumnTypes.js';
@@ -42,7 +36,13 @@ import type { FavroResponse } from './clientLib/FavroResponse.js';
 import { readFileSync } from 'fs';
 import { basename } from 'path';
 import { BravoTagDefinition } from './entities/BravoTag.js';
-import type { FavroDataTypes } from '$/types/FavroTagTypes.js';
+import type { FavroApiData } from '$/types/FavroTagTypes.js';
+import type { BravoEntity } from './BravoEntity.js';
+
+type ConstructorFavroEntity<EntityData extends Record<string, any>> = new (
+  client: BravoClient,
+  data: EntityData,
+) => BravoEntity<EntityData>;
 
 /**
  * The `BravoClient` class should be singly-instanced for a given
@@ -70,7 +70,9 @@ export class BravoClient extends FavroClient {
   //#region Organizations
   private cache = new BravoClientCache();
 
-  private async requestWithReturnedEntities<EntityData extends DataAnyEntity>(
+  private async requestWithReturnedEntities<
+    EntityData extends Record<string, any>,
+  >(
     url: string,
     options: OptionsFavroRequest,
     entityClass: ConstructorFavroEntity<EntityData>,
@@ -181,12 +183,12 @@ export class BravoClient extends FavroClient {
   async createCollection(
     name: string,
     options?: {
-      publicSharing?: OptionFavroCollectionVisibility;
-      background?: OptionFavroCollectionColorBackground;
+      publicSharing?: FavroApi.Collection.FieldTypes.Visibility;
+      background?: FavroApi.Collection.FieldTypes.ColorBackground;
       sharedToUsers?: {
         email?: string;
         userId?: string;
-        role: OptionFavroCollectionRole;
+        role: FavroApi.Collection.FieldTypes.Role;
       }[];
     },
   ) {
@@ -233,7 +235,7 @@ export class BravoClient extends FavroClient {
    * Returns the cached result of the first call until
    * the cache is cleared.
    * (Does not include archived)
-   * {@link https://favro.com/developer/#get-all-collections}
+   * {@see https://favro.com/developer/#get-all-collections }
    */
   async listCollections() {
     const org = await this.getCurrentOrganization();
@@ -657,7 +659,7 @@ export class BravoClient extends FavroClient {
         { method: 'get' },
         BravoTagDefinition,
       )) as BravoResponseEntities<
-        FavroDataTypes.Tag.Definition,
+        FavroApiData.Tag.Definition,
         BravoTagDefinition
       >;
       this.cache.tags = res;
@@ -667,7 +669,7 @@ export class BravoClient extends FavroClient {
 
   async createTagDefinition(
     options: Partial<
-      Omit<FavroDataTypes.Tag.Definition, 'tagId' | 'organizationId'>
+      Omit<FavroApiData.Tag.Definition, 'tagId' | 'organizationId'>
     >,
   ) {
     const res = (await this.requestWithReturnedEntities(
@@ -678,7 +680,7 @@ export class BravoClient extends FavroClient {
       },
       BravoTagDefinition,
     )) as BravoResponseEntities<
-      FavroDataTypes.Tag.Definition,
+      FavroApiData.Tag.Definition,
       BravoTagDefinition
     >;
     return await res.getFirstEntity();
@@ -686,7 +688,7 @@ export class BravoClient extends FavroClient {
 
   async updateTagDefinition(
     options: RequiredBy<
-      Partial<Omit<FavroDataTypes.Tag.Definition, 'organizationId'>>,
+      Partial<Omit<FavroApiData.Tag.Definition, 'organizationId'>>,
       'tagId'
     >,
   ) {
@@ -698,7 +700,7 @@ export class BravoClient extends FavroClient {
       },
       BravoTagDefinition,
     )) as BravoResponseEntities<
-      FavroDataTypes.Tag.Definition,
+      FavroApiData.Tag.Definition,
       BravoTagDefinition
     >;
     return await res.getFirstEntity();
