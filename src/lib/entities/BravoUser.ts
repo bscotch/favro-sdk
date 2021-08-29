@@ -22,7 +22,7 @@ class BravoUserBase<
  * A hydrated User entity, as returned from the Users API
  * endpoint.
  */
-export class BravoUser extends BravoUserBase<FavroApi.User.Data> {
+export class BravoUser extends BravoUserBase<FavroApi.User.Model> {
   get name() {
     return this._data.name;
   }

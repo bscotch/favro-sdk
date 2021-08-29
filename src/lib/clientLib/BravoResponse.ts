@@ -1,24 +1,23 @@
 import type { BravoClient } from '$lib/BravoClient';
 import type { BravoEntity } from '$lib/BravoEntity';
 import type { FavroResponse } from './FavroResponse';
-import type { DataFavroCustomFieldDefinition } from '$/types/FavroCustomFieldTypes.js';
 import type { BravoWidget } from '$entities/BravoWidget.js';
 import type { BravoCustomFieldDefinition } from '../entities/BravoCustomField.js';
 import type { FavroApi } from '$favro';
 import type { BravoTagDefinition } from '../entities/BravoTag.js';
 
 export type BravoResponseWidgets = BravoResponseEntities<
-  FavroApi.Widget.Data,
+  FavroApi.Widget.Model,
   BravoWidget
 >;
 
 export type BravoResponseCustomFields = BravoResponseEntities<
-  DataFavroCustomFieldDefinition,
+  FavroApi.CustomFieldDefinition.Model,
   BravoCustomFieldDefinition<any>
 >;
 
 export type BravoResponseTags = BravoResponseEntities<
-  FavroApi.Tag.Data,
+  FavroApi.Tag.Model,
   BravoTagDefinition
 >;
 

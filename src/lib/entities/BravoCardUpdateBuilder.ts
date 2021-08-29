@@ -1,16 +1,5 @@
-import type {
-  DataFavroCardFavroAttachment,
-  DataFavroCustomFieldType,
-  DataFavroRating,
-} from '$/types/FavroCardTypes.js';
-import type {
-  FavroApiParamsCardCustomField,
-  FavroApiParamsCardUpdate,
-  FavroApiParamsCardUpdateArrayField,
-  FavroApiParamsCardUpdateCustomField,
-} from '$/types/FavroCardUpdateTypes.js';
-import type { DataFavroCustomFieldDefinition } from '$/types/FavroCustomFieldTypes.js';
-import type { RequiredBy } from '$/types/Utility.js';
+import type { FavroApi } from '$/index.js';
+import type { ExtractKeysByValue, RequiredBy } from '$/types/Utility.js';
 import { assertBravoClaim } from '../errors.js';
 import {
   addToUniqueArrayBy,
@@ -29,12 +18,16 @@ import type {
 import type { BravoTagDefinition } from './BravoTag.js';
 import type { BravoUser } from './BravoUser.js';
 
-export type CustomFieldOrId<FieldType extends DataFavroCustomFieldType = any> =
+export type CustomFieldOrId<FieldType extends FavroApi.CustomFieldType = any> =
   | string
-  | DataFavroCustomFieldDefinition
+  | FavroApi.CustomFieldDefinition.Model<FieldType>
   | BravoCustomFieldDefinition<FieldType>
   | BravoCustomField<FieldType>;
 
+export type BravoCardFieldWithArrayValue = ExtractKeysByValue<
+  Required<FavroApi.Card.UpdateBody>,
+  any[]
+>;
 /**
  * A Card update can be pretty complex, and to save API
  * calls its best to do all desired updates in one go
@@ -43,7 +36,7 @@ export type CustomFieldOrId<FieldType extends DataFavroCustomFieldType = any> =
  * approach.
  */
 export class BravoCardUpdateBuilder {
-  private update: RequiredBy<FavroApiParamsCardUpdate, 'customFields'> = {
+  private update: RequiredBy<FavroApi.Card.UpdateBody, 'customFields'> = {
     customFields: [],
   };
   constructor() {}
@@ -128,7 +121,9 @@ export class BravoCardUpdateBuilder {
     return this.addToUniqueArray('removeAttachments', fileUrls);
   }
 
-  addFavroAttachments(favroItems: DataFavroCardFavroAttachment[]) {
+  addFavroAttachments(
+    favroItems: FavroApi.Card.ModelFieldValue.FavroAttachment[],
+  ) {
     this.update.addFavroAttachments ||= [];
     ensureArrayExistsAndAddUniqueBy(
       this.update.addFavroAttachments,
@@ -155,7 +150,7 @@ export class BravoCardUpdateBuilder {
   addToWidget(
     widgetCommonId: string,
     options?: Pick<
-      FavroApiParamsCardUpdate,
+      FavroApi.Card.UpdateBody,
       | 'columnId'
       | 'laneId'
       | 'dragMode'
@@ -174,7 +169,7 @@ export class BravoCardUpdateBuilder {
 
   private setCustomFieldUniquely(
     customFieldOrId: CustomFieldOrId,
-    update: FavroApiParamsCardCustomField,
+    update: FavroApi.CustomFieldValue.UpdateBody,
   ) {
     const customFieldId =
       typeof customFieldOrId == 'string'
@@ -211,7 +206,7 @@ export class BravoCardUpdateBuilder {
     customFieldId: CustomFieldOrId<'Single select'>,
     statusName: string | RegExp,
     fieldDefinition:
-      | DataFavroCustomFieldDefinition
+      | FavroApi.CustomFieldDefinition.Model<'Single select'>
       | BravoCustomFieldDefinition<'Single select'>
       | BravoCustomField<'Single select'>,
   ) {
@@ -270,7 +265,7 @@ export class BravoCardUpdateBuilder {
 
   setCustomRating(
     customFieldId: CustomFieldOrId<'Rating'>,
-    rating: DataFavroRating,
+    rating: FavroApi.CustomFieldValue.ModelFieldValue.Rating,
   ) {
     return this.setCustomFieldUniquely(customFieldId, { total: rating });
   }
@@ -290,7 +285,7 @@ export class BravoCardUpdateBuilder {
     customFieldOrId: CustomFieldOrId<'Multiple select'>,
     optionNames: (string | RegExp)[],
     fieldDefinition:
-      | DataFavroCustomFieldDefinition
+      | FavroApi.CustomFieldDefinition.Model<'Multiple select'>
       | BravoCustomFieldDefinition<'Multiple select'>
       | BravoCustomField<'Multiple select'>,
   ) {
@@ -321,7 +316,7 @@ export class BravoCardUpdateBuilder {
         : customFieldOrId.customFieldId;
     let update = this.update.customFields.find(
       (f) => f.customFieldId == customFieldId,
-    ) as FavroApiParamsCardUpdateCustomField<'Members'> | undefined;
+    ) as FavroApi.CustomFieldValue.UpdateBody<'Members'> | undefined;
     if (!update) {
       update = {
         customFieldId,
@@ -414,10 +409,10 @@ export class BravoCardUpdateBuilder {
    * appear in another array, e.g. to prevent an "add" and "remove"
    * version of the same action from both containing the same value.
    */
-  private addToUniqueArray<Field extends FavroApiParamsCardUpdateArrayField>(
+  private addToUniqueArray<Field extends BravoCardFieldWithArrayValue>(
     updateField: Field,
-    values: FavroApiParamsCardUpdate[Field],
-    opposingField?: FavroApiParamsCardUpdateArrayField,
+    values: FavroApi.Card.UpdateBody[Field],
+    opposingField?: BravoCardFieldWithArrayValue,
   ) {
     this.update[updateField] ||= [];
     ensureArrayExistsAndAddUnique(this.update[updateField], values);

@@ -42,10 +42,10 @@ import {
   stringOrObjectToString,
   stringsOrObjectsToStrings,
 } from '$/lib/utility.js';
-import type { DataFavroCustomFieldType } from '$/types/FavroCardTypes.js';
 import { assertBravoClaim } from '$/lib/errors.js';
 import type { BravoUser } from '$/lib/entities/BravoUser.js';
 import type { BravoTagDefinition } from '$/lib/entities/BravoTag.js';
+import type { FavroApi } from '$favro';
 
 /**
  * @remarks A root .env file must be populated with the required
@@ -102,7 +102,7 @@ function assertBravoTestClaim(
  *
  * We don't care which custom field we get, just that it is of the right type.
  */
-async function getCustomFieldByType<FieldType extends DataFavroCustomFieldType>(
+async function getCustomFieldByType<FieldType extends FavroApi.CustomFieldType>(
   client: BravoClient,
   card: BravoCardInstance,
   type: FieldType,
@@ -278,7 +278,7 @@ describe('BravoClient', function () {
     });
   });
 
-  xdescribe('Collections', function () {
+  describe('Collections', function () {
     it('can create a collection', async function () {
       testCollection = await client.createCollection(testCollectionName);
       assertBravoTestClaim(testCollection, 'Collection not created');

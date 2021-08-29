@@ -16,24 +16,16 @@ import { BravoCollection } from './entities/BravoCollection';
 import { BravoUser } from '$/lib/entities/BravoUser';
 import { BravoOrganization } from '$entities/BravoOrganization';
 import { BravoWidget } from '$entities/BravoWidget.js';
-import type { FavroApi } from '$favro';
 import { BravoColumn } from './entities/BravoColumn.js';
 import type { ArrayMatchFunction, RequiredBy } from '$/types/Utility.js';
-import type {
-  DataFavroCard,
-  DataFavroCardAttachment,
-  FavroApiGetCardsParams,
-  FavroApiParamsCardCreate,
-} from '$/types/FavroCardTypes.js';
 import { BravoCardInstance } from './entities/BravoCard.js';
 import { BravoCustomFieldDefinition } from './entities/BravoCustomField.js';
-import type { DataFavroCustomFieldDefinition } from '$/types/FavroCustomFieldTypes.js';
-import type { FavroApiParamsCardUpdate } from '$/types/FavroCardUpdateTypes.js';
 import type { FavroResponse } from './clientLib/FavroResponse.js';
 import { readFileSync } from 'fs';
 import { basename } from 'path';
 import { BravoTagDefinition } from './entities/BravoTag.js';
 import type { BravoEntity } from './BravoEntity.js';
+import type { FavroApi } from '$favro';
 
 type ConstructorFavroEntity<EntityData extends Record<string, any>> = new (
   client: BravoClient,
@@ -179,12 +171,12 @@ export class BravoClient extends FavroClient {
   async createCollection(
     name: string,
     options?: {
-      publicSharing?: FavroApi.Collection.FieldTypes.Visibility;
-      background?: FavroApi.Collection.FieldTypes.ColorBackground;
+      publicSharing?: FavroApi.Collection.ModelFieldValue.Visibility;
+      background?: FavroApi.Collection.ModelFieldValue.ColorBackground;
       sharedToUsers?: {
         email?: string;
         userId?: string;
-        role: FavroApi.Collection.FieldTypes.Role;
+        role: FavroApi.Collection.ModelFieldValue.Role;
       }[];
     },
   ) {
@@ -309,7 +301,7 @@ export class BravoClient extends FavroClient {
         'widgets',
         { method: 'get', query: { collectionId } },
         BravoWidget,
-      )) as BravoResponseEntities<FavroApi.Widget.Data, BravoWidget>;
+      )) as BravoResponseEntities<FavroApi.Widget.Model, BravoWidget>;
       this.cache.setWidgets(res, collectionId);
     }
     return this.cache.getWidgets(collectionId)!;
@@ -451,7 +443,7 @@ export class BravoClient extends FavroClient {
         `columns`,
         { method: 'get', query: { widgetCommonId } },
         BravoColumn,
-      )) as BravoResponseEntities<FavroApi.Column.Data, BravoColumn>;
+      )) as BravoResponseEntities<FavroApi.Column.Model, BravoColumn>;
       const columns = await res.getAllEntities();
       this.cache.setColumns(widgetCommonId, columns);
     }
@@ -496,7 +488,7 @@ export class BravoClient extends FavroClient {
    *
    * {@link https://favro.com/developer/#create-a-card}
    */
-  async createCard(data: FavroApiParamsCardCreate) {
+  async createCard(data: FavroApi.Card.CreateBody) {
     const res = await this.requestWithReturnedEntities(
       `cards`,
       {
@@ -520,7 +512,7 @@ export class BravoClient extends FavroClient {
    *
    * {@link https://favro.com/developer/#get-all-cards}
    */
-  async listCardInstances(options?: FavroApiGetCardsParams) {
+  async listCardInstances(options?: FavroApi.Card.SearchQuery) {
     const res = (await this.requestWithReturnedEntities(
       `cards`,
       {
@@ -528,10 +520,10 @@ export class BravoClient extends FavroClient {
         query: {
           descriptionFormat: 'markdown',
           ...options,
-        } as FavroApiGetCardsParams,
+        } as FavroApi.Card.SearchQuery,
       },
       BravoCardInstance,
-    )) as BravoResponseEntities<DataFavroCard, BravoCardInstance>;
+    )) as BravoResponseEntities<FavroApi.Card.Model, BravoCardInstance>;
     return res;
   }
 
@@ -565,10 +557,10 @@ export class BravoClient extends FavroClient {
         method: 'get',
         query: {
           descriptionFormat: 'markdown',
-        } as FavroApiGetCardsParams,
+        } as FavroApi.Card.SearchQuery,
       },
       BravoCardInstance,
-    )) as BravoResponseEntities<DataFavroCard, BravoCardInstance>;
+    )) as BravoResponseEntities<FavroApi.Card.Model, BravoCardInstance>;
     return await res.getFirstEntity();
   }
 
@@ -586,7 +578,7 @@ export class BravoClient extends FavroClient {
    */
   async updateCardInstanceByCardId(
     cardId: string,
-    options: FavroApiParamsCardUpdate,
+    options: FavroApi.Card.UpdateBody,
   ) {
     const res = (await this.requestWithReturnedEntities(
       `cards/${cardId}`,
@@ -598,7 +590,7 @@ export class BravoClient extends FavroClient {
         body: options,
       },
       BravoCardInstance,
-    )) as BravoResponseEntities<DataFavroCard, BravoCardInstance>;
+    )) as BravoResponseEntities<FavroApi.Card.Model, BravoCardInstance>;
     return await res.getFirstEntity();
   }
 
@@ -617,8 +609,9 @@ export class BravoClient extends FavroClient {
       method: 'post',
       body,
       query: { filename: basename(filename) },
-    })) as FavroResponse<DataFavroCardAttachment, this>;
-    const attachment = (await res.getParsedBody()) as DataFavroCardAttachment;
+    })) as FavroResponse<FavroApi.Card.ModelFieldValue.Attachment, this>;
+    const attachment =
+      (await res.getParsedBody()) as FavroApi.Card.ModelFieldValue.Attachment;
     assertBravoClaim(attachment?.fileURL, `Failed to add attachment`);
     return attachment;
   }
@@ -654,14 +647,14 @@ export class BravoClient extends FavroClient {
         `tags`,
         { method: 'get' },
         BravoTagDefinition,
-      )) as BravoResponseEntities<FavroApi.Tag.Data, BravoTagDefinition>;
+      )) as BravoResponseEntities<FavroApi.Tag.Model, BravoTagDefinition>;
       this.cache.tags = res;
     }
     return this.cache.tags!;
   }
 
   async createTagDefinition(
-    options: Partial<Omit<FavroApi.Tag.Data, 'tagId' | 'organizationId'>>,
+    options: Partial<Omit<FavroApi.Tag.Model, 'tagId' | 'organizationId'>>,
   ) {
     const res = (await this.requestWithReturnedEntities(
       `tags`,
@@ -670,13 +663,13 @@ export class BravoClient extends FavroClient {
         body: options,
       },
       BravoTagDefinition,
-    )) as BravoResponseEntities<FavroApi.Tag.Data, BravoTagDefinition>;
+    )) as BravoResponseEntities<FavroApi.Tag.Model, BravoTagDefinition>;
     return await res.getFirstEntity();
   }
 
   async updateTagDefinition(
     options: RequiredBy<
-      Partial<Omit<FavroApi.Tag.Data, 'organizationId'>>,
+      Partial<Omit<FavroApi.Tag.Model, 'organizationId'>>,
       'tagId'
     >,
   ) {
@@ -687,7 +680,7 @@ export class BravoClient extends FavroClient {
         body: options,
       },
       BravoTagDefinition,
-    )) as BravoResponseEntities<FavroApi.Tag.Data, BravoTagDefinition>;
+    )) as BravoResponseEntities<FavroApi.Tag.Model, BravoTagDefinition>;
     return await res.getFirstEntity();
   }
 
@@ -731,7 +724,7 @@ export class BravoClient extends FavroClient {
         { method: 'get' },
         BravoCustomFieldDefinition,
       )) as BravoResponseEntities<
-        DataFavroCustomFieldDefinition,
+        FavroApi.CustomFieldDefinition.Model,
         BravoCustomFieldDefinition<any>
       >;
       this.cache.customFields = res;

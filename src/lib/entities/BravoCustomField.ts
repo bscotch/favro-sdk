@@ -1,25 +1,20 @@
-import type {
-  DataFavroCustomFieldsValues,
-  DataFavroCustomFieldType,
-  DataFavroRating,
-} from '$/types/FavroCardTypes.js';
-import type { DataFavroCustomFieldDefinition } from '$/types/FavroCustomFieldTypes.js';
 import { BravoEntity } from '$lib/BravoEntity.js';
 import { assertBravoClaim, BravoError } from '../errors.js';
+import type { FavroApi } from '$favro';
 
-type DataFavroCustomFieldTypeWithChoices =
-  | 'Multiple select'
-  | 'Single select'
-  | 'Tags';
+type DataFavroCustomFieldTypeWithChoices = Extract<
+  FavroApi.CustomFieldType,
+  'Multiple select' | 'Single select' | 'Tags'
+>;
 
 type CustomFieldOption =
-  DataFavroCustomFieldDefinition<DataFavroCustomFieldTypeWithChoices>['customFieldItems'];
+  FavroApi.CustomFieldDefinition.ModelFieldValue.SelectOption;
 
 type BravoHumanFriendlyFieldValues = {
   Number: number;
   Time: number;
   Text: string;
-  Rating: DataFavroRating;
+  Rating: FavroApi.CustomFieldValue.Models['Rating']['total'];
   Voting: {
     tally: number;
     voters: string[];
@@ -39,13 +34,13 @@ type BravoHumanFriendlyFieldValues = {
 };
 
 export class BravoCustomFieldDefinition<
-  TypeName extends DataFavroCustomFieldType,
-> extends BravoEntity<DataFavroCustomFieldDefinition<TypeName>> {
+  TypeName extends FavroApi.CustomFieldType,
+> extends BravoEntity<FavroApi.CustomFieldDefinition.Model<TypeName>> {
   /**
    * Store a value from this Field Definition to allow operations
    * referencing the definition.
    */
-  private _value?: DataFavroCustomFieldsValues[TypeName];
+  private _value?: FavroApi.CustomFieldValue.Models[TypeName];
 
   get name() {
     return this._data.name;
@@ -84,7 +79,7 @@ export class BravoCustomFieldDefinition<
   }
 
   static isChoiceField(
-    fieldType: DataFavroCustomFieldType,
+    fieldType: FavroApi.CustomFieldType,
   ): fieldType is DataFavroCustomFieldTypeWithChoices {
     return ['Multiple select', 'Tags', 'Single select'].includes(fieldType);
   }
@@ -113,10 +108,10 @@ export class BravoCustomFieldDefinition<
  * with helper methods for getting and setting the value on a card
  * in a user-friendly way.
  */
-export class BravoCustomField<TypeName extends DataFavroCustomFieldType> {
+export class BravoCustomField<TypeName extends FavroApi.CustomFieldType> {
   constructor(
     public readonly definition: BravoCustomFieldDefinition<TypeName>,
-    public readonly value?: DataFavroCustomFieldsValues[TypeName],
+    public readonly value?: FavroApi.CustomFieldValue.Models[TypeName],
   ) {}
 
   /** The type of this Custom Field */
@@ -198,34 +193,39 @@ export class BravoCustomField<TypeName extends DataFavroCustomFieldType> {
     switch (type) {
       case 'Number':
         // @ts-expect-error
-        return (value as DataFavroCustomFieldsValues['Number']).total;
+        return (value as FavroApi.CustomFieldValue.Models['Number']).total;
       case 'Time':
         // @ts-expect-error
-        return (value as DataFavroCustomFieldsValues['Time']).total;
+        return (value as FavroApi.CustomFieldValue.Models['Time']).total;
       case 'Text':
         // @ts-expect-error
-        return (value as DataFavroCustomFieldsValues['Text']).value;
+        return (value as FavroApi.CustomFieldValue.Models['Text']).value;
       case 'Rating':
         // @ts-expect-error
-        return (value as DataFavroCustomFieldsValues['Rating']).total;
+        return (value as FavroApi.CustomFieldValue.Models['Rating']).total;
       case 'Voting':
-        // @ts-expect-error ts(2322)
+        // @ts-expect-error
         return {
-          tally: (value as DataFavroCustomFieldsValues['Voting']).value.length,
-          voters: [...(value as DataFavroCustomFieldsValues['Voting']).value],
+          tally: (value as FavroApi.CustomFieldValue.Models['Voting']).value
+            .length,
+          voters: [
+            ...(value as FavroApi.CustomFieldValue.Models['Voting']).value,
+          ],
         };
       case 'Checkbox':
         // @ts-expect-error
-        return (value as DataFavroCustomFieldsValues['Checkbox']).value;
+        return (value as FavroApi.CustomFieldValue.Models['Checkbox']).value;
       case 'Date':
         // @ts-expect-error
-        return new Date((value as DataFavroCustomFieldsValues['Date']).value);
+        return new Date(
+          (value as FavroApi.CustomFieldValue.Models['Date']).value,
+        );
       case 'Timeline':
         // @ts-expect-error
-        return (value as DataFavroCustomFieldsValues['Timeline']).timeline;
+        return (value as FavroApi.CustomFieldValue.Models['Timeline']).timeline;
       case 'Link':
         // @ts-expect-error
-        return (value as DataFavroCustomFieldsValues['Link']).link;
+        return (value as FavroApi.CustomFieldValue.Models['Link']).link;
       case 'Members':
         // @ts-expect-error
         return this.assignedTo;

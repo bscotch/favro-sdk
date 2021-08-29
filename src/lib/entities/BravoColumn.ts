@@ -5,7 +5,7 @@ import type { FavroApi } from '$favro';
  * A Favro Column is one of the available values for the default
  * "Status" field on a board (the same one used for KanBan view).
  */
-export class BravoColumn extends BravoEntity<FavroApi.Column.Data> {
+export class BravoColumn extends BravoEntity<FavroApi.Column.Model> {
   /** The unique identifier for this column on its parent Widget.*/
   get columnId() {
     return this._data.columnId;

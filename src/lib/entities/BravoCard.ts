@@ -1,8 +1,4 @@
-import type {
-  DataFavroCard,
-  DataFavroCustomFieldType,
-} from '$/types/FavroCardTypes.js';
-import type { FavroApiParamsCardUpdate } from '$/types/FavroCardUpdateTypes.js';
+import type { FavroApi } from '$/index.js';
 import type { ExtractKeysByValue } from '$/types/Utility.js';
 import { BravoEntity } from '$lib/BravoEntity.js';
 import { assertBravoClaim } from '../errors.js';
@@ -21,7 +17,7 @@ import {
  * A Card "Instance" represents the combination of a Card's
  * *global* data and its data associated with a specific Widget.
  */
-export class BravoCardInstance extends BravoEntity<DataFavroCard> {
+export class BravoCardInstance extends BravoEntity<FavroApi.Card.Model> {
   get name() {
     return this._data.name;
   }
@@ -377,7 +373,7 @@ export class BravoCardInstance extends BravoEntity<DataFavroCard> {
    * only way to guarantee the desired field, since all Custom
    * Fields are global in the Favro API.*
    */
-  async getCustomField<FieldType extends DataFavroCustomFieldType = any>(
+  async getCustomField<FieldType extends FavroApi.CustomFieldType = any>(
     customFieldOrId: CustomFieldOrId<FieldType>,
   ) {
     const setFields = await this.getCustomFields();
@@ -419,7 +415,7 @@ export class BravoCardInstance extends BravoEntity<DataFavroCard> {
    * an error will be thrown.
    *
    */
-  async getCustomFieldByName<FieldType extends DataFavroCustomFieldType = any>(
+  async getCustomFieldByName<FieldType extends FavroApi.CustomFieldType = any>(
     name: string | RegExp,
     type: FieldType,
   ) {
@@ -513,7 +509,7 @@ export class BravoCardInstance extends BravoEntity<DataFavroCard> {
    * If no argument is provided, uses
    * any changes made via this instance's `.updateBuilder` methods.
    */
-  async update(data: FavroApiParamsCardUpdate | BravoCardUpdateBuilder) {
+  async update(data: FavroApi.Card.UpdateBody | BravoCardUpdateBuilder) {
     if (data instanceof BravoCardUpdateBuilder) {
       data = data.toJSON();
     }

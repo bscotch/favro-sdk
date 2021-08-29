@@ -2,7 +2,7 @@ import { BravoEntity } from '$lib/BravoEntity.js';
 import type { FavroApi } from '$favro';
 
 /** Hydrated Favro Organization. */
-export class BravoTagDefinition extends BravoEntity<FavroApi.Tag.Data> {
+export class BravoTagDefinition extends BravoEntity<FavroApi.Tag.Model> {
   get name() {
     return this._data.name;
   }

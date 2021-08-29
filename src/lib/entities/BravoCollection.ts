@@ -2,7 +2,7 @@ import { BravoEntity } from '../BravoEntity.js';
 import type { BravoWidget } from './BravoWidget.js';
 import type { FavroApi } from '$favro';
 
-export class BravoCollection extends BravoEntity<FavroApi.Collection.Data> {
+export class BravoCollection extends BravoEntity<FavroApi.Collection.Model> {
   get name() {
     return this._data.name;
   }

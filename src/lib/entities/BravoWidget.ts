@@ -3,13 +3,14 @@ import { stringsMatch } from '$lib/utility.js';
 import type { FavroApi } from '$favro';
 import type { BravoColumn } from './BravoColumn.js';
 import type { ArrayMatchFunction } from '$/types/Utility.js';
-import type {
-  FavroApiGetCardsBase,
-  FavroApiParamsCardCreate,
-} from '$/types/FavroCardTypes.js';
 import type { BravoCardInstance } from './BravoCard.js';
 
-export class BravoWidget extends BravoEntity<FavroApi.Widget.Data> {
+export type BravoCardSearchQueryBase = Exclude<
+  FavroApi.Card.SearchQuery,
+  'cardCommonId' | 'widgetCommonId' | 'collectionId' | 'cardSequentialId'
+>;
+
+export class BravoWidget extends BravoEntity<FavroApi.Widget.Model> {
   get widgetCommonId() {
     return this._data.widgetCommonId;
   }
@@ -72,7 +73,7 @@ export class BravoWidget extends BravoEntity<FavroApi.Widget.Data> {
    * so prefer re-use of the results to re-fetching,
    * and limit by `columnId` if possible.
    */
-  async listCardInstances(options?: FavroApiGetCardsBase) {
+  async listCardInstances(options?: BravoCardSearchQueryBase) {
     return await this._client.listCardInstances({
       ...options,
       widgetCommonId: this.widgetCommonId,
@@ -81,7 +82,7 @@ export class BravoWidget extends BravoEntity<FavroApi.Widget.Data> {
 
   async findCardInstance(
     matchFunc: ArrayMatchFunction<BravoCardInstance>,
-    options?: FavroApiGetCardsBase,
+    options?: BravoCardSearchQueryBase,
   ) {
     const cards = await this.listCardInstances(options);
     return await cards.find(matchFunc);
@@ -89,7 +90,7 @@ export class BravoWidget extends BravoEntity<FavroApi.Widget.Data> {
 
   async findCardInstanceByName(
     name: string,
-    options?: FavroApiGetCardsBase & { ignoreCase?: boolean },
+    options?: BravoCardSearchQueryBase & { ignoreCase?: boolean },
   ) {
     return await this.findCardInstance((card) => {
       return stringsMatch(card.name, name, options);
@@ -105,7 +106,7 @@ export class BravoWidget extends BravoEntity<FavroApi.Widget.Data> {
     ).getFirstEntity();
   }
 
-  async createCard(data: Omit<FavroApiParamsCardCreate, 'widgetCommonId'>) {
+  async createCard(data: Omit<FavroApi.Card.CreateBody, 'widgetCommonId'>) {
     return await this._client.createCard({
       ...data,
       widgetCommonId: this.widgetCommonId,
