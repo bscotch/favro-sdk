@@ -221,4 +221,32 @@ export namespace FavroApi {
       Pick<Data, 'name' | 'type' | 'color' | 'ownerRole' | 'editRole'>
     >;
   }
+
+  /**
+   * Favro API Data models for Columns
+   */
+  export namespace Column {
+    /**
+     * The data model for Columns returned from the Favro API.
+     * {@link https://favro.com/developer/#column-object}
+     */
+    export interface Data {
+      /** The id of the column. */
+      columnId: string;
+      /** The id of the organization that this column exists in. */
+      organizationId: string;
+      /** The common id of the widget that this column exists on. */
+      widgetCommonId: string;
+      /** The name of the column. */
+      name: string;
+      /** The position of the column on the widget. */
+      position: number;
+      /** Total number of cards on the column. */
+      cardCount: number;
+      /** Summary time spent of cards on the column in milisecond. */
+      timeSum: number;
+      /** Summary estimation of cards on the column. */
+      estimationSum: number;
+    }
+  }
 }

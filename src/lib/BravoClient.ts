@@ -18,7 +18,6 @@ import { BravoOrganization } from '$entities/BravoOrganization';
 import { BravoWidget } from '$entities/BravoWidget.js';
 import type { FavroApi } from '$favro';
 import { BravoColumn } from './entities/BravoColumn.js';
-import type { DataFavroColumn } from '$/types/FavroColumnTypes.js';
 import type { ArrayMatchFunction, RequiredBy } from '$/types/Utility.js';
 import type {
   DataFavroCard,
@@ -452,7 +451,7 @@ export class BravoClient extends FavroClient {
         `columns`,
         { method: 'get', query: { widgetCommonId } },
         BravoColumn,
-      )) as BravoResponseEntities<DataFavroColumn, BravoColumn>;
+      )) as BravoResponseEntities<FavroApi.Column.Data, BravoColumn>;
       const columns = await res.getAllEntities();
       this.cache.setColumns(widgetCommonId, columns);
     }
