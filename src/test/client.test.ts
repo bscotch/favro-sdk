@@ -31,7 +31,6 @@
 
 import { BravoClient } from '$lib/BravoClient.js';
 import { expect } from 'chai';
-import fs from 'fs-extra';
 import dotenv from 'dotenv';
 import fetch from 'node-fetch';
 import type { BravoCollection } from '$entities/BravoCollection.js';
@@ -63,9 +62,6 @@ const testTagName = '___BRAVO_TEST_TAG';
 const customFieldUniqueName = `Unique Text Field`;
 const customFieldRepeatedName = `Repeated Text Field`;
 const customFieldUniquenessTestType = 'Text';
-
-const sandboxRoot = './sandbox';
-const samplesRoot = './samples';
 
 /**
  * Some upstream tests cannot be skipped since the create
@@ -146,24 +142,6 @@ assertBravoTestClaim(
   `For testing, you must include FAVRO_USER_EMAIL in your .env file`,
 );
 
-/**
- * Clone any files in a "./samples" folder into
- * a "./sandbox" folder, overwriting any files
- * currently in there. This is useful for allowing
- * your test suite to make changes to files without
- * changing the originals, so that you can easily
- * reset back to an original state prior to running a test.
- */
-function resetSandbox() {
-  if (!fs.existsSync(samplesRoot)) {
-    // Then no samples exist, and no sandbox needed
-    return;
-  }
-  fs.ensureDirSync(sandboxRoot);
-  fs.emptyDirSync(sandboxRoot);
-  fs.copySync(samplesRoot, sandboxRoot);
-}
-
 describe('BravoClient', function () {
   // Use a single client for tests, so that we can
   // do some caching and avoid hitting the strict
@@ -184,7 +162,6 @@ describe('BravoClient', function () {
   // are low) the tests become dependent on the outcomes of prior tests.
 
   before(async function () {
-    resetSandbox();
     // Clean up any leftover remote testing content
     // (Since names aren't required to be unique, there could be quite a mess!)
     // NOTE:
@@ -703,7 +680,6 @@ describe('BravoClient', function () {
   });
 
   after(function () {
-    resetSandbox();
     console.log(client.requestStats);
   });
 });

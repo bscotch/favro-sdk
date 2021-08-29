@@ -7,7 +7,8 @@
   "keywords": [
     "favro",
     "api",
-    "cli",
+    "toolkit",
+    "automation",
     "sdk",
     "project management"
   ],
@@ -37,22 +38,18 @@
     "node-fetch": "^2.6.1"
   },
   "devDependencies": {
-    "@microsoft/api-documenter": "^7.13.41",
     "@microsoft/api-extractor": "^7.18.7",
     "@types/chai": "^4.2.21",
-    "@types/fs-extra": "^9.0.12",
     "@types/mocha": "^9.0.0",
     "@types/node": "^16.6.2",
     "@types/node-fetch": "^2.5.12",
     "@typescript-eslint/eslint-plugin": "^4.29.2",
     "@typescript-eslint/parser": "^4.29.2",
     "chai": "^4.3.4",
-    "commander": "^8.1.0",
     "conventional-changelog-cli": "^2.1.1",
     "dotenv": "^10.0.0",
     "eslint": "^7.32.0",
     "eslint-plugin-prettier": "^3.4.0",
-    "fs-extra": "^10.0.0",
     "mocha": "^9.1.0",
     "prettier": "^2.3.2",
     "rimraf": "^3.0.2",
