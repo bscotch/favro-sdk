@@ -45,7 +45,7 @@ import {
 import { assertBravoClaim } from '$/lib/errors.js';
 import type { BravoUser } from '$/lib/entities/BravoUser.js';
 import type { BravoTagDefinition } from '$/lib/entities/BravoTag.js';
-import type { FavroApi } from '$favro';
+import type { FavroApi } from '$types/FavroApi.js';
 
 /**
  * @remarks A root .env file must be populated with the required

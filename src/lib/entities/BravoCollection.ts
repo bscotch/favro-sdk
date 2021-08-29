@@ -1,6 +1,6 @@
 import { BravoEntity } from '../BravoEntity.js';
 import type { BravoWidget } from './BravoWidget.js';
-import type { FavroApi } from '$favro';
+import type { FavroApi } from '$types/FavroApi.js';
 
 export class BravoCollection extends BravoEntity<FavroApi.Collection.Model> {
   get name() {

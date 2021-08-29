@@ -1,5 +1,5 @@
 import { BravoEntity } from '$lib/BravoEntity.js';
-import type { FavroApi } from '$favro';
+import type { FavroApi } from '$types/FavroApi.js';
 
 /**
  * A Favro Column is one of the available values for the default

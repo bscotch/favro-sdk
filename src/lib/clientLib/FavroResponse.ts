@@ -1,6 +1,6 @@
 import type { Response } from 'node-fetch';
 import { URL } from 'url';
-import type { FavroApi } from '$favro';
+import type { FavroApi } from '$types/FavroApi.js';
 import { BravoError } from '../errors.js';
 import type { FavroClient } from './FavroClient.js';
 

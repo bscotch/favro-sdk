@@ -1,6 +1,6 @@
 import { BravoEntity } from '$lib/BravoEntity.js';
 import { assertBravoClaim, BravoError } from '../errors.js';
-import type { FavroApi } from '$favro';
+import type { FavroApi } from '$types/FavroApi.js';
 
 type DataFavroCustomFieldTypeWithChoices = Extract<
   FavroApi.CustomFieldType,

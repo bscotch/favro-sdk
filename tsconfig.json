@@ -36,7 +36,6 @@
       "$lib/*": ["src/lib/*"],
       "$entities/*": ["src/lib/entities/*"],
       "$types/*": ["src/types/*"],
-      "$favro": ["src/types/FavroApi.js"],
       "$cli/*": ["src/cli/*"],
       "$test/*": ["src/test/*"]
     }

@@ -25,7 +25,7 @@ import { readFileSync } from 'fs';
 import { basename } from 'path';
 import { BravoTagDefinition } from './entities/BravoTag.js';
 import type { BravoEntity } from './BravoEntity.js';
-import type { FavroApi } from '$favro';
+import type { FavroApi } from '$types/FavroApi.js';
 
 type ConstructorFavroEntity<EntityData extends Record<string, any>> = new (
   client: BravoClient,

@@ -1,6 +1,6 @@
 import { BravoEntity } from '$lib/BravoEntity.js';
 import { stringsMatch } from '$lib/utility.js';
-import type { FavroApi } from '$favro';
+import type { FavroApi } from '$types/FavroApi.js';
 import type { BravoColumn } from './BravoColumn.js';
 import type { ArrayMatchFunction } from '$/types/Utility.js';
 import type { BravoCardInstance } from './BravoCard.js';
