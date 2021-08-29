@@ -1,3 +1,15 @@
+# [0.9.0](https://github.com/bscotch/favro-sdk/compare/v0.8.0...v0.9.0) (2021-08-29)
+
+
+### Features
+
+* Continue reorganizting and renaming Favro API data types into namespaced structures. ([e28bad5](https://github.com/bscotch/favro-sdk/commit/e28bad574c7c1cc34f931db276834b1540366a52))
+* Reorganize and rename core Favro API typings using namespaces to keep things from polluting global scope. BREAKING ([a08beb5](https://github.com/bscotch/favro-sdk/commit/a08beb52c116891f7136018e1a7df580ebf8f332))
+* Reorganize Column typings into the FavroApi namespace. BREAKING ([eaa0a43](https://github.com/bscotch/favro-sdk/commit/eaa0a43f16320b8048b767fc333bd5105da66692))
+* Restructure Widget types into the new namespaced FavroApi typings. BREAKING ([ff78d1a](https://github.com/bscotch/favro-sdk/commit/ff78d1a3e24bddfdea4f100d816268736435cff3))
+
+
+
 # [0.8.0](https://github.com/bscotch/favro-sdk/compare/v0.7.0...v0.8.0) (2021-08-28)
 
 
