@@ -45,7 +45,7 @@
     "@typescript-eslint/no-use-before-define": "off",
     "@typescript-eslint/no-var-requires": "error",
     "@typescript-eslint/prefer-namespace-keyword": "error",
-    "@typescript-eslint/triple-slash-reference": "error",
+    "@typescript-eslint/triple-slash-reference": "off",
     "camelcase": "off",
     "no-array-constructor": "off",
     "no-constant-condition": "off",

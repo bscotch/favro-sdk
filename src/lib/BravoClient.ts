@@ -17,7 +17,7 @@ import { BravoUser } from '$/lib/entities/BravoUser';
 import { BravoOrganization } from '$entities/BravoOrganization';
 import { BravoWidget } from '$entities/BravoWidget.js';
 import type { DataFavroWidget } from '$/types/FavroWidgetTypes.js';
-import type { FavroApi } from '$/types/FavroApiTypes';
+import type { FavroApi } from '$favro';
 import type { OptionsBravoCreateWidget } from '$/types/ParameterOptions.js';
 import { BravoColumn } from './entities/BravoColumn.js';
 import type { DataFavroColumn } from '$/types/FavroColumnTypes.js';
@@ -36,7 +36,6 @@ import type { FavroResponse } from './clientLib/FavroResponse.js';
 import { readFileSync } from 'fs';
 import { basename } from 'path';
 import { BravoTagDefinition } from './entities/BravoTag.js';
-import type { FavroApiData } from '$/types/FavroTagTypes.js';
 import type { BravoEntity } from './BravoEntity.js';
 
 type ConstructorFavroEntity<EntityData extends Record<string, any>> = new (
@@ -658,19 +657,14 @@ export class BravoClient extends FavroClient {
         `tags`,
         { method: 'get' },
         BravoTagDefinition,
-      )) as BravoResponseEntities<
-        FavroApiData.Tag.Definition,
-        BravoTagDefinition
-      >;
+      )) as BravoResponseEntities<FavroApi.Tag.Data, BravoTagDefinition>;
       this.cache.tags = res;
     }
     return this.cache.tags!;
   }
 
   async createTagDefinition(
-    options: Partial<
-      Omit<FavroApiData.Tag.Definition, 'tagId' | 'organizationId'>
-    >,
+    options: Partial<Omit<FavroApi.Tag.Data, 'tagId' | 'organizationId'>>,
   ) {
     const res = (await this.requestWithReturnedEntities(
       `tags`,
@@ -679,16 +673,13 @@ export class BravoClient extends FavroClient {
         body: options,
       },
       BravoTagDefinition,
-    )) as BravoResponseEntities<
-      FavroApiData.Tag.Definition,
-      BravoTagDefinition
-    >;
+    )) as BravoResponseEntities<FavroApi.Tag.Data, BravoTagDefinition>;
     return await res.getFirstEntity();
   }
 
   async updateTagDefinition(
     options: RequiredBy<
-      Partial<Omit<FavroApiData.Tag.Definition, 'organizationId'>>,
+      Partial<Omit<FavroApi.Tag.Data, 'organizationId'>>,
       'tagId'
     >,
   ) {
@@ -699,10 +690,7 @@ export class BravoClient extends FavroClient {
         body: options,
       },
       BravoTagDefinition,
-    )) as BravoResponseEntities<
-      FavroApiData.Tag.Definition,
-      BravoTagDefinition
-    >;
+    )) as BravoResponseEntities<FavroApi.Tag.Data, BravoTagDefinition>;
     return await res.getFirstEntity();
   }
 

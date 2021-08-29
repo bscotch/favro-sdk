@@ -132,4 +132,35 @@ export namespace FavroApi {
       organizationRole: Organization.FieldTypes.Role;
     }
   }
+
+  /**
+   * Favro tags are global to an organization.
+   */
+  export namespace Tag {
+    export namespace FieldTypes {
+      /** {@link https://favro.com/developer/#tag-colors} */
+      export type Color =
+        | 'blue'
+        | 'purple'
+        | 'cyan'
+        | 'green'
+        | 'lightgreen'
+        | 'yellow'
+        | 'orange'
+        | 'red'
+        | 'brown'
+        | 'gray'
+        | 'slategray';
+    }
+
+    /**
+     * The data model for a Tag returned from the Favro API.
+     * See {@link https://favro.com/developer/#tag} */
+    export interface Data {
+      tagId: string;
+      organizationId: string;
+      name: string;
+      color: FieldTypes.Color;
+    }
+  }
 }

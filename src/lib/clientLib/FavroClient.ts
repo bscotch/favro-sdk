@@ -1,7 +1,6 @@
 import { assertBravoClaim, BravoError } from '$lib/errors.js';
 import fetch from 'node-fetch';
 import { URL } from 'url';
-import type { FavroApi } from '$/types/FavroApiTypes';
 import { FavroResponse } from '$lib/clientLib/FavroResponse';
 import { toBase64 } from '$lib/utility.js';
 

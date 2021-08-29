@@ -1,4 +1,4 @@
-import type { FavroApi } from '$types/FavroApiTypes';
+import type { FavroApi } from '$types/FavroApi';
 import { BravoEntity } from '$lib/BravoEntity.js';
 
 /**
