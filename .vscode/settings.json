@@ -23,5 +23,17 @@
   // Let VSCode auto-update import paths when you move files around
   "typescript.updateImportsOnFileMove.enabled": "always",
   "javascript.updateImportsOnFileMove.enabled": "always",
-  "files.associations": { "*.json": "jsonc" }
+  "files.associations": {
+    "*.json": "jsonc"
+  },
+  "markdown.extension.list.indentationSize": "inherit",
+  "markdown.extension.toc.orderedList": true,
+  "markdown.extension.toc.omittedFromToc": {
+    "README.md": [
+      "## Features",
+      "## Why?",
+      "## Quick Start",
+      "## Table of Contents"
+    ]
+  }
 }
