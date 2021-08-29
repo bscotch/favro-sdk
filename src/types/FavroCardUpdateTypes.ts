@@ -50,7 +50,7 @@ interface DataFavroCardFieldVotingUpdate {
   /**
    * The value to determine the field should be either voted or unvoted.
    *
-   * @note It's unclear if this refers to the CURRENT user (the one who
+   * @remarks It's unclear if this refers to the CURRENT user (the one who
    * ownes the API token). Presumably it does?
    */
   value: boolean;
@@ -164,14 +164,14 @@ export interface FavroApiParamsCardUpdate {
   /**
    * The list of card attachments URLs, that will be removed from the card.
    *
-   * @note Unclear what URL is being referenced here. Best guess is the
+   * @remarks Unclear what URL is being referenced here. Best guess is the
    * `fileURL` field from an attachment object.
    */
   removeAttachments?: string[];
   /**
    * The list of card custom field parameters, that will be added or modified.
    *
-   * @note Value objects are VERY similar to those that appear in the same
+   * @remarks Value objects are VERY similar to those that appear in the same
    * field upon fetching a Card, but there are some differences.
    */
   customFields?: FavroApiParamsCardUpdateCustomField[];
@@ -181,7 +181,7 @@ export interface FavroApiParamsCardUpdate {
    * The list of cardCommonId and widgetCommonId of card
    * favro attachment, that will be removed from the card.
    *
-   * @note Presumably this is the `itemCommonId` field value
+   * @remarks Presumably this is the `itemCommonId` field value
    */
   removeFavroAttachmentIds?: string[];
   /** Archive or unarchive card.*/

@@ -580,7 +580,7 @@ export class BravoClient extends FavroClient {
    *
    * @param cardId The Widget-specific `cardId` (not the `commonCardId`!)
    *
-   * @note Custom Fields are hard to update this way, since
+   * @remarks Custom Fields are hard to update this way, since
    * they require knowing the correct identifiers for both
    * fields and values.
    *

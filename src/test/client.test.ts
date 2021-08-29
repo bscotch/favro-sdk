@@ -48,7 +48,7 @@ import type { BravoUser } from '$/lib/entities/BravoUser.js';
 import type { BravoTagDefinition } from '$/lib/entities/BravoTag.js';
 
 /**
- * @note A root .env file must be populated with the required
+ * @remarks A root .env file must be populated with the required
  * env vars in order to run tests!
  */
 dotenv.config();

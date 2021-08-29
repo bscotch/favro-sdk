@@ -1,5 +1,5 @@
 /**
- * @note
+ * @remarks
  * The documentation for the custom fields is a bit
  * unclear. The types below match the docs, but should be
  * checked for validity against real returned data. In

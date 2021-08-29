@@ -204,7 +204,7 @@ export interface DataFavroCardAttachment {
 /** {@link https://favro.com/developer/#card-time-on-board} */
 interface DataFavroCardTimeOnBoard {
   /**
-   * @note documentation does not include units
+   * @remarks documentation does not include units
    */
   time: number;
   isStopped: boolean;
