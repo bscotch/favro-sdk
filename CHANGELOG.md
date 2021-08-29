@@ -1,3 +1,12 @@
+## [1.0.1](https://github.com/bscotch/favro-sdk/compare/v1.0.0...v1.0.1) (2021-08-29)
+
+
+### Bug Fixes
+
+* The FavroApi typings import paths are being exported incorrectly, breaking types in the build. ([4cb3734](https://github.com/bscotch/favro-sdk/commit/4cb373441f888c584387714288bea782ddaa9afd))
+
+
+
 # [1.0.0](https://github.com/bscotch/favro-sdk/compare/v0.9.0...v1.0.0) (2021-08-29)
 
 
