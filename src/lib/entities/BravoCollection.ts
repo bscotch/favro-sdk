@@ -1,7 +1,6 @@
 import { BravoEntity } from '../BravoEntity.js';
 import type { BravoWidget } from './BravoWidget.js';
 import type { FavroApi } from '$favro';
-import type { OptionsBravoCreateWidget } from '$/types/ParameterOptions.js';
 
 export class BravoCollection extends BravoEntity<FavroApi.Collection.Data> {
   get name() {
@@ -16,7 +15,10 @@ export class BravoCollection extends BravoEntity<FavroApi.Collection.Data> {
     return this._data.organizationId;
   }
 
-  async createWidget(name: string, options?: OptionsBravoCreateWidget) {
+  async createWidget(
+    name: string,
+    options?: Omit<FavroApi.Widget.Create, 'collectionId'>,
+  ) {
     return await this._client.createWidget(this.collectionId, name, options);
   }
 

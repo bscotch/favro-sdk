@@ -299,7 +299,7 @@ describe('BravoClient', function () {
 
     it('can create a widget', async function () {
       testWidget = await testCollection.createWidget(testWidgetName, {
-        color: 'cyan',
+        color: 'purple',
       });
       expect(testWidget, 'Should be able to create widget').to.exist;
     });

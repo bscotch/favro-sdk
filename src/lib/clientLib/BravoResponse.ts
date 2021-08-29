@@ -2,14 +2,13 @@ import type { BravoClient } from '$lib/BravoClient';
 import type { BravoEntity } from '$lib/BravoEntity';
 import type { FavroResponse } from './FavroResponse';
 import type { DataFavroCustomFieldDefinition } from '$/types/FavroCustomFieldTypes.js';
-import type { DataFavroWidget } from '$/types/FavroWidgetTypes.js';
 import type { BravoWidget } from '$entities/BravoWidget.js';
 import type { BravoCustomFieldDefinition } from '../entities/BravoCustomField.js';
 import type { FavroApi } from '$favro';
 import type { BravoTagDefinition } from '../entities/BravoTag.js';
 
 export type BravoResponseWidgets = BravoResponseEntities<
-  DataFavroWidget,
+  FavroApi.Widget.Data,
   BravoWidget
 >;
 

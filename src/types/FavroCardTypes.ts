@@ -1,4 +1,4 @@
-import type { OptionWidgetType } from './FavroWidgetTypes.js';
+import type { FavroApi } from '$favro';
 
 export type OptionFavroDescriptionFormat = 'plaintext' | 'markdown';
 
@@ -216,7 +216,7 @@ export interface DataFavroCardFavroAttachment {
    * The cardCommonId of card or widgetCommonId of widget that
    * is linked to the card. */
   itemCommonId: string;
-  type: 'card' | OptionWidgetType;
+  type: 'card' | FavroApi.Widget.FieldTypes.Type;
 }
 
 /**

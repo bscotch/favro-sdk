@@ -1,6 +1,6 @@
 import { BravoEntity } from '$lib/BravoEntity.js';
-import { selectRandom, stringsMatch } from '$lib/utility.js';
-import type { DataFavroWidget } from '$types/FavroWidgetTypes.js';
+import { stringsMatch } from '$lib/utility.js';
+import type { FavroApi } from '$favro';
 import type { BravoColumn } from './BravoColumn.js';
 import type { ArrayMatchFunction } from '$/types/Utility.js';
 import type {
@@ -9,9 +9,7 @@ import type {
 } from '$/types/FavroCardTypes.js';
 import type { BravoCardInstance } from './BravoCard.js';
 
-export type OptionWidgetColor = typeof BravoWidget['colors'][number];
-
-export class BravoWidget extends BravoEntity<DataFavroWidget> {
+export class BravoWidget extends BravoEntity<FavroApi.Widget.Data> {
   get widgetCommonId() {
     return this._data.widgetCommonId;
   }
@@ -128,25 +126,5 @@ export class BravoWidget extends BravoEntity<DataFavroWidget> {
       this.hasSameConstructor(widget) &&
       this.widgetCommonId === widget.widgetCommonId
     );
-  }
-
-  /** Allowed colors for Widgets */
-  static get colors() {
-    return [
-      'blue',
-      'lightgreen',
-      'brown',
-      'purple',
-      'orange',
-      'yellow',
-      'gray',
-      'red',
-      'cyan',
-      'green',
-    ] as const;
-  }
-  /** Choose a random color useable by Widgets */
-  static getRandomColor() {
-    return selectRandom(BravoWidget.colors);
   }
 }

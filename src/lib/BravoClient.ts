@@ -16,9 +16,7 @@ import { BravoCollection } from './entities/BravoCollection';
 import { BravoUser } from '$/lib/entities/BravoUser';
 import { BravoOrganization } from '$entities/BravoOrganization';
 import { BravoWidget } from '$entities/BravoWidget.js';
-import type { DataFavroWidget } from '$/types/FavroWidgetTypes.js';
 import type { FavroApi } from '$favro';
-import type { OptionsBravoCreateWidget } from '$/types/ParameterOptions.js';
 import { BravoColumn } from './entities/BravoColumn.js';
 import type { DataFavroColumn } from '$/types/FavroColumnTypes.js';
 import type { ArrayMatchFunction, RequiredBy } from '$/types/Utility.js';
@@ -312,7 +310,7 @@ export class BravoClient extends FavroClient {
         'widgets',
         { method: 'get', query: { collectionId } },
         BravoWidget,
-      )) as BravoResponseEntities<DataFavroWidget, BravoWidget>;
+      )) as BravoResponseEntities<FavroApi.Widget.Data, BravoWidget>;
       this.cache.setWidgets(res, collectionId);
     }
     return this.cache.getWidgets(collectionId)!;
@@ -326,7 +324,7 @@ export class BravoClient extends FavroClient {
   async createWidget(
     collectionId: string,
     name: string,
-    options?: OptionsBravoCreateWidget,
+    options?: Omit<FavroApi.Widget.Create, 'collectionId'>,
   ) {
     const res = await this.requestWithReturnedEntities(
       `widgets`,

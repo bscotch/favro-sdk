@@ -163,4 +163,62 @@ export namespace FavroApi {
       color: FieldTypes.Color;
     }
   }
+
+  /**
+   * Favro API Data models for Widgets (a.k.a. "Boards")
+   */
+  export namespace Widget {
+    /**
+     * Helper types for the values of {@link Widget.Data} fields.
+     */
+    export namespace FieldTypes {
+      export type Color =
+        | 'blue'
+        | 'lightgreen'
+        | 'brown'
+        | 'purple'
+        | 'orange'
+        | 'yellow'
+        | 'gray'
+        | 'red'
+        | 'cyan'
+        | 'green';
+
+      export type Type = 'backlog' | 'board';
+      export type Role = 'owners' | 'fullMembers' | 'guests';
+    }
+
+    /**
+     * The data model for a Widget returned from the Favro API.
+     */
+    export interface Data {
+      /** The shared id of the widget. */
+      widgetCommonId: string;
+      /** The id of the organization that this widget exists in. */
+      organizationId: string;
+      /** The ids of the collections that this widget exists in. This array will only contain collections that the user has access to. */
+      collectionIds: string[];
+      /** The name of the widget. */
+      name: string;
+      /** The type of the widget. */
+      type: FieldTypes.Type;
+      /** If set, this means that this widget is a breakdown of a card. */
+      breakdownCardCommonId: string;
+      /** The color of the widget icon. Refer to widget colors. */
+      color: FieldTypes.Color;
+      /** The users that have ownership of the widget. */
+      ownerRole: FieldTypes.Role;
+      /** The users that can add, edit and move cards on the widget. */
+      editRole: FieldTypes.Role;
+    }
+
+    /**
+     * The data model for the request body when creating a widget.
+     *
+     * See {@link https://favro.com/developer/#update-a-widget}
+     */
+    export type Create = { collectionId: string } & Partial<
+      Pick<Data, 'name' | 'type' | 'color' | 'ownerRole' | 'editRole'>
+    >;
+  }
 }
