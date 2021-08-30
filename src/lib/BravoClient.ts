@@ -612,9 +612,8 @@ export class BravoClient extends FavroClient {
       method: 'post',
       body,
       query: { filename: basename(filename) },
-    })) as FavroResponse<FavroApi.Card.ModelFieldValue.Attachment, this>;
-    const attachment =
-      (await res.getParsedBody()) as FavroApi.Card.ModelFieldValue.Attachment;
+    })) as FavroResponse<FavroApi.Attachment.Model, this>;
+    const attachment = (await res.getParsedBody()) as FavroApi.Attachment.Model;
     assertBravoClaim(attachment?.fileURL, `Failed to add attachment`);
     return attachment;
   }

@@ -549,6 +549,22 @@ export namespace FavroApi {
   }
 
   /**
+   * Attachments are uploaded files stored on Cards and Comments.
+   *
+   * 📄 https://favro.com/developer/#attachments
+   */
+  export namespace Attachment {
+    export interface Model {
+      /** The name of the file. */
+      name: string;
+      /** The URL of the file. */
+      fileURL: string;
+      /** Optional thumbnail URL of the file. */
+      thumbnailURL: string;
+    }
+  }
+
+  /**
    * Cards are the the unit of getting work done. The
    * data returned from the Favro API consists of
    * Widget-specific Card "instances", with some
@@ -567,13 +583,6 @@ export namespace FavroApi {
       export interface Assignment {
         userId: string;
         completed: boolean;
-      }
-
-      /** 📄 https://favro.com/developer/#card-attachment */
-      export interface Attachment {
-        name: string;
-        fileURL: string;
-        thumbnailURL?: string;
       }
       /** 📄 https://favro.com/developer/#card-time-on-board */
       export interface TimeOnBoard {
@@ -688,7 +697,7 @@ export namespace FavroApi {
       tasksDone: number;
       /**
        * The file attachments on the card. */
-      attachments: ModelFieldValue.Attachment[];
+      attachments: Attachment.Model[];
       /**
        * The custom fields that are set on the card and enabled in
        * the organization. */
@@ -918,6 +927,40 @@ export namespace FavroApi {
   }
 
   /**
+   * Comments live on Cards, but are managed independently from
+   * Cards via the Favro API.
+   *
+   * 📄 https://favro.com/developer/#comments
+   */
+  export namespace Comment {
+    export interface Model {
+      /** The id of the comment. */
+      commentId: string;
+      /** The id of the organization that this comment exists in. */
+      organizationId: string;
+      /** The common id of the card that this comment exists on. */
+      cardCommonId: string;
+      /** The text of the comment. */
+      comment: string;
+      /** The id of the user that posted the comment. */
+      userId: string;
+      /** The date that the comment was posted. */
+      created: Date;
+      /** The date that the comment was last edited. Only set if the comment has been edited. */
+      lastUpdated: Date;
+      /** The file attachments on the comment. See attachments. */
+      attachments: Attachment.Model[];
+    }
+
+    export interface CreateBody {
+      /** The common id of the card to post the comment on. Required. */
+      cardCommonId: string;
+      /** The body of the comment. Required. */
+      comment: string;
+    }
+  }
+
+  /**
    * When a registered Webhook triggers,
    * a payload is sent to the Webhook's address
    * ({@link FavroApi.WebhookDefinition.Model.postToUrl}).
@@ -985,7 +1028,7 @@ export namespace FavroApi {
       EventName extends ModelFieldValue.CommentEventName = any,
     > extends ModelFieldValue.EventModelBase {
       action: ModelFieldValue.CommentEventNamesAndActions[EventName];
-      comment: any; // FavroApi.Comment.Model; // TODO: Not yet type!
+      comment: FavroApi.Comment.Model;
     }
 
     export interface CardEventModels {
