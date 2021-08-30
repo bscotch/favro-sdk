@@ -1,3 +1,13 @@
+# [1.1.0](https://github.com/bscotch/favro-sdk/compare/v1.0.2...v1.1.0) (2021-08-30)
+
+
+### Features
+
+* Add Comment types to the FavroApi typings. ([6d808ed](https://github.com/bscotch/favro-sdk/commit/6d808edd3ca0f36bc82989d8c9dfa940357cc909))
+* Add full Webhook typings. ([8c77de3](https://github.com/bscotch/favro-sdk/commit/8c77de3c7c36de05de01191636ef39092c4c8a66))
+
+
+
 ## [1.0.2](https://github.com/bscotch/favro-sdk/compare/v1.0.1...v1.0.2) (2021-08-29)
 
 
