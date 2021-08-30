@@ -835,4 +835,183 @@ export namespace FavroApi {
       archive?: boolean;
     }
   }
+
+  /**
+   * Outgoing Webhooks (those sent *from* Favro *to* external services)
+   * are how you can capture events from within Favro and act on them.
+   * Favro provides mechanisms for creating these in both the UI and API.
+   * Note that Webhook events are *attached to columns*, not boards nor
+   * the entire organization.
+   *
+   * 📄 https://favro.com/developer/#outgoing-webhooks
+   */
+  export namespace WebhookDefinition {
+    /**
+     * Helper types for the values of {@link FavroApi.WebhookDefinition.Model} fields.
+     */
+    export namespace ModelFieldValue {
+      /**
+       * 📄 https://favro.com/developer/#webhook-options
+       */
+      export interface Options {
+        /** The array of columnIds for which webhook notifications will be sent. */
+        columnIds: string[];
+        /** The webhook notifications to include. If empty, all notifications will be sent. Refer to webhook notifications. */
+        notifications: EventName[];
+      }
+
+      /**
+       * The names of the events that a Webhook can trigger on.
+       *
+       * 📄 https://favro.com/developer/#webhook-notifications
+       */
+      export type EventName =
+        | 'Card created'
+        | 'Card committed'
+        | 'Card moved'
+        | 'Card updated'
+        | 'Card removed'
+        | 'Comment added'
+        | 'Comment changed'
+        | 'Comment removed';
+    }
+
+    /**
+     * The Favro API data structure representing a Webhook definition,
+     * (returned from the API when managing webhooks).
+     */
+    export interface Model {
+      /** The id of the webhook. */
+      webhookId: string;
+      /** The common id of the widget that this webhook was created for. */
+      widgetCommonId: string;
+      /** The name of the webhook. */
+      name: string;
+      /** The address to post webhook notifications to. */
+      postToUrl: string;
+      /** The secret used to sign the HTTP header X-Favro-Webhook. See webhook signatures for more information. */
+      secret: string;
+      /** The options for this webhook. Refer to webhook options. */
+      options: FavroApi.WebhookDefinition.ModelFieldValue.Options;
+    }
+
+    /**
+     * 📄 https://favro.com/developer/#create-a-webhook
+     */
+    export type CreateBody = Omit<
+      FavroApi.WebhookDefinition.Model,
+      'webhookId'
+    >;
+
+    /**
+     * Sent to {@link FavroApi.WebhookDefinition.CreateBody.postToUrl} when
+     * a webhook is created. Must return a 200 in response.
+     *
+     * 📄 https://favro.com/developer/#ping-event
+     */
+    export interface CreatePing {
+      /** The new unique identifier for the created webhook */
+      hookId: string;
+      /** The webhook definition that was created */
+      hook: FavroApi.WebhookDefinition.Model;
+    }
+  }
+
+  /**
+   * When a registered Webhook triggers,
+   * a payload is sent to the Webhook's address
+   * ({@link FavroApi.WebhookDefinition.Model.postToUrl}).
+   * The server at that URL must return a 200 in response.
+   *
+   * 📄 https://favro.com/developer/#webhook-responses
+   */
+  export namespace WebhookEvent {
+    /**
+     * Helper types for the values of {@link FavroApi.WebhookEvent.Model} fields.
+     */
+    export namespace ModelFieldValue {
+      export interface CardEventNamesAndActions {
+        'Card created': 'created';
+        'Card committed': 'committed';
+        'Card moved': 'moved';
+        'Card updated': 'updated';
+        'Card removed': 'deleted';
+      }
+
+      export interface CommentEventNamesAndActions {
+        'Comment added': 'created';
+        'Comment changed': 'updated';
+        'Comment removed': 'deleted';
+      }
+
+      export type CardEventName = keyof CardEventNamesAndActions;
+      export type CardEventAction = CardEventNamesAndActions[CardEventName];
+      export type CommentEventName = keyof CommentEventNamesAndActions;
+      export type CommentEventAction =
+        CommentEventNamesAndActions[CommentEventName];
+
+      /**
+       * Mapping of the Event names to their corresponding
+       * `action` field values in payload models.
+       */
+      export type EventNamesAndActions = CardEventNamesAndActions &
+        CommentEventNamesAndActions;
+
+      /**
+       * All Webhook Event payloads include these common fields.
+       */
+      export interface EventModelBase {
+        payloadId: string;
+        action: EventNamesAndActions[keyof EventNamesAndActions];
+        card: FavroApi.Card.Model;
+        sender: FavroApi.User.Model;
+      }
+
+      /**
+       * All payloads for Card events include these fields.
+       */
+      export interface CardEventModelBase extends EventModelBase {
+        widget: FavroApi.Widget.Model;
+      }
+    }
+
+    /**
+     * The Favro API data structure sent to the Webhook's address
+     * upon Comment-related event.
+     *
+     * 📄 https://favro.com/developer/#comment-created-event
+     */
+    export interface CommentEventModel<
+      EventName extends ModelFieldValue.CommentEventName = any,
+    > extends ModelFieldValue.EventModelBase {
+      action: ModelFieldValue.CommentEventNamesAndActions[EventName];
+      comment: any; // FavroApi.Comment.Model; // TODO: Not yet type!
+    }
+
+    export interface CardEventModels {
+      'Card created': ModelFieldValue.CardEventModelBase & {
+        action: 'created';
+        column: FavroApi.Column.Model;
+      };
+      'Card committed': ModelFieldValue.CardEventModelBase & {
+        action: 'committed';
+        column: FavroApi.Column.Model;
+        sourceWidget: FavroApi.Widget.Model;
+      };
+      'Card moved': ModelFieldValue.CardEventModelBase & {
+        action: 'moved';
+        column: FavroApi.Column.Model;
+        sourceColumn: FavroApi.Column.Model;
+      };
+      'Card updated': ModelFieldValue.CardEventModelBase & {
+        action: 'updated';
+      };
+      'Card removed': ModelFieldValue.CardEventModelBase & {
+        action: 'deleted';
+      };
+    }
+
+    export type CardEventModel<EventName extends keyof CardEventModels> =
+      CardEventModels[EventName];
+  }
 }
