@@ -4,7 +4,7 @@
  * Favro does not have test environments, and its API is not
  * fully capable of bootstrapping all of the resources needed
  * for full testing. Therefore the developer must do some
- * setup work in a testing-only Favro Organization:
+ * manual setup work in a Favro Organization created for testing:
  *
  *  - Create a separate Favro Organization for testing
  *    (to keep your production Favro data safe!)
@@ -64,7 +64,7 @@ const customFieldRepeatedName = `Repeated Text Field`;
 const customFieldUniquenessTestType = 'Text';
 
 /**
- * Some upstream tests cannot be skipped since the create
+ * Some upstream tests cannot be skipped since they create
  * dependencies. To allow skipping most tests during active
  * development, set this to `true`
  */
