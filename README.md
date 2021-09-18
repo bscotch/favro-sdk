@@ -3,10 +3,6 @@
 <h1 align="center">Bravo</h1>
 <h2 align="center">The <i>(unofficial)</i> Favro SDK</h2>
 
-> **⚠Warning⚠** *Bravo is in active development and may change substantially with any release. Check the changelog before updating!*
-
-> **⚠Warning⚠** *Bravo features are likely under-tested as they come out, do your own testing before using in production, and use at your own risk!*
-
 ## Features
 
 - 💧 Favro data is hydrated into feature-rich and explorable classes, with convenience functions galore
@@ -15,7 +11,11 @@
 - 🔐 Credentials and Favro-specific request details handled automatically
 - 💤 Lazy-loading of search results to minimize API calls
 
-See the [Roadmap](./ROADMAP.md) for which Favro API features are implemented, planned, or backburnered.
+See the [Roadmap](./ROADMAP.md) for which Favro API features are implemented, planned, or backburnered. If you can't find what you need, learn how to [contribute](CONTRIBUTING.md).
+
+> **💡 Note:** Bravo is in active development and may change substantially with any release. Check the [changelog](./CHANGELOG.md) before updating!
+
+> **💥 Warning:** Automations can do a lot of damage if something goes wrong, and we can't guarantee anything. Before using Bravo in your production Favro Organizations, test your code on a separate Favro Organization made just for testing. Have a plan for how to recover from data loss or other errors!
 
 ## Why?
 
@@ -54,29 +54,29 @@ const bravoClient = new BravoClient({
 2. [Favro API types](#favro-api-types)
 3. [Dependencies](#dependencies)
 4. [Recipes](#recipes)
-    1. [Create a Bravo Client](#create-a-bravo-client)
-    2. [Create a New Card](#create-a-new-card)
-    3. [Search Existing Cards](#search-existing-cards)
-    4. [Update a Common Field on a Card](#update-a-common-field-on-a-card)
-    5. [Batch-Update a Card's Common Fields](#batch-update-a-cards-common-fields)
-    6. [Add a Card Attachment](#add-a-card-attachment)
-    7. [Ensure up-to-date data (clear caches)](#ensure-up-to-date-data-clear-caches)
+  1. [Create a Bravo Client](#create-a-bravo-client)
+  2. [Create a New Card](#create-a-new-card)
+  3. [Search Existing Cards](#search-existing-cards)
+  4. [Update a Common Field on a Card](#update-a-common-field-on-a-card)
+  5. [Batch-Update a Card's Common Fields](#batch-update-a-cards-common-fields)
+  6. [Add a Card Attachment](#add-a-card-attachment)
+  7. [Ensure up-to-date data (clear caches)](#ensure-up-to-date-data-clear-caches)
 5. [The Favro Data Model](#the-favro-data-model)
-    1. [Collections](#collections)
-    2. [Widgets (a.k.a. "Boards")](#widgets-aka-boards)
-    3. [Columns (a.k.a. "Board Statuses")](#columns-aka-board-statuses)
-    4. [Cards](#cards)
-    5. [Built-In Card Fields](#built-in-card-fields)
-    6. [Custom Fields](#custom-fields)
+  1. [Collections](#collections)
+  2. [Widgets (a.k.a. "Boards")](#widgets-aka-boards)
+  3. [Columns (a.k.a. "Board Statuses")](#columns-aka-board-statuses)
+  4. [Cards](#cards)
+  5. [Built-In Card Fields](#built-in-card-fields)
+  6. [Custom Fields](#custom-fields)
 6. [Tips, Tricks, and Limitations](#tips-tricks-and-limitations)
-    1. [API Rate Limits](#api-rate-limits)
-    2. [Searching](#searching)
-    3. [Member fields & "completion"](#member-fields--completion)
-    4. [Limited Markdown](#limited-markdown)
-    5. [Identifiers](#identifiers)
-        1. [Card Sequential IDs](#card-sequential-ids)
-        2. [Widget-specific `cardId`s](#widget-specific-cardids)
-    6. [Creating Boards](#creating-boards)
+  1. [API Rate Limits](#api-rate-limits)
+  2. [Searching](#searching)
+  3. [Member fields & "completion"](#member-fields--completion)
+  4. [Limited Markdown](#limited-markdown)
+  5. [Identifiers](#identifiers)
+    1. [Card Sequential IDs](#card-sequential-ids)
+    2. [Widget-specific `cardId`s](#widget-specific-cardids)
+  6. [Creating Boards](#creating-boards)
 
 ## Authentication
 

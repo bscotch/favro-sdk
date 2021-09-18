@@ -5,3 +5,4 @@ sand\ box
 debug.log
 .env
 temp/
+package-lock.json

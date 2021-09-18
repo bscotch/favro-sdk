@@ -82,6 +82,12 @@ function cleanHeaders(rawHeaders: Record<string, any>) {
   );
 }
 
+export interface FavroClientAuth {
+  token: string;
+  organizationId: string;
+  userEmail: string;
+}
+
 export class FavroClient {
   protected _token!: string;
   protected _organizationId!: string;
@@ -99,12 +105,14 @@ export class FavroClient {
   protected _requestsMade = 0;
   protected _limitResetsAt?: Date;
   private _backendId?: string;
+  private _fetch = fetch;
 
-  constructor(options?: {
-    token?: string;
-    organizationId?: string;
-    userEmail?: string;
-  }) {
+  /**
+   * @param customFetch - Optional `node-fetch` replacement
+   *                      to be used for *all* requests. Must be
+   *                      a drop-in replacement!
+   */
+  constructor(options?: FavroClientAuth, customFetch?: typeof fetch) {
     for (const [optionsName, envName] of [
       ['token', 'FAVRO_TOKEN'],
       ['userEmail', 'FAVRO_USER_EMAIL'],
@@ -113,6 +121,9 @@ export class FavroClient {
       const value = options?.[optionsName] || process.env[envName];
       assertBravoClaim(value, `A Favro ${optionsName} is required.`);
       this[`_${optionsName}` as const] = value;
+    }
+    if (customFetch) {
+      this._fetch = customFetch;
     }
   }
 
@@ -136,9 +147,17 @@ export class FavroClient {
    *
    * @param url - Relative to the base URL https://favro.com/api/v1
    */
-  async request<EntityData extends Record<string, any> | null = null>(
+  async request<
+    EntityData extends Record<string, any> | null = null,
+    Fetcher extends typeof fetch = typeof fetch,
+  >(
     url: string,
     options?: OptionsFavroRequest,
+    /**
+     * Optionally override the default `node-fetch` client
+     * (must be a drop-in replacement!)
+     */
+    customFetch?: Fetcher,
   ): Promise<FavroResponse<EntityData, this>> {
     assertBravoClaim(
       typeof this._requestsRemaining == 'undefined' ||
@@ -168,7 +187,7 @@ export class FavroClient {
     this._requestsMade++;
     const res = new FavroResponse<EntityData, this>(
       this,
-      await fetch(url, {
+      await (customFetch || this._fetch)(url, {
         method,
         headers, // Force it to assume no undefineds
         body,

@@ -27,6 +27,8 @@ import { BravoTagDefinition } from './entities/BravoTag.js';
 import type { BravoEntity } from './BravoEntity.js';
 import type { FavroApi } from '$types/FavroApi.js';
 
+export { FavroClientAuth as BravoClientAuth } from './clientLib/FavroClient.js';
+
 type ConstructorFavroEntity<EntityData extends Record<string, any>> = new (
   client: BravoClient,
   data: EntityData,
