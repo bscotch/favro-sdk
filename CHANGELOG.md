@@ -1,3 +1,12 @@
+# [1.2.0](https://github.com/bscotch/favro-sdk/compare/v1.1.0...v1.2.0) (2021-09-18)
+
+
+### Features
+
+* Allow using a custom node-fetch-compatible module for making requests. ([f6034e9](https://github.com/bscotch/favro-sdk/commit/f6034e940e1107facef9a392efc39b36fbbc7a21))
+
+
+
 # [1.1.0](https://github.com/bscotch/favro-sdk/compare/v1.0.2...v1.1.0) (2021-08-30)
 
 
