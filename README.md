@@ -11,12 +11,6 @@
 - 🔐 Credentials and Favro-specific request details handled automatically
 - 💤 Lazy-loading of search results to minimize API calls
 
-See the [Roadmap](./ROADMAP.md) for which Favro API features are implemented, planned, or backburnered. If you can't find what you need, learn how to [contribute](CONTRIBUTING.md).
-
-> **💡 Note:** Bravo is in active development and may change substantially with any release. Check the [changelog](./CHANGELOG.md) before updating!
-
-> **💥 Warning:** Automations can do a lot of damage if something goes wrong, and we can't guarantee anything. Before using Bravo in your production Favro Organizations, test your code on a separate Favro Organization made just for testing. Have a plan for how to recover from data loss or other errors!
-
 ## Why?
 
 [Favro](https://www.favro.com/) is an amazing project management tool
@@ -25,6 +19,26 @@ and a great way to centralize all kinds of workflows. However, Favro's integrati
 Fortunately, Favro provides an [HTTP API and Webhooks](https://favro.com/developer) so developers can fill in those gaps themselves. Unfortunately, using raw HTTP APIs is unpleasant and time-consuming. That's where Bravo comes in!
 
 _[Butterscotch Shenanigans&reg;](https://www.bscotch.net) and Bravo (this project) are not affiliated with Favro._
+
+## 💥 Warnings 💥
+
+> **💡 Note:** Bravo is in active development and may change substantially with any release. Check the [changelog](./CHANGELOG.md) before updating!
+
+> **💥 Warning:** Automations can do a lot of damage if something goes wrong, and we can't guarantee anything. Before using Bravo in your production Favro Organizations, test your code on a separate Favro Organization made just for testing. Have a plan for how to recover from data loss or other errors!
+
+## How to Contribute
+
+See the [Roadmap](./ROADMAP.md) for which Favro API features are implemented, planned, or backburnered. If you can't find what you need, learn how to [make your own changes](CONTRIBUTING.md).
+
+Another great way to contribute is to upvote the bugs and features that we need Favro to address in order to make their API more robust and useful. Here's the list of those most relevant to Bravo, and to Favro automation in general:
+
++ https://favro.canny.io/feature-requests/p/webhooks-api-custom-fields-visibilityscope-information
++ https://favro.canny.io/feature-requests/p/api-filter-by-field-title-tags-status-custom-fields
++ https://favro.canny.io/bugs/p/webhook-responses-documentation-incorrect
++ https://favro.canny.io/feature-requests/p/favro-api-return-complete-state-for-custom-members-fields
++ https://favro.canny.io/bugs/p/webhooks-no-way-to-get-correct-description
++ https://favro.canny.io/bugs/p/fav-93084-api-created-widget-has-no-synced-status-with-kanban-views
+
 
 ## Quick Start
 
@@ -50,10 +64,12 @@ const bravoClient = new BravoClient({
 ```
 
 ## Table of Contents
-1. [Authentication](#authentication)
-2. [Favro API types](#favro-api-types)
-3. [Dependencies](#dependencies)
-4. [Recipes](#recipes)
+1. [💥 Warnings 💥](#-warnings-)
+2. [How to Contribute](#how-to-contribute)
+3. [Authentication](#authentication)
+4. [Favro API types](#favro-api-types)
+5. [Dependencies](#dependencies)
+6. [Recipes](#recipes)
   1. [Create a Bravo Client](#create-a-bravo-client)
   2. [Create a New Card](#create-a-new-card)
   3. [Search Existing Cards](#search-existing-cards)
@@ -61,22 +77,23 @@ const bravoClient = new BravoClient({
   5. [Batch-Update a Card's Common Fields](#batch-update-a-cards-common-fields)
   6. [Add a Card Attachment](#add-a-card-attachment)
   7. [Ensure up-to-date data (clear caches)](#ensure-up-to-date-data-clear-caches)
-5. [The Favro Data Model](#the-favro-data-model)
+7. [The Favro Data Model](#the-favro-data-model)
   1. [Collections](#collections)
   2. [Widgets (a.k.a. "Boards")](#widgets-aka-boards)
   3. [Columns (a.k.a. "Board Statuses")](#columns-aka-board-statuses)
   4. [Cards](#cards)
   5. [Built-In Card Fields](#built-in-card-fields)
   6. [Custom Fields](#custom-fields)
-6. [Tips, Tricks, and Limitations](#tips-tricks-and-limitations)
-  1. [API Rate Limits](#api-rate-limits)
-  2. [Searching](#searching)
-  3. [Member fields & "completion"](#member-fields--completion)
-  4. [Limited Markdown](#limited-markdown)
-  5. [Identifiers](#identifiers)
-    1. [Card Sequential IDs](#card-sequential-ids)
+8. [Tips, Tricks, and Limitations](#tips-tricks-and-limitations)
+  1. [API rate limits are very low](#api-rate-limits-are-very-low)
+  2. [Search options are extremely limited](#search-options-are-extremely-limited)
+  3. [Webhooks used by Automations have incomplete data](#webhooks-used-by-automations-have-incomplete-data)
+  4. [Member fields have independent but inaccessible "completion" states](#member-fields-have-independent-but-inaccessible-completion-states)
+  5. [Markdown support is limited](#markdown-support-is-limited)
+  6. [Unique identifiers are inaccessible](#unique-identifiers-are-inaccessible)
+    1. [Card Sequential IDs are flexible](#card-sequential-ids-are-flexible)
     2. [Widget-specific `cardId`s](#widget-specific-cardids)
-  6. [Creating Boards](#creating-boards)
+  7. [API-Created Boards have broken Status fields](#api-created-boards-have-broken-status-fields)
 
 ## Authentication
 
@@ -337,7 +354,7 @@ Currently, the best way to find Custom Field identifiers for use by the Favro AP
 
 Some lessons learned while building Bravo. 
 
-### API Rate Limits
+### API rate limits are very low
 
 Favro's API rate limits are quite strict and [differ by plan tier](https://www.favro.com/pricing). At the time of writing, based on the pricing page and my experience using the API, the limits appear to be:
 
@@ -348,9 +365,9 @@ Favro's API rate limits are quite strict and [differ by plan tier](https://www.f
 | Standard     | 1000          |
 | Enterprise   | 10000         |
 
-Rate limits appear to be per user-organization pair. It is easy to hit the lower limits even with fairly light automation.
+Rate limits appear to be per user-organization pair. It is easy to hit the lower limits even with fairly light automation, since you'll often need to make multiple requests to collect all of the data you need.
 
-### Searching
+### Search options are extremely limited
 
 > ⚠ The Favro API has extremely limited search functionality. **[Upvote the feature request!](https://favro.canny.io/feature-requests/p/api-filter-by-field-title-tags-status-custom-fields)**
 
@@ -360,7 +377,13 @@ To _find_ something via the API then requires an exhaustive search followed by l
 
 Bravo does some caching and lazy-loading to reduce the impact of this on the number of API requests it makes, but the end result is always going to be that search functionality in Bravo has to consume a lot of API requests, especially if you have a lot of stuff in Favro.
 
-### Member fields & "completion"
+### Webhooks used by Automations have incomplete data
+
+Favro's API documentation [for Webhooks](https://favro.canny.io/bugs/p/webhook-responses-documentation-incorrect) includes sample data for all of the type of events that can trigger webhooks. However, for outgoing webhooks set in the UI (via the per-board "Automations" menu), the only data sent are a payload identifier and the *current* card data. There is no way to obtain information about the state of the card prior to the event, nor any way to tell what event actually occurred.
+
+[Upvote the request to fix this!](https://favro.canny.io/bugs/p/webhook-responses-documentation-incorrect)
+
+### Member fields have independent but inaccessible "completion" states
 
 Cards have a default Members field, and also allows for Custom Members fields. You'll notice that, via the Favro webapp, if you click the "Mark as complete" button you'll get a checkmark next to your avatar *in every Members-type field*. (And all will be unchecked if you then mark as incomplete.) But via the API, you mark a user "complete" via the built-in *or* via the Custom Members field.
 
@@ -374,7 +397,7 @@ So what happens when you mark a user as complete via the API, given the combinat
 - The Favro API *does not* provide a way for you to obtain a user's "complete" status for a Custom Members field via the API. You can *set* the state but not *get* the state! ([Upvote the feature request!](https://favro.canny.io/feature-requests/p/favro-api-return-complete-state-for-custom-members-fields))
 
 
-### Limited Markdown
+### Markdown support is limited
 
 > ⚠ Webhooks do not send Markdown. To get full Markdown content in response to a Webhook, you'll have to fetch the same card again via the API. **[Upvote the feature request!](https://favro.canny.io/bugs/p/webhooks-no-way-to-get-correct-description)**
 
@@ -384,7 +407,7 @@ Despite having some Markdown support, the API and Webhook data defaults to a "pl
 
 Bravo defaults to requesting Markdown where that's possible.
 
-### Identifiers
+### Unique identifiers are inaccessible
 
 Items in Favro (cards, boards, comments, custom fields, etc.) are all identified by unique identifiers. Different types of items are fetched independently, with relationships indicated by identifiers pointing to other items.
 
@@ -392,7 +415,7 @@ For example, if you fetch a Card from the API (or a webhook) you'll also get a l
 
 Bravo tries to handle much of this for you behind the scenes.
 
-#### Card Sequential IDs
+#### Card Sequential IDs are flexible
 
 Cards have a field called `sequentialId` that corresponds directly to the visible identifier shown in the Card UI, from which users can copy a card URL.
 
@@ -408,9 +431,9 @@ Note that all of these also appear to work for the user-friendly Card URLs (e.g.
 
 Favro Cards are always return as an *instance* of that Card, each with its own `cardId`.
 
-Despite this ID being Widget-specific, and the existence of global idtentifiers for Cards, most of the Favro API card endpoints use this Widget-scoped `cardId`. Presumably this is to prevent them having to have distinct endpoints for managing global vs. Widget-scoped properties.
+Despite this ID being Widget-specific, and the existence of global identifiers for Cards, most of the Favro API card endpoints use this Widget-scoped `cardId`. Presumably this is to prevent them having to have distinct endpoints for managing global vs. Widget-scoped properties.
 
-### Creating Boards
+### API-Created Boards have broken Status fields
 
 > 💡 Create boards manually via the app to get all the features you expect from Favro.
 
