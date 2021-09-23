@@ -1,3 +1,12 @@
+# [1.4.0](https://github.com/bscotch/favro-sdk/compare/v1.3.0...v1.4.0) (2021-09-23)
+
+
+### Features
+
+* Allow new webhooks to be created with automatic secret generation. ([372ae73](https://github.com/bscotch/favro-sdk/commit/372ae7366bf358b25a7cab54607a889e90f6c7bf))
+
+
+
 # [1.3.0](https://github.com/bscotch/favro-sdk/compare/v1.2.0...v1.3.0) (2021-09-23)
 
 
