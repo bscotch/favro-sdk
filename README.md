@@ -76,7 +76,8 @@ const bravoClient = new BravoClient({
   4. [Update a Common Field on a Card](#update-a-common-field-on-a-card)
   5. [Batch-Update a Card's Common Fields](#batch-update-a-cards-common-fields)
   6. [Add a Card Attachment](#add-a-card-attachment)
-  7. [Ensure up-to-date data (clear caches)](#ensure-up-to-date-data-clear-caches)
+  7. [Validate a Webhook Signature](#validate-a-webhook-signature)
+  8. [Ensure up-to-date data (clear caches)](#ensure-up-to-date-data-clear-caches)
 7. [The Favro Data Model](#the-favro-data-model)
   1. [Collections](#collections)
   2. [Widgets (a.k.a. "Boards")](#widgets-aka-boards)
@@ -244,6 +245,33 @@ await card.attach('some-data.txt', "Ooooh, a text file!");
 // Or, provide a path to a local file to upload
 await card.attach('path/to/a/file.txt');
 ```
+
+### Validate a Webhook Signature
+
+Favro signs webhooks with the secret you provide during their creation. The `BravoWebhookDefinition` class has a method to validate the signature of a webhook:
+
+```ts
+import {BravoWebhookDefinition} from '@bscotch/bravo';
+
+// Depending on how you capture the webhook event,
+// you'll need to get the signature from the HTTP headers.
+const signature = webhookHeaders['x-favro-webhook'];
+
+// The payload from an outgoing webhook includes a `payloadId` field.
+const payloadId = webhookPayload.payloadId;
+
+const secret = 'your-secret';
+const url = 'the-webhook-postTo-url';
+
+const isValid = BravoWebhookDefinition.isValidWebhookSignature(
+  url,
+  secret,
+  payloadId,
+  signature,
+);
+```
+
+
 
 ### Ensure up-to-date data (clear caches)
 

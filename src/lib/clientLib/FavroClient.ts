@@ -147,10 +147,7 @@ export class FavroClient {
    *
    * @param url - Relative to the base URL https://favro.com/api/v1
    */
-  async request<
-    EntityData extends Record<string, any> | null = null,
-    Fetcher extends typeof fetch = typeof fetch,
-  >(
+  async request<Data = null, Fetcher extends typeof fetch = typeof fetch>(
     url: string,
     options?: OptionsFavroRequest,
     /**
@@ -158,12 +155,7 @@ export class FavroClient {
      * (must be a drop-in replacement!)
      */
     customFetch?: Fetcher,
-  ): Promise<FavroResponse<EntityData, this>> {
-    assertBravoClaim(
-      typeof this._requestsRemaining == 'undefined' ||
-        this._requestsRemaining > 0,
-      'No requests remaining!',
-    );
+  ) {
     assertBravoClaim(
       this._organizationId || !options?.requireOrganizationId,
       'An organizationId must be set for this request',
@@ -185,14 +177,12 @@ export class FavroClient {
       'X-Favro-Backend-Identifier': options?.backendId || this._backendId!,
     });
     this._requestsMade++;
-    const res = new FavroResponse<EntityData, this>(
-      this,
-      await (customFetch || this._fetch)(url, {
-        method,
-        headers, // Force it to assume no undefineds
-        body,
-      }),
-    );
+    const rawResponse = await (customFetch || this._fetch)(url, {
+      method,
+      headers, // Force it to assume no undefineds
+      body,
+    });
+    const res = new FavroResponse<Data, this>(this, rawResponse);
     this._backendId = res.backendId || this._backendId;
     this._limitResetsAt = res.limitResetsAt || this._limitResetsAt;
     this._requestsRemaining =
@@ -206,9 +196,15 @@ export class FavroClient {
     }
     assertBravoClaim(res.status < 300, `Failed with status ${res.status}`);
     const parsedBody = await res.getParsedBody();
-    if (parsedBody && typeof parsedBody != 'string' && parsedBody.message) {
+    if (
+      parsedBody &&
+      typeof parsedBody != 'string' &&
+      'message' in parsedBody
+    ) {
+      // @ts-expect-error
+      const message = parsedBody.message;
       throw new BravoError(
-        `Unexpected combo of status code (${res.status}) and response body ("${parsedBody.message}")`,
+        `Unexpected combo of status code (${res.status}) and response body ("${message}")`,
       );
     }
     return res;

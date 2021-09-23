@@ -1,5 +1,6 @@
 import type { ArrayMatchFunction } from '$/types/Utility.js';
-import { assertBravoClaim } from './errors.js';
+import { assertBravoClaim, BravoError } from './errors.js';
+import crypto from 'crypto';
 
 export function stringsMatchIgnoringCase(string1: string, string2: string) {
   for (const val of [string1, string2]) {
@@ -236,4 +237,39 @@ export function stringsOrObjectsToStrings<K extends string, V extends string>(
     // @ts-expect-error
     stringOrObjectToString(stringOrObject, fieldIfObject),
   );
+}
+
+export function generateRandomBytes(bytes = 16) {
+  return new Promise<Buffer>((resolve, reject) => {
+    crypto.randomBytes(bytes, (err, buffer) => {
+      if (err) {
+        return reject(err);
+      }
+      return resolve(buffer);
+    });
+  });
+}
+
+export async function generateRandomString(
+  totalBytes = 16,
+  encoding: 'base64' | 'ascii',
+) {
+  const byteArray = await generateRandomBytes(totalBytes);
+  if (encoding == 'base64') {
+    return byteArray.toString('base64');
+  } else if (encoding == 'ascii') {
+    // Since the bytes are RANDOM they'll include unprintaable cahracters,
+    // so we need to MOD them to printable characters.
+    const minPrintableChar = 33;
+    const maxPrintableChar = 126;
+    const printableChars = [];
+    for (const byte of byteArray) {
+      const printableChar =
+        (byte % (maxPrintableChar - minPrintableChar)) + minPrintableChar;
+      printableChars.push(printableChar);
+    }
+    return Buffer.from(printableChars).toString('ascii');
+  } else {
+    throw new BravoError('Unsupported encoding');
+  }
 }
