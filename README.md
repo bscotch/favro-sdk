@@ -251,7 +251,10 @@ await card.attach('path/to/a/file.txt');
 Favro signs webhooks with the secret you provide during their creation. The `BravoWebhookDefinition` class has a method to validate the signature of a webhook:
 
 ```ts
-import {BravoWebhookDefinition} from '@bscotch/bravo';
+import {BravoEntities} from '@bscotch/bravo';
+
+// Quick function alias to cut that path down a bit
+const isValidWebhookSignature = BravoEntities.BravoWebhookDefinition.isValidWebhookSignature;
 
 // Depending on how you capture the webhook event,
 // you'll need to get the signature from the HTTP headers.
@@ -263,7 +266,7 @@ const payloadId = webhookPayload.payloadId;
 const secret = 'your-secret';
 const url = 'the-webhook-postTo-url';
 
-const isValid = BravoWebhookDefinition.isValidWebhookSignature(
+const isValid = isValidWebhookSignature(
   url,
   secret,
   payloadId,

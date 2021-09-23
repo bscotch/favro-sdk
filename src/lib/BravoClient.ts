@@ -11,13 +11,18 @@ import {
   findRequiredByField,
   createIsMatchFilter,
   stringsMatch,
+  generateRandomString,
 } from './utility.js';
 import { BravoCollection } from './entities/BravoCollection';
 import { BravoUser } from '$/lib/entities/BravoUser';
 import { BravoOrganization } from '$entities/BravoOrganization';
 import { BravoWidget } from '$entities/BravoWidget.js';
 import { BravoColumn } from './entities/BravoColumn.js';
-import type { ArrayMatchFunction, RequiredBy } from '$/types/Utility.js';
+import type {
+  ArrayMatchFunction,
+  PartialBy,
+  RequiredBy,
+} from '$/types/Utility.js';
 import { BravoCardInstance } from './entities/BravoCard.js';
 import { BravoCustomFieldDefinition } from './entities/BravoCustomField.js';
 import type { FavroResponse } from './clientLib/FavroResponse.js';
@@ -775,9 +780,21 @@ export class BravoClient extends FavroClient {
     return await webhooks.find(createIsMatchFilter(name, 'name'));
   }
 
+  /**
+   * Create a new webhook. If a secret is not provided, one will
+   * be generated for you. (Webhook secrets are available when
+   * fetching webhook definitions from the Favro API, so they
+   * do not need to managed separately.)
+   */
   async createWebhook(
-    options: Omit<FavroApi.WebhookDefinition.Model, 'webhookId'>,
+    options: PartialBy<
+      Omit<FavroApi.WebhookDefinition.Model, 'webhookId'>,
+      'secret'
+    >,
   ) {
+    if (!options.secret) {
+      options.secret = await generateRandomString(24, 'base64');
+    }
     const res = (await this.requestWithReturnedEntities(
       `webhooks`,
       {
