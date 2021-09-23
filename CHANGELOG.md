@@ -1,3 +1,13 @@
+# [1.3.0](https://github.com/bscotch/favro-sdk/compare/v1.2.0...v1.3.0) (2021-09-23)
+
+
+### Features
+
+* Add a BravoWebhook class, with corresponding methods and tests. ([dfa64f6](https://github.com/bscotch/favro-sdk/commit/dfa64f6138fba6692a2be81236ead759e42ebaf3))
+* Add export of BravoEntity types in the entryfile, so that they're more accessible. ([ab834c1](https://github.com/bscotch/favro-sdk/commit/ab834c18fa25de84f0fc6f1eb03b2da1f978b135))
+
+
+
 # [1.2.0](https://github.com/bscotch/favro-sdk/compare/v1.1.0...v1.2.0) (2021-09-18)
 
 
