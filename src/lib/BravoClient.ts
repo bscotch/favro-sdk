@@ -26,6 +26,8 @@ import { basename } from 'path';
 import { BravoTagDefinition } from './entities/BravoTag.js';
 import type { BravoEntity } from './BravoEntity.js';
 import type { FavroApi } from '$types/FavroApi.js';
+import { BravoWebhookDefinition } from './entities/BravoWebhook.js';
+import crypto from 'crypto';
 
 export { FavroClientAuth as BravoClientAuth } from './clientLib/FavroClient.js';
 
@@ -749,6 +751,50 @@ export class BravoClient extends FavroClient {
       `No custom field definition found for id ${customFieldId}`,
     );
     return matching;
+  }
+
+  //#endregion
+
+  //#region WEBHOOKS
+
+  /**
+   * List all webhooks.
+   *
+   * https://favro.com/developer/#get-all-webhooks
+   */
+  async listWebhooks(widgetCommonId?: string) {
+    const res = await this.request<FavroApi.WebhookDefinition.Model[]>(
+      'webhooks',
+      { query: { widgetCommonId } },
+    );
+    const webhooks = (await res.getParsedBody()) || [];
+    return webhooks.map((webhook) => new BravoWebhookDefinition(this, webhook));
+  }
+
+  async findWebhookByName(name: string | RegExp, widgetCommonId?: string) {
+    const webhooks = await this.listWebhooks(widgetCommonId);
+    return await webhooks.find(createIsMatchFilter(name, 'name'));
+  }
+
+  async createWebhook(
+    options: Omit<FavroApi.WebhookDefinition.Model, 'webhookId'>,
+  ) {
+    const res = (await this.requestWithReturnedEntities(
+      `webhooks`,
+      {
+        method: 'post',
+        body: options,
+      },
+      BravoWebhookDefinition,
+    )) as BravoResponseEntities<
+      FavroApi.WebhookDefinition.Model,
+      BravoWebhookDefinition
+    >;
+    return await res.getFirstEntity();
+  }
+
+  async deleteWebhookById(webhookId: string) {
+    await this.deleteEntity(`webhooks/${webhookId}`);
   }
 
   //#endregion

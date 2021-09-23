@@ -38,6 +38,7 @@ import type { BravoWidget } from '$entities/BravoWidget.js';
 import type { BravoColumn } from '$/lib/entities/BravoColumn.js';
 import type { BravoCardInstance } from '$/lib/entities/BravoCard.js';
 import {
+  generateRandomString,
   stringOrObjectToString,
   stringsOrObjectsToStrings,
 } from '$/lib/utility.js';
@@ -45,6 +46,7 @@ import { assertBravoClaim } from '$/lib/errors.js';
 import type { BravoUser } from '$/lib/entities/BravoUser.js';
 import type { BravoTagDefinition } from '$/lib/entities/BravoTag.js';
 import type { FavroApi } from '$types/FavroApi.js';
+import { BravoWebhookDefinition } from '$/lib/entities/BravoWebhook.js';
 
 /**
  * @remarks A root .env file must be populated with the required
@@ -59,6 +61,10 @@ const testWidgetName = '___BRAVO_TEST_WIDGET';
 const testColumnName = '___BRAVO_TEST_COLUMN';
 const testCardName = '___BRAVO_TEST_CARD';
 const testTagName = '___BRAVO_TEST_TAG';
+const testWebhookName = '___BRAVO_TEST_WEBHOOK';
+const testWebhookUrl =
+  'https://webhook.site/b287bde2-3f81-4d41-ba78-4c36eacdd472';
+let testWebhookSecret: string; // Set later with random characters every run
 const customFieldUniqueName = `Unique Text Field`;
 const customFieldRepeatedName = `Repeated Text Field`;
 const customFieldUniquenessTestType = 'Text';
@@ -154,6 +160,7 @@ describe('BravoClient', function () {
   let testCard: BravoCardInstance;
   let testUser: BravoUser;
   let testTag: BravoTagDefinition;
+  let testWebhook: BravoWebhookDefinition;
 
   // !!!
   // Tests are in a specific order to ensure that dependencies
@@ -180,6 +187,8 @@ describe('BravoClient', function () {
       }
       await collection.delete();
     }
+    testWebhookSecret = await generateRandomString(32, 'base64');
+    client.clearCache();
   });
 
   it('utility functions behave', async function () {
@@ -192,6 +201,40 @@ describe('BravoClient', function () {
         'hello',
       ),
     ).to.eql(['one', 'two', 'three']);
+    expect(await generateRandomString(100, 'ascii')).to.have.length(100);
+  });
+
+  it('can verify a signed webhook', async function () {
+    // Webhook signatures arrive via the x-favro-webhook header
+    // The samples here were collected during a test run
+    const sampleSecret = 'EnBW+mo+AwtsJq/13Y0zzTRRGbEYXdtRL9qvMdwoDfc=';
+    const sampleUrl =
+      'https://webhook.site/b287bde2-3f81-4d41-ba78-4c36eacdd472';
+    const sampleSignatures = [
+      {
+        signature: '8qrs8J644WeWEpLMOG36i+bMEOU=',
+        payloadId: 'z1D/epgkofeldJHGSTZh5/eQBvE=',
+      },
+      {
+        signature: 'lgkQZ7e4H9LvDVtcNoVb9A+qyPs=',
+        payloadId: 'Elo7wiI/rR4ps2fJa664w3s3pcc=',
+      },
+      {
+        signature: 'cKJzp8jB9sZwi5967JalX5oPt2g=',
+        payloadId: 'itcWkSzfpRuuqp2CJCB6+ALmT/o=',
+      },
+    ];
+    for (const sample of sampleSignatures) {
+      expect(
+        await BravoWebhookDefinition.isValidWebhookSignature(
+          sampleUrl,
+          sampleSecret,
+          sample.payloadId,
+          sample.signature,
+        ),
+        `Signature ${sample.signature} should be valid`,
+      ).to.be.true;
+    }
   });
 
   it('can list organizations', async function () {
@@ -304,6 +347,40 @@ describe('BravoClient', function () {
       const foundColumn = await testWidget.findColumnByName(testColumnName);
       assertBravoTestClaim(foundColumn);
       expect(foundColumn!.equals(testColumn)).to.be.true;
+    });
+
+    it('can create a webhook', async function () {
+      await testWidget.createColumn('ANOTHER ONE');
+      const allColumns = await testWidget.listColumns();
+      assertBravoTestClaim(
+        allColumns.length > 1,
+        'Should have at least 2 columns',
+      );
+      const columnIds = allColumns.map((c) => c.columnId);
+      testWebhook = await testWidget.createWebhook({
+        name: testWebhookName,
+        secret: testWebhookSecret,
+        postToUrl: testWebhookUrl,
+        options: {
+          columnIds,
+          notifications: BravoWebhookDefinition.cardEventNames,
+        },
+      });
+      assertBravoTestClaim(testWebhook, 'Should be able to create webhook');
+      console.log(testWebhook.toJSON());
+      expect(testWebhook.name).to.equal(testWebhookName);
+      expect(testWebhook.secret).to.equal(testWebhookSecret);
+      expect(testWebhook.postToUrl).to.equal(testWebhookUrl);
+      expect(testWebhook.columnIds).to.eql(columnIds);
+      expect(
+        testWebhook.notifications.sort(),
+        'Should have same notifications',
+      ).to.eql(BravoWebhookDefinition.cardEventNames.sort());
+    });
+
+    it('can fetch a created webhook', async function () {
+      const webhooks = await testWidget.listWebhooks();
+      expect(webhooks.length).to.be.greaterThan(0);
     });
 
     it('can create a card', async function () {
@@ -647,6 +724,14 @@ describe('BravoClient', function () {
       expect(
         await testWidget.findCardInstanceByName(testCardName),
         'Should not find deleted card',
+      ).to.be.undefined;
+    });
+
+    it('can delete a created webhook', async function () {
+      await testWebhook.delete();
+      expect(
+        await testWidget.findWebhookByName(testWebhookName),
+        'Should not find deleted webhook',
       ).to.be.undefined;
     });
 

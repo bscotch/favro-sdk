@@ -67,6 +67,7 @@ export namespace FavroApi {
    */
   export type Response<EntityData extends Record<string, any>> =
     | ResponsePaged<EntityData>
+    | EntityData[]
     | EntityData;
 
   /**

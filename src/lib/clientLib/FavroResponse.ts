@@ -4,8 +4,29 @@ import type { FavroApi } from '$types/FavroApi.js';
 import { BravoError } from '../errors.js';
 import type { FavroClient } from './FavroClient.js';
 
+function dataIsNull(data: any): data is null {
+  return data === null;
+}
+
+function dataIsEntityArray<EntityArray extends Array<Record<string, any>>>(
+  data: any,
+): data is EntityArray {
+  return !dataIsNull(data) && Array.isArray(data);
+}
+
+function dataIsPagedEntity<PagedEntity extends FavroApi.ResponsePaged<any>>(
+  data: any,
+): data is PagedEntity {
+  return (
+    !dataIsNull(data) &&
+    !dataIsEntityArray(data) &&
+    'page' in data &&
+    'entities' in data
+  );
+}
+
 export class FavroResponse<
-  DataEntity = null,
+  Data = null,
   Client extends FavroClient = FavroClient,
 > {
   /**
@@ -13,7 +34,7 @@ export class FavroResponse<
    * If not defined, have not tried to obtain the body.
    * If null, have tried to obtain, but there wasn't one.
    */
-  private _parsedBody?: null | undefined | FavroApi.Response<DataEntity>;
+  protected _parsedBody?: Data | null;
 
   constructor(protected _client: Client, protected _response: Response) {}
 
@@ -47,29 +68,6 @@ export class FavroResponse<
     );
   }
 
-  async isLastPage() {
-    const body = await this.getParsedBody();
-    if (!body || !('page' in body) || body.page >= body.pages - 1) {
-      return true;
-    }
-    return false;
-  }
-
-  async getNextPageResponse() {
-    if (await this.isLastPage()) {
-      return;
-    }
-    const body =
-      (await this.getParsedBody()) as FavroApi.ResponsePaged<DataEntity>;
-    const urlInst = new URL(this._response.url);
-    urlInst.searchParams.set('requestId', body.requestId);
-    urlInst.searchParams.set('page', `${body.page + 1}`);
-    const res = await this._client.request<DataEntity>(urlInst.toString(), {
-      backendId: this.backendId,
-    });
-    return res;
-  }
-
   async getParsedBody() {
     if (typeof this._parsedBody != 'undefined') {
       return this._parsedBody;
@@ -79,11 +77,11 @@ export class FavroResponse<
       this._parsedBody = null;
       return this._parsedBody;
     }
-    let responseBody: string | FavroApi.Response<DataEntity> = (
-      await this._response.buffer()
-    ).toString('utf8');
+    let responseBody: string | Data = (await this._response.buffer()).toString(
+      'utf8',
+    );
     try {
-      responseBody = JSON.parse(responseBody) as FavroApi.Response<DataEntity>;
+      responseBody = JSON.parse(responseBody) as Data;
       this._parsedBody = responseBody;
       return this._parsedBody;
     } catch {
@@ -91,14 +89,47 @@ export class FavroResponse<
     }
   }
 
+  async isLastPage() {
+    const body = await this.getParsedBody();
+    if (!dataIsPagedEntity(body)) {
+      return true;
+    }
+    if (body.page >= body.pages - 1) {
+      return true;
+    }
+    return false;
+  }
+
+  async getNextPageResponse() {
+    if (await this.isLastPage()) {
+      return;
+    }
+    const body = await this.getParsedBody();
+    if (!dataIsPagedEntity(body)) {
+      return;
+    }
+    const urlInst = new URL(this._response.url);
+    urlInst.searchParams.set('requestId', body.requestId);
+    urlInst.searchParams.set('page', `${body.page + 1}`);
+    const res = await this._client.request<Data>(urlInst.toString(), {
+      backendId: this.backendId,
+    });
+    return res;
+  }
+
   async getEntitiesData() {
     const body = await this.getParsedBody();
     if (!body) {
       return [];
     }
-    if ('entities' in body) {
+    if (dataIsPagedEntity(body)) {
       return [...body.entities];
     }
     return [body];
   }
 }
+
+//FavroApi.ResponsePaged<DataEntity>
+export type FavroResponsePaged<DataEntity> = FavroResponse<
+  FavroApi.ResponsePaged<DataEntity>
+>;

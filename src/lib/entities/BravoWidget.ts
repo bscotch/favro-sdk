@@ -115,6 +115,29 @@ export class BravoWidget extends BravoEntity<FavroApi.Widget.Model> {
 
   //#endregion
 
+  //#region WEBHOOKS
+  async createWebhook(
+    options: Omit<
+      FavroApi.WebhookDefinition.Model,
+      'webhookId' | 'widgetCommonId'
+    >,
+  ) {
+    return await this._client.createWebhook({
+      widgetCommonId: this.widgetCommonId,
+      ...options,
+    });
+  }
+
+  async listWebhooks() {
+    return await this._client.listWebhooks(this.widgetCommonId);
+  }
+
+  async findWebhookByName(name: string | RegExp) {
+    return await this._client.findWebhookByName(name, this.widgetCommonId);
+  }
+
+  //#endregion
+
   async delete() {
     if (!this.deleted) {
       await this._client.deleteWidgetById(this.widgetCommonId);
