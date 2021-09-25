@@ -85,6 +85,7 @@ const bravoClient = new BravoClient({
   4. [Cards](#cards)
   5. [Built-In Card Fields](#built-in-card-fields)
   6. [Custom Fields](#custom-fields)
+  7. [Webhooks (Outgoing)](#webhooks-outgoing)
 8. [Tips, Tricks, and Limitations](#tips-tricks-and-limitations)
   1. [API rate limits are very low](#api-rate-limits-are-very-low)
   2. [Search options are extremely limited](#search-options-are-extremely-limited)
@@ -380,6 +381,27 @@ Collectively, these prevent you from using existing Cards (fetched while narrowi
 
 Currently, the best way to find Custom Field identifiers for use by the Favro API (or Bravo) is to use a browser's dev tools in the web-app. For example, by using the browser's "Inspect element" on a Custom Field shown inside a card, you can find its ID in the HTML element's `id` field.
 
+### Webhooks (Outgoing)
+
+Webhooks created via the API are assigned to a specific Widget, and within that Widget they can monitor any subset of the columns (statuses). It isn't completely obvious when these will trigger from the docs, so here's what I've found via trial and error:
+
+- `Card moved`: When a Card's status changes **to** one of the monitored statuses.
+  - ⚠ Changing *from* that status does not trigger anything, unless it's changing *to* another status.)
+  - ⚠ When a Card is "committed" to this board, it will *not* also trigger a "move" event.
+  - 💡 When a Card is "moved" to a monitored column of a Widget, from a *different* widget, using the UI's "move" button, it triggers this event.
+- `Card created`: When a Card is created in a monitored column.
+  - ⚠ By default, a Card is given the first Status of the Board/Widget it lives in. If that column is not monitored, it will not trigger this event!
+- `Card committed`: When a Card is added to a Board.
+  - ⚠ If a card is already *archived* on a Board, it will not trigger this event when it is added back to this board.
+  - 💡 When a Card is "added" to a monitored column of a Widget, from a *different* widget, using the UI's "add" button, it triggers this event.
+- `Card updated`: Data on a Card has been updated.
+  - ⚠ No pre-updated data is provided, so it is impossible to determine what change occurred with this event's data alone.
+  - ⚠ Is *not* triggered upon archive.
+  - ⚠ Is *not* triggered for comment events (those are handled separately).
+  - 💡 Only triggers upon Column change when a Card is moved to a monitored Column. In that case the `Card moved` event is *also* triggered.
+- `Card deleted`: A Card is deleted within a monitored column.
+
+Note that if changes are made *quickly* via the UI, e.g. rapidly switching from one Status to another, it looks like only the last change is triggered. This could be due either to a delay in the Favro UI sending the request, or to some deduping process in Favro's backend.
 
 ## Tips, Tricks, and Limitations
 
