@@ -1,6 +1,6 @@
 import type { FavroApi } from '$/index.js';
 import type { ExtractKeysByValue, RequiredBy } from '$/types/Utility.js';
-import { assertBravoClaim } from '../errors.js';
+import { BravoError } from '../errors.js';
 import {
   addToUniqueArrayBy,
   createIsMatchFilter,
@@ -39,7 +39,18 @@ export class BravoCardUpdateBuilder {
   private update: RequiredBy<FavroApi.Card.UpdateBody, 'customFields'> = {
     customFields: [],
   };
-  constructor() {}
+
+  private error = BravoError;
+
+  constructor(options?: { error: typeof BravoError }) {
+    this.error = options?.error || BravoError;
+  }
+
+  assert(claim: any, message: string): asserts claim {
+    if (!claim) {
+      throw new this.error(message);
+    }
+  }
 
   setName(name: string) {
     this.update.name = name;
@@ -213,7 +224,7 @@ export class BravoCardUpdateBuilder {
     const status = fieldDefinition.customFieldItems!.find(
       createIsMatchFilter(statusName, 'name'),
     );
-    assertBravoClaim(
+    this.assert(
       status,
       `No status matching ${statusName} found on custom field ${customFieldId}`,
     );
@@ -221,7 +232,7 @@ export class BravoCardUpdateBuilder {
   }
 
   setCustomText(customFieldId: CustomFieldOrId<'Text'>, text: string) {
-    assertBravoClaim(
+    this.assert(
       typeof text == 'string' && text,
       `"${text}" is not a valid string`,
     );
@@ -229,7 +240,7 @@ export class BravoCardUpdateBuilder {
   }
 
   setCustomNumber(customFieldId: CustomFieldOrId<'Number'>, number: number) {
-    assertBravoClaim(
+    this.assert(
       typeof number == 'number' && !isNaN(number),
       `${number} is not a valid number`,
     );
@@ -289,11 +300,11 @@ export class BravoCardUpdateBuilder {
       | BravoCustomFieldDefinition<'Multiple select'>
       | BravoCustomField<'Multiple select'>,
   ) {
-    assertBravoClaim(optionNames.length > 0, 'No option names provided');
+    this.assert(optionNames.length > 0, 'No option names provided');
     const matchingOptions = fieldDefinition.customFieldItems!.filter((item) =>
       optionNames.some((name) => isMatch(item.name, name)),
     );
-    assertBravoClaim(
+    this.assert(
       matchingOptions.length === optionNames.length,
       `Expected to find ${optionNames.length} matching options, but found ${matchingOptions.length}.`,
     );

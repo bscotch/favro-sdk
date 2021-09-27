@@ -1,6 +1,6 @@
 export class BravoError extends Error {
-  constructor(message: string) {
-    super(message);
+  constructor(message?: string) {
+    super(message || 'Something has gone wrong.');
     this.name = 'BravoError';
     Error.captureStackTrace(this, this.constructor);
   }

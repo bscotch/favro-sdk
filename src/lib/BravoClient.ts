@@ -1,4 +1,3 @@
-import { assertBravoClaim } from './errors.js';
 import { BravoClientCache } from './clientLib/BravoClientCache.js';
 import {
   BravoResponseEntities,
@@ -67,7 +66,7 @@ type ConstructorFavroEntity<EntityData extends Record<string, any>> = new (
  */
 export class BravoClient extends FavroClient {
   //#region Organizations
-  private cache = new BravoClientCache();
+  private cache = new BravoClientCache(this);
 
   private async requestWithReturnedEntities<
     EntityData extends Record<string, any>,
@@ -130,7 +129,7 @@ export class BravoClient extends FavroClient {
    */
   async listMembers() {
     const org = await this.getCurrentOrganization();
-    assertBravoClaim(org, 'Organization not set');
+    this.assert(org, 'Organization not set');
     if (!this.cache.users) {
       const res = await this.requestWithReturnedEntities(
         'users',
@@ -164,7 +163,7 @@ export class BravoClient extends FavroClient {
     value: string | RegExp,
   ) {
     const user = await this.findMember(createIsMatchFilter(value, field));
-    assertBravoClaim(user, `No user found with ${field} matching ${value}`);
+    this.assert(user, `No user found with ${field} matching ${value}`);
     return user;
   }
 
@@ -208,7 +207,7 @@ export class BravoClient extends FavroClient {
       BravoCollection,
     );
     const collection = (await res.getFirstEntity()) as BravoCollection;
-    assertBravoClaim(collection, `Failed to create collection`);
+    this.assert(collection, `Failed to create collection`);
     this.cache.addCollection(collection);
     return collection;
   }
@@ -239,7 +238,7 @@ export class BravoClient extends FavroClient {
    */
   async listCollections() {
     const org = await this.getCurrentOrganization();
-    assertBravoClaim(org, 'Organization not set');
+    this.assert(org, 'Organization not set');
     if (!this.cache.collections) {
       const res = await this.requestWithReturnedEntities(
         'collections',
@@ -289,10 +288,7 @@ export class BravoClient extends FavroClient {
         BravoCollection,
       );
       collection = (await res.getFirstEntity()) as BravoCollection;
-      assertBravoClaim(
-        collection,
-        `No collection found with id ${collectionId}`,
-      );
+      this.assert(collection, `No collection found with id ${collectionId}`);
     }
     return collection;
   }
@@ -343,7 +339,7 @@ export class BravoClient extends FavroClient {
       BravoWidget,
     );
     const widget = (await res.getFirstEntity()) as BravoWidget;
-    assertBravoClaim(widget, `Failed to create widget`);
+    this.assert(widget, `Failed to create widget`);
     return widget;
   }
 
@@ -438,7 +434,7 @@ export class BravoClient extends FavroClient {
       BravoColumn,
     );
     const column = (await res.getFirstEntity()) as BravoColumn;
-    assertBravoClaim(column, `Failed to create column`);
+    this.assert(column, `Failed to create column`);
     this.cache.addColumn(widgetCommonId, column);
     return column;
   }
@@ -495,7 +491,7 @@ export class BravoClient extends FavroClient {
             BravoColumn,
           )
         ).getFirstEntity()) as BravoColumn);
-    assertBravoClaim(
+    this.assert(
       column,
       `Column with id ${columnId} does not exist on Widget with id ${widgetOrColumnId}`,
     );
@@ -528,7 +524,7 @@ export class BravoClient extends FavroClient {
       BravoCardInstance,
     );
     const card = (await res.getFirstEntity()) as BravoCardInstance;
-    assertBravoClaim(card, `Failed to create card`);
+    this.assert(card, `Failed to create card`);
     return card;
   }
 
@@ -580,7 +576,7 @@ export class BravoClient extends FavroClient {
    * 📄 https://favro.com/developer/#get-a-card
    */
   async findCardInstanceByCardId(cardId: string) {
-    assertBravoClaim(cardId, `No cardId provided`);
+    this.assert(cardId, `No cardId provided`);
     const res = (await this.requestWithReturnedEntities(
       `cards/${cardId}`,
       {
@@ -641,7 +637,7 @@ export class BravoClient extends FavroClient {
       query: { filename: basename(filename) },
     })) as FavroResponse<FavroApi.Attachment.Model, this>;
     const attachment = (await res.getParsedBody()) as FavroApi.Attachment.Model;
-    assertBravoClaim(attachment?.fileURL, `Failed to add attachment`);
+    this.assert(attachment?.fileURL, `Failed to add attachment`);
     return attachment;
   }
 
@@ -716,7 +712,7 @@ export class BravoClient extends FavroClient {
   async findTagDefinitionById(tagId: string) {
     const tags = await this.listTagDefinitions();
     const tag = await tags.findById('tagId', tagId);
-    assertBravoClaim(tag, `No tag found with id ${tagId}`);
+    this.assert(tag, `No tag found with id ${tagId}`);
     return tag;
   }
 
@@ -769,7 +765,7 @@ export class BravoClient extends FavroClient {
     const matching = await defs.find(
       (def) => def.customFieldId === customFieldId,
     );
-    assertBravoClaim(
+    this.assert(
       matching,
       `No custom field definition found for id ${customFieldId}`,
     );
@@ -860,7 +856,7 @@ export class BravoClient extends FavroClient {
     const res = await this.request(url, {
       method: 'delete',
     });
-    assertBravoClaim(
+    this.assert(
       res.succeeded,
       `Failed to delete entity at ${url}; Status: ${res.status}`,
     );

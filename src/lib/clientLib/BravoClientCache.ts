@@ -1,4 +1,3 @@
-import { assertBravoClaim } from '$lib/errors.js';
 import type { BravoOrganization } from '$entities/BravoOrganization.js';
 import type { BravoUser } from '$/lib/entities/BravoUser';
 import type { BravoCollection } from '$entities/BravoCollection.js';
@@ -8,8 +7,10 @@ import type {
   BravoResponseWidgets,
 } from './BravoResponse.js';
 import type { BravoColumn } from '../entities/BravoColumn.js';
+import type { BravoClient } from '$/index.js';
 
 export class BravoClientCache {
+  constructor(private client: BravoClient) {}
   protected _organizations?: BravoOrganization[];
   protected _users?: BravoUser[];
   protected _collections?: BravoCollection[];
@@ -96,7 +97,7 @@ export class BravoClientCache {
    * assumed the widget pager is from a
    */
   setWidgets(widgetPager: BravoResponseWidgets, collectionId = '') {
-    assertBravoClaim(widgetPager, 'Must provide a widget pager!');
+    this.client.assert(widgetPager, 'Must provide a widget pager!');
     this._widgets.set(collectionId, widgetPager);
   }
 
@@ -107,7 +108,7 @@ export class BravoClientCache {
 
   /** Set the cache for the columns of a widget */
   setColumns(widgetCommonId: string, columns: BravoColumn[]) {
-    assertBravoClaim(widgetCommonId, 'Must provide a widget id!');
+    this.client.assert(widgetCommonId, 'Must provide a widget id!');
     this._columns.set(widgetCommonId, [...columns]);
   }
 

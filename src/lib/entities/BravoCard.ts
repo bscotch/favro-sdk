@@ -1,7 +1,6 @@
 import type { FavroApi } from '$/index.js';
 import type { ExtractKeysByValue } from '$/types/Utility.js';
 import { BravoEntity } from '$lib/BravoEntity.js';
-import { assertBravoClaim } from '../errors.js';
 import { isMatch } from '../utility.js';
 import {
   BravoCardUpdateBuilder,
@@ -131,7 +130,9 @@ export class BravoCardInstance extends BravoEntity<FavroApi.Card.Model> {
       (...args: any[]) => any
     >,
   >(method: Method, ...args: Parameters<BravoCardUpdateBuilder[Method]>) {
-    const updateBuilder = new BravoCardUpdateBuilder();
+    const updateBuilder = new BravoCardUpdateBuilder({
+      error: this._client.error,
+    });
     //@ts-ignore
     updateBuilder[method](...args);
     await this.update(updateBuilder);
@@ -354,7 +355,7 @@ export class BravoCardInstance extends BravoEntity<FavroApi.Card.Model> {
         'customFieldId',
         value.customFieldId,
       );
-      assertBravoClaim(
+      this._client.assert(
         definition,
         `Could not find Custom Field with ID ${value.customFieldId}`,
       );
@@ -430,7 +431,7 @@ export class BravoCardInstance extends BravoEntity<FavroApi.Card.Model> {
     if (matchingFieldsOnCard.length === 1) {
       return matchingFieldsOnCard[0] as BravoCustomField<FieldType>;
     }
-    assertBravoClaim(
+    this._client.assert(
       matchingFieldsOnCard.length == 0,
       `Multiple Custom Fields on the Card match the name ${name} on this card.`,
     );
@@ -442,14 +443,14 @@ export class BravoCardInstance extends BravoEntity<FavroApi.Card.Model> {
     for await (const definition of allDefinitions) {
       if (matchFilter(definition)) {
         matchingDefinitions.push(new BravoCustomField(definition));
-        assertBravoClaim(
+        this._client.assert(
           matchingDefinitions.length == 1,
           'No matching fields found on the Card, ' +
             'but more than one found in the global list of Custom Fields',
         );
       }
     }
-    assertBravoClaim(
+    this._client.assert(
       matchingDefinitions.length === 1,
       'No matching fields found',
     );
@@ -461,7 +462,7 @@ export class BravoCardInstance extends BravoEntity<FavroApi.Card.Model> {
    * could be assigned to on its current Widget.
    */
   async listWidgetColumns() {
-    assertBravoClaim(
+    this._client.assert(
       this.widgetCommonId,
       'This card is not on a Widget can cannot have assignable Columns',
     );
@@ -473,7 +474,7 @@ export class BravoCardInstance extends BravoEntity<FavroApi.Card.Model> {
    * this card is in.
    */
   async getColumn() {
-    assertBravoClaim(
+    this._client.assert(
       this.widgetCommonId,
       'This Card instance does not have a columnId (it is not in a Widget).',
     );
@@ -499,7 +500,7 @@ export class BravoCardInstance extends BravoEntity<FavroApi.Card.Model> {
       typeof columnOrColumnId === 'string'
         ? this.widgetCommonId
         : columnOrColumnId.widgetCommonId;
-    assertBravoClaim(columnId, 'No valid ColumnId provided');
+    this._client.assert(columnId, 'No valid ColumnId provided');
     await this.update({ columnId, widgetCommonId });
     return this;
   }

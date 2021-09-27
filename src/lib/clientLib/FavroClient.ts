@@ -1,8 +1,9 @@
-import { assertBravoClaim, BravoError } from '$lib/errors.js';
+import { BravoError } from '$lib/errors.js';
 import fetch from 'node-fetch';
 import { URL } from 'url';
 import { FavroResponse } from '$lib/clientLib/FavroResponse';
 import { toBase64 } from '$lib/utility.js';
+import type { AnyFunction } from '$/types/Utility.js';
 
 type OptionFavroHttpMethod = 'get' | 'post' | 'put' | 'delete';
 
@@ -88,6 +89,14 @@ export interface FavroClientAuth {
   userEmail: string;
 }
 
+export type Logger = {
+  log?: AnyFunction;
+  error: AnyFunction;
+  info: AnyFunction;
+  trace?: AnyFunction;
+  warn: AnyFunction;
+};
+
 export class FavroClient {
   protected _token!: string;
   protected _organizationId!: string;
@@ -107,23 +116,43 @@ export class FavroClient {
   private _backendId?: string;
   private _fetch = fetch;
 
+  private _logger: Logger;
+
+  readonly error = BravoError;
+
   /**
    * @param customFetch - Optional `node-fetch` replacement
    *                      to be used for *all* requests. Must be
    *                      a drop-in replacement!
    */
-  constructor(options?: FavroClientAuth, customFetch?: typeof fetch) {
+  constructor(
+    options?: FavroClientAuth,
+    extendedOptions?: {
+      customFetch?: typeof fetch;
+      logger?: Logger;
+      /** Optionally use a custom Error class */
+      error?: typeof BravoError;
+    },
+  ) {
+    this.error = extendedOptions?.error || BravoError;
+    this._logger = extendedOptions?.logger || console;
     for (const [optionsName, envName] of [
       ['token', 'FAVRO_TOKEN'],
       ['userEmail', 'FAVRO_USER_EMAIL'],
       ['organizationId', 'FAVRO_ORGANIZATION_ID'],
     ] as const) {
       const value = options?.[optionsName] || process.env[envName];
-      assertBravoClaim(value, `A Favro ${optionsName} is required.`);
+      this.assert(value, `A Favro ${optionsName} is required.`);
       this[`_${optionsName}` as const] = value;
     }
-    if (customFetch) {
-      this._fetch = customFetch;
+    if (extendedOptions?.customFetch) {
+      this._fetch = extendedOptions?.customFetch;
+    }
+  }
+
+  assert(claim: any, message: string): asserts claim {
+    if (!claim) {
+      throw new this.error(message);
     }
   }
 
@@ -156,7 +185,7 @@ export class FavroClient {
      */
     customFetch?: Fetcher,
   ) {
-    assertBravoClaim(
+    this.assert(
       this._organizationId || !options?.requireOrganizationId,
       'An organizationId must be set for this request',
     );
@@ -193,8 +222,16 @@ export class FavroClient {
     if (this._requestsRemaining < 1 || res.status == 429) {
       // TODO: Set an interval before allowing requests to go through again, OR SOMETHING
       this._requestsRemaining = 0;
+      this._logger.warn(`Favro API rate limit reached!`);
     }
-    assertBravoClaim(res.status < 300, `Failed with status ${res.status}`);
+    if (res.status > 299) {
+      this._logger.error(`Favro API Error: ${res.status}`, {
+        url,
+        method,
+        body: await rawResponse.text(),
+      });
+    }
+    this.assert(res.status < 300, `Failed with status ${res.status}`);
     const parsedBody = await res.getParsedBody();
     if (
       parsedBody &&

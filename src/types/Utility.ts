@@ -8,6 +8,8 @@ type EmptyArray = [];
 
 export type AnyFunction = (...args: any[]) => any;
 
+export type ErrorClass<Err extends Error = Error> = (message?: string) => Err;
+
 export type RequiredBy<T, K extends keyof T> = Omit<T, K> &
   Required<Pick<T, K>>;
 
