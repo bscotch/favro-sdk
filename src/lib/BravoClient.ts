@@ -824,7 +824,7 @@ export class BravoClient extends FavroClient {
       { method: 'get' },
       BravoGroup,
     )) as BravoResponseEntities<FavroApi.Group.Model, BravoGroup>;
-    return res;
+    return await res.getAllEntities();
   }
 
   async findGroupById(groupId: string) {
@@ -833,7 +833,7 @@ export class BravoClient extends FavroClient {
       { method: 'get' },
       BravoGroup,
     )) as BravoResponseEntities<FavroApi.Group.Model, BravoGroup>;
-    return res.getFirstEntity();
+    return await res.getFirstEntity();
   }
 
   //#endregion

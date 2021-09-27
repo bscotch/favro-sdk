@@ -1,6 +1,6 @@
 {
   "name": "@bscotch/bravo",
-  "description": "Bravo is a Favro SDK by Butterscotch Shenanigans",
+  "description": "Bravo: A Favro SDK with full Typescript support and tons of convenience features. By Butterscotch Shenanigans",
   "repository": "https://github.com/bscotch/favro-sdk",
   "homepage": "https://github.com/bscotch/favro-sdk#readme",
   "author": "Adam Coster",
