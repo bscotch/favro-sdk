@@ -1,3 +1,12 @@
+## [1.8.1](https://github.com/bscotch/favro-sdk/compare/v1.8.0...v1.8.1) (2021-09-27)
+
+
+### Bug Fixes
+
+* Requests with 'undefined' values in query params send 'undefined' as a string, breaking some requests. ([7e69623](https://github.com/bscotch/favro-sdk/commit/7e696236a55bdb5b196c1338bc6435f0e47348b4))
+
+
+
 # [1.8.0](https://github.com/bscotch/favro-sdk/compare/v1.7.0...v1.8.0) (2021-09-27)
 
 
