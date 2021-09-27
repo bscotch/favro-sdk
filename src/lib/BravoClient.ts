@@ -32,6 +32,7 @@ import { BravoTagDefinition } from './entities/BravoTag.js';
 import type { BravoEntity } from './BravoEntity.js';
 import type { FavroApi } from '$types/FavroApi.js';
 import { BravoWebhookDefinition } from './entities/BravoWebhook.js';
+import { BravoGroup } from '$/types/Bravo.js';
 
 export { FavroClientAuth as BravoClientAuth } from './clientLib/FavroClient.js';
 
@@ -811,6 +812,28 @@ export class BravoClient extends FavroClient {
 
   async deleteWebhookById(webhookId: string) {
     await this.deleteEntity(`webhooks/${webhookId}`);
+  }
+
+  //#endregion
+
+  //#region GROUPS
+
+  async listGroups() {
+    const res = (await this.requestWithReturnedEntities(
+      `groups`,
+      { method: 'get' },
+      BravoGroup,
+    )) as BravoResponseEntities<FavroApi.Group.Model, BravoGroup>;
+    return res;
+  }
+
+  async findGroupById(groupId: string) {
+    const res = (await this.requestWithReturnedEntities(
+      `groups/${groupId}`,
+      { method: 'get' },
+      BravoGroup,
+    )) as BravoResponseEntities<FavroApi.Group.Model, BravoGroup>;
+    return res.getFirstEntity();
   }
 
   //#endregion

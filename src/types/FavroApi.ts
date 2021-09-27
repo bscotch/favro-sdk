@@ -103,6 +103,24 @@ export namespace FavroApi {
     }
   }
 
+  export namespace Group {
+    /**
+     * The data model returned by the Favro API for Groups.
+     */
+    export interface Model {
+      groupId: string;
+      organizationId: string;
+      name: string;
+      creatorUserId: string;
+      memberCount: number;
+      members: { userId: string; role: FavroApi.Group.ModelFieldValue.Role }[];
+    }
+
+    export namespace ModelFieldValue {
+      export type Role = 'administrator' | 'member';
+    }
+  }
+
   /** Favro API Model model for Collections. */
   export namespace Collection {
     /**
@@ -584,6 +602,7 @@ export namespace FavroApi {
       export interface Assignment {
         userId: string;
         completed: boolean;
+        isGroup?: boolean;
       }
       /** 📄 https://favro.com/developer/#card-time-on-board */
       export interface TimeOnBoard {

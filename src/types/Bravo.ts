@@ -7,3 +7,4 @@ export { BravoTagDefinition } from '$lib/entities/BravoTag.js';
 export { BravoUser } from '$lib/entities/BravoUser.js';
 export { BravoWidget } from '$lib/entities/BravoWidget.js';
 export { BravoWebhookDefinition } from '$lib/entities/BravoWebhook.js';
+export { BravoGroup } from '$lib/entities/BravoGroup.js';
