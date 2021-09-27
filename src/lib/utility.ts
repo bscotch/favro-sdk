@@ -273,3 +273,7 @@ export async function generateRandomString(
     throw new BravoError('Unsupported encoding');
   }
 }
+
+export function isNullish(value: any): value is null | undefined {
+  return value === null || value === undefined;
+}

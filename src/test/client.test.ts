@@ -338,6 +338,10 @@ describe('BravoClient', function () {
       ).to.be.true;
     });
 
+    it('can list all widgets', async function () {
+      expect((await client.listWidgets()).length).to.be.greaterThan(0);
+    });
+
     it('can create a column', async function () {
       testColumn = await testWidget.createColumn(testColumnName);
       expect(testColumn).to.exist;
@@ -372,7 +376,6 @@ describe('BravoClient', function () {
         },
       });
       assertBravoTestClaim(testWebhook, 'Should be able to create webhook');
-      console.log(testWebhook.toJSON());
       expect(testWebhook.name).to.equal(testWebhookName);
       expect(testWebhook.secret).to.equal(testWebhookSecret);
       expect(testWebhook.postToUrl).to.equal(testWebhookUrl);

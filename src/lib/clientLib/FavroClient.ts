@@ -2,7 +2,7 @@ import { BravoError } from '$lib/errors.js';
 import fetch from 'node-fetch';
 import { URL } from 'url';
 import { FavroResponse } from '$lib/clientLib/FavroResponse';
-import { toBase64 } from '$lib/utility.js';
+import { isNullish, toBase64 } from '$lib/utility.js';
 import type { AnyFunction } from '$/types/Utility.js';
 
 type OptionFavroHttpMethod = 'get' | 'post' | 'put' | 'delete';
@@ -30,7 +30,10 @@ function createFavroApiUrl(url: string, params?: Record<string, string>) {
   const fullUrl = new URL(url);
   if (params) {
     for (const param of Object.keys(params)) {
-      fullUrl.searchParams.set(param, params[param]);
+      const value = params[param];
+      if (!isNullish(value)) {
+        fullUrl.searchParams.set(param, params[param]);
+      }
     }
   }
   return fullUrl.toString();
