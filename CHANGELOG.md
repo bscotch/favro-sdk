@@ -1,3 +1,12 @@
+# [1.6.0](https://github.com/bscotch/favro-sdk/compare/v1.5.0...v1.6.0) (2021-09-27)
+
+
+### Features
+
+* Change the listGroups method to return an already-fully-listed array, since there aren't likely to be a ton of groups in an org. ([959c110](https://github.com/bscotch/favro-sdk/commit/959c11021db3a83d5f5a19ece54771e084c0214e))
+
+
+
 # [1.5.0](https://github.com/bscotch/favro-sdk/compare/v1.4.0...v1.5.0) (2021-09-27)
 
 
