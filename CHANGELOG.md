@@ -1,3 +1,12 @@
+# [1.5.0](https://github.com/bscotch/favro-sdk/compare/v1.4.0...v1.5.0) (2021-09-27)
+
+
+### Features
+
+* Add methods for listing and finding member Groups. ([b2da2d0](https://github.com/bscotch/favro-sdk/commit/b2da2d033df8fba11e66273240a66dafe866e6b1))
+
+
+
 # [1.4.0](https://github.com/bscotch/favro-sdk/compare/v1.3.0...v1.4.0) (2021-09-23)
 
 
