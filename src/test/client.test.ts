@@ -347,6 +347,11 @@ describe('BravoClient', function () {
       const foundColumn = await testWidget.findColumnByName(testColumnName);
       assertBravoTestClaim(foundColumn);
       expect(foundColumn!.equals(testColumn)).to.be.true;
+
+      expect(
+        (await client.findColumnById(testColumn.columnId))?.equals(foundColumn),
+        'Should be able to directly find',
+      ).to.be.true;
     });
 
     it('can create a webhook', async function () {

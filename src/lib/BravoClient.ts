@@ -472,14 +472,32 @@ export class BravoClient extends FavroClient {
     return await find(await this.listColumns(widgetCommonId), matchFunction);
   }
 
-  async findColumnById(widgetCommonId: string, columnId: string) {
-    const column = await find(
-      await this.listColumns(widgetCommonId),
-      (col) => col.columnId == columnId,
-    );
+  async findColumnById(
+    columnCommonId: string,
+  ): Promise<BravoColumn | undefined>;
+  async findColumnById(
+    widgetCommonId: string,
+    columnId: string,
+  ): Promise<BravoColumn | undefined>;
+  async findColumnById(
+    widgetOrColumnId: string,
+    columnId?: string,
+  ): Promise<BravoColumn | undefined> {
+    const column = columnId
+      ? await find(
+          await this.listColumns(widgetOrColumnId),
+          (col) => col.columnId == columnId,
+        )
+      : ((await (
+          await this.requestWithReturnedEntities(
+            `columns/${widgetOrColumnId}`,
+            { method: 'get' },
+            BravoColumn,
+          )
+        ).getFirstEntity()) as BravoColumn);
     assertBravoClaim(
       column,
-      `Column with id ${columnId} does not exist on Widget with id ${widgetCommonId}`,
+      `Column with id ${columnId} does not exist on Widget with id ${widgetOrColumnId}`,
     );
     return column;
   }
