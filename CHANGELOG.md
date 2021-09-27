@@ -1,3 +1,12 @@
+# [1.7.0](https://github.com/bscotch/favro-sdk/compare/v1.6.0...v1.7.0) (2021-09-27)
+
+
+### Features
+
+* Add overload to allow finding a column given only its ID, for cases where we have that but not the Widget the column comes from. ([0e1681b](https://github.com/bscotch/favro-sdk/commit/0e1681b1d1d42b8e8f0803259a7472c4b284d47d))
+
+
+
 # [1.6.0](https://github.com/bscotch/favro-sdk/compare/v1.5.0...v1.6.0) (2021-09-27)
 
 
