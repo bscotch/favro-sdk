@@ -1,3 +1,12 @@
+# [1.8.0](https://github.com/bscotch/favro-sdk/compare/v1.7.0...v1.8.0) (2021-09-27)
+
+
+### Features
+
+* Allow for custom Error classes and logging utilities to be used by BravoClient instances. ([fe06ceb](https://github.com/bscotch/favro-sdk/commit/fe06cebdf7fd111b743262ff91efdb1399ef0343))
+
+
+
 # [1.7.0](https://github.com/bscotch/favro-sdk/compare/v1.6.0...v1.7.0) (2021-09-27)
 
 
