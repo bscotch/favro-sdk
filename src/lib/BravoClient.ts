@@ -561,8 +561,26 @@ export class BravoClient extends FavroClient {
    * @param cardSequentialId - The card's number as shown in the UI
    *                         (can be just the number or include the prefix)
    */
-  async findCardInstancesBySequentialId(cardSequentialId: number | string) {
-    return await this.listCardInstances({ cardSequentialId });
+
+  async findCardInstancesBySequentialId(
+    cardSequentialId: number | string,
+    options?: {
+      /** Only return the instance on a given Widget */
+      widgetCommonId?: string;
+      /**
+       * Only return the first instance even if there are
+       * more than one (does nothing if `options.widgetCommonId` is set)
+       */
+      unique?: boolean;
+    },
+  ) {
+    this.assert(cardSequentialId, `Card sequentialId is required`);
+    const instances = await this.listCardInstances({
+      cardSequentialId,
+      widgetCommonId: options?.widgetCommonId,
+      unique: options?.unique,
+    });
+    return await instances.getAllEntities();
   }
 
   /**

@@ -98,12 +98,9 @@ export class BravoWidget extends BravoEntity<FavroApi.Widget.Model> {
   }
 
   async findCardInstanceBySequentialId(sequentialId: string) {
-    return (
-      await this._client.listCardInstances({
-        cardSequentialId: sequentialId,
-        widgetCommonId: this.widgetCommonId,
-      })
-    ).getFirstEntity();
+    return await this._client.findCardInstancesBySequentialId(sequentialId, {
+      widgetCommonId: this.widgetCommonId,
+    });
   }
 
   async createCard(data: Omit<FavroApi.Card.CreateBody, 'widgetCommonId'>) {

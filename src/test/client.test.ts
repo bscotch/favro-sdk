@@ -407,10 +407,8 @@ describe('BravoClient', function () {
       const bySequentialId = await client.findCardInstancesBySequentialId(
         foundCard.sequentialId,
       );
-      expect(
-        (await bySequentialId.getFirstEntity())!.equals(foundCard),
-        'can fetch by sequentialId',
-      ).to.be.true;
+      expect(bySequentialId[0]!.equals(foundCard), 'can fetch by sequentialId')
+        .to.be.true;
 
       // Fetch it again via cardId
       const byCardId = await client.findCardInstanceByCardId(foundCard.cardId);
