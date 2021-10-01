@@ -1,3 +1,12 @@
+# [2.0.0](https://github.com/bscotch/favro-sdk/compare/v1.8.1...v2.0.0) (2021-10-01)
+
+
+### Features
+
+* Change the method for finding cards by sequential ID to return an already-awaited list, and to allow limiting to one returned value. BREAKING ([ea565df](https://github.com/bscotch/favro-sdk/commit/ea565df59becf793e0e1afbefbfb0c1175013f5b))
+
+
+
 ## [1.8.1](https://github.com/bscotch/favro-sdk/compare/v1.8.0...v1.8.1) (2021-09-27)
 
 
