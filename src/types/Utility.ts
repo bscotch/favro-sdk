@@ -79,3 +79,8 @@ export type MimeType =
   | 'text/plain'
   | 'text/html'
   | 'text/markdown';
+
+export type Nullish = null | undefined;
+export type NotNullish<T> = Exclude<T, Nullish>;
+export type NotNull<T> = Exclude<T, null>;
+export type Defined<T> = Exclude<T, undefined>;

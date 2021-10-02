@@ -1,10 +1,14 @@
 import type { FavroApi } from '$/index.js';
-import type { ExtractKeysByValue, RequiredBy } from '$/types/Utility.js';
+import type {
+  Defined,
+  ExtractKeysByValue,
+  RequiredBy,
+} from '$/types/Utility.js';
 import { BravoError } from '../errors.js';
 import {
+  addToUniqueArray,
   addToUniqueArrayBy,
   createIsMatchFilter,
-  ensureArrayExistsAndAddUnique,
   ensureArrayExistsAndAddUniqueBy,
   isMatch,
   removeFromArray,
@@ -24,9 +28,9 @@ export type CustomFieldOrId<FieldType extends FavroApi.CustomFieldType = any> =
   | BravoCustomFieldDefinition<FieldType>
   | BravoCustomField<FieldType>;
 
-export type BravoCardFieldWithArrayValue = ExtractKeysByValue<
+export type BravoCardFieldWithStringArrayValue = ExtractKeysByValue<
   Required<FavroApi.Card.UpdateBody>,
-  any[]
+  string[]
 >;
 /**
  * A Card update can be pretty complex, and to save API
@@ -178,9 +182,12 @@ export class BravoCardUpdateBuilder {
     return this;
   }
 
-  private setCustomFieldUniquely(
-    customFieldOrId: CustomFieldOrId,
-    update: FavroApi.CustomFieldValue.UpdateBody,
+  private setCustomFieldUniquely<FieldType extends FavroApi.CustomFieldType>(
+    customFieldOrId: CustomFieldOrId<FieldType>,
+    update: Omit<
+      FavroApi.CustomFieldValue.UpdateBody<FieldType>,
+      'customFieldId'
+    >,
   ) {
     const customFieldId =
       typeof customFieldOrId == 'string'
@@ -191,11 +198,11 @@ export class BravoCardUpdateBuilder {
     );
     if (currentIdx > -1) {
       this.update.customFields.splice(currentIdx, 1, {
-        customFieldId,
         ...update,
+        customFieldId,
       });
     } else {
-      this.update.customFields.push({ customFieldId, ...update });
+      this.update.customFields.push({ ...update, customFieldId });
     }
     return this;
   }
@@ -420,16 +427,19 @@ export class BravoCardUpdateBuilder {
    * appear in another array, e.g. to prevent an "add" and "remove"
    * version of the same action from both containing the same value.
    */
-  private addToUniqueArray<Field extends BravoCardFieldWithArrayValue>(
+  private addToUniqueArray<Field extends BravoCardFieldWithStringArrayValue>(
     updateField: Field,
-    values: FavroApi.Card.UpdateBody[Field],
-    opposingField?: BravoCardFieldWithArrayValue,
+    values: Defined<FavroApi.Card.UpdateBody[Field]>,
+    opposingField?: BravoCardFieldWithStringArrayValue,
   ) {
-    this.update[updateField] ||= [];
-    ensureArrayExistsAndAddUnique(this.update[updateField], values);
+    const update = (this.update[updateField] || []) as Defined<
+      FavroApi.Card.UpdateBody[Field]
+    >;
+    addToUniqueArray(update, values);
     if (opposingField) {
       removeFromArray(this.update[opposingField], values);
     }
+    this.update[updateField] = update;
     return this;
   }
 }

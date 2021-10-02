@@ -129,7 +129,7 @@ export function ensureArrayExistsAndAddUniqueBy<T>(
 }
 
 export function removeFromArray<T>(array: T[] | undefined, values: T | T[]) {
-  for (const value of Array.isArray(values) ? values : [values]) {
+  for (const value of wrapIfNotArray(values)) {
     const idx = array?.findIndex((a) => a === value);
     if (typeof idx == 'number' && idx > -1) {
       array!.splice(idx, 1);

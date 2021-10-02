@@ -507,11 +507,12 @@ export namespace FavroApi {
      *  // ... do stuff
      * \}
      */
-    export type Model<FieldType extends CustomFieldType = any> =
+    export type Model<FieldType extends CustomFieldType = CustomFieldType> =
       Models[FieldType];
 
-    export type UpdateBody<FieldType extends CustomFieldType = any> =
-      UpdateBodies[FieldType];
+    export type UpdateBody<
+      FieldType extends CustomFieldType = CustomFieldType,
+    > = UpdateBodies[FieldType];
 
     /**
      * Data structures used to update Custom Field values on cards.
