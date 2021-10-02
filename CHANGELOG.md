@@ -1,3 +1,12 @@
+## [2.0.1](https://github.com/bscotch/favro-sdk/compare/v2.0.0...v2.0.1) (2021-10-02)
+
+
+### Bug Fixes
+
+* The types used by the Card Update builder are broken for array fields, resulting in everything being the 'any' type. ([c140250](https://github.com/bscotch/favro-sdk/commit/c140250485667cf87c23b5d5b9bea79f8117ee0a))
+
+
+
 # [2.0.0](https://github.com/bscotch/favro-sdk/compare/v1.8.1...v2.0.0) (2021-10-01)
 
 
