@@ -289,11 +289,6 @@ describe('BravoClient', function () {
     expect(testGroup.members.length).to.equal(0);
   });
 
-  it('can delete a group', async function () {
-    await client.deleteGroupById(testGroup.groupId);
-    expect(await client.listGroups()).to.have.length(0);
-  });
-
   describe('Tags', function () {
     it('can create a tag', async function () {
       const tag = await client.createTagDefinition({
@@ -499,7 +494,7 @@ describe('BravoClient', function () {
       updateBuilder
         .setName(newName)
         .setDescription(newDescription)
-        .assign([user.userId])
+        .assign([user.userId, testGroup.groupId])
         // // Cannot attach a card to self! (Get that error message
         // // when we try, implying that the update would otherwise
         // // work.
@@ -514,7 +509,14 @@ describe('BravoClient', function () {
       await testCard.update(updateBuilder);
       expect(testCard.detailedDescription).to.equal(newDescription);
       expect(testCard.name).to.equal(newName);
-      expect(testCard.assignments[0].userId).to.equal(user.userId);
+      let userAssignment = testCard.assignments.find(
+        (a) => a.userId === user.userId,
+      );
+      let groupAssignment = testCard.assignments.find(
+        (a) => a.userId === testGroup.groupId,
+      );
+      expect(userAssignment).to.exist;
+      expect(groupAssignment).to.exist;
       expect(testCard.assignments[0].completed).to.equal(true);
       expect(testCard.tags[0]).to.be.a('string');
       expect(testCard.dueDate).to.eql(testDate);
@@ -542,7 +544,14 @@ describe('BravoClient', function () {
       updateBuilder = testCard.createNewUpdateBuilder();
       updateBuilder.unassign([user.userId]);
       await testCard.update(updateBuilder);
-      expect(testCard.assignments).to.be.empty;
+      userAssignment = testCard.assignments.find(
+        (a) => a.userId === user.userId,
+      );
+      groupAssignment = testCard.assignments.find(
+        (a) => a.userId === testGroup.groupId,
+      );
+      expect(userAssignment).to.not.exist;
+      expect(groupAssignment).to.exist;
     });
     it("can singly update a Card's built-in fields", async function () {
       canSkip(this);
@@ -792,6 +801,11 @@ describe('BravoClient', function () {
         () => client.findCollectionById(testCollection.collectionId),
         'Should not find deleted collection',
       );
+    });
+
+    it('can delete a group', async function () {
+      await client.deleteGroupById(testGroup.groupId);
+      expect(await client.listGroups()).to.have.length(0);
     });
   });
 
