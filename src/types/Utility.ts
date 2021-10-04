@@ -84,3 +84,13 @@ export type Nullish = null | undefined;
 export type NotNullish<T> = Exclude<T, Nullish>;
 export type NotNull<T> = Exclude<T, null>;
 export type Defined<T> = Exclude<T, undefined>;
+
+export type KeyDiff<T, U> = { [P in Exclude<keyof T, keyof U>]?: never };
+
+/**
+ * Given two records, returns a record that can have
+ * the keys of EITHER `T` or `U`, but not both.
+ */
+export type KeyXOR<T, U> = T | U extends object
+  ? (KeyDiff<T, U> & U) | (KeyDiff<U, T> & T)
+  : T | U;

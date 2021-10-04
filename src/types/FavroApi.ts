@@ -1,3 +1,5 @@
+import type { KeyXOR } from './Utility.js';
+
 /**
  * Typings for the data models used by the Favro API, as
  * a collection of namespaces per general data type (e.g. Widget, Card)
@@ -114,6 +116,18 @@ export namespace FavroApi {
       creatorUserId: string;
       memberCount: number;
       members: { userId: string; role: FavroApi.Group.ModelFieldValue.Role }[];
+    }
+
+    /**
+     * [📄 See the docs.](https://favro.com/developer/#update-a-group)
+     */
+    export interface UpdateBody {
+      name?: string;
+      members?: (KeyXOR<{ userId: string }, { email: string }> &
+        KeyXOR<
+          { delete: boolean },
+          { role: FavroApi.Group.ModelFieldValue.Role }
+        >)[];
     }
 
     export namespace ModelFieldValue {

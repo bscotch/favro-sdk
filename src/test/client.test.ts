@@ -47,6 +47,7 @@ import type { BravoUser } from '$/lib/entities/BravoUser.js';
 import type { BravoTagDefinition } from '$/lib/entities/BravoTag.js';
 import type { FavroApi } from '$types/FavroApi.js';
 import { BravoWebhookDefinition } from '$/lib/entities/BravoWebhook.js';
+import type { BravoGroup } from '$/types/Bravo.js';
 
 /**
  * @remarks A root .env file must be populated with the required
@@ -62,6 +63,7 @@ const testColumnName = '___BRAVO_TEST_COLUMN';
 const testCardName = '___BRAVO_TEST_CARD';
 const testTagName = '___BRAVO_TEST_TAG';
 const testWebhookName = '___BRAVO_TEST_WEBHOOK';
+const testGroupName = '___BRAVO_TEST_GROUP';
 const testWebhookUrl =
   'https://webhook.site/b287bde2-3f81-4d41-ba78-4c36eacdd472';
 let testWebhookSecret: string; // Set later with random characters every run
@@ -161,6 +163,7 @@ describe('BravoClient', function () {
   let testUser: BravoUser;
   let testTag: BravoTagDefinition;
   let testWebhook: BravoWebhookDefinition;
+  let testGroup: BravoGroup;
 
   // !!!
   // Tests are in a specific order to ensure that dependencies
@@ -173,6 +176,7 @@ describe('BravoClient', function () {
     // (Since names aren't required to be unique, there could be quite a mess!)
     // NOTE:
     await (await client.findTagDefinitionByName(testTagName))?.delete();
+    await client.deleteGroupByName(testGroupName);
     while (true) {
       const collection = await client.findCollectionByName(testCollectionName);
       if (!collection) {
@@ -267,6 +271,27 @@ describe('BravoClient', function () {
     const me = await client.findMemberByEmail(myUserEmail)!;
     expect(me).to.exist;
     expect(me!.email).to.equal(myUserEmail);
+  });
+
+  it('can create a group', async function () {
+    testGroup = await client.createGroup({
+      name: testGroupName,
+      members: [{ userId: testUser.userId, role: 'administrator' }],
+    });
+    expect(testGroup).to.exist;
+    expect(testGroup!.name).to.equal(testGroupName);
+  });
+
+  it('can update a group', async function () {
+    await testGroup.update({
+      members: [{ email: testUser.email, delete: true }],
+    });
+    expect(testGroup.members.length).to.equal(0);
+  });
+
+  it('can delete a group', async function () {
+    await client.deleteGroupById(testGroup.groupId);
+    expect(await client.listGroups()).to.have.length(0);
   });
 
   describe('Tags', function () {

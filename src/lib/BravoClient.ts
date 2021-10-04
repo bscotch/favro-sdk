@@ -850,6 +850,9 @@ export class BravoClient extends FavroClient {
 
   //#region GROUPS
 
+  /**
+   * [📄 See the docs.](https://favro.com/developer/#get-all-groups)
+   */
   async listGroups() {
     const res = (await this.requestWithReturnedEntities(
       `groups`,
@@ -859,6 +862,9 @@ export class BravoClient extends FavroClient {
     return await res.getAllEntities();
   }
 
+  /**
+   * [📄 See the docs.](https://favro.com/developer/#get-a-group)
+   */
   async findGroupById(groupId: string) {
     const res = (await this.requestWithReturnedEntities(
       `groups/${groupId}`,
@@ -866,6 +872,50 @@ export class BravoClient extends FavroClient {
       BravoGroup,
     )) as BravoResponseEntities<FavroApi.Group.Model, BravoGroup>;
     return await res.getFirstEntity();
+  }
+
+  /**
+   * [📄 See the docs.](https://favro.com/developer/#create-a-group)
+   */
+  async createGroup(options: Pick<FavroApi.Group.Model, 'name' | 'members'>) {
+    const res = (await this.requestWithReturnedEntities(
+      `groups`,
+      {
+        method: 'post',
+        body: options,
+      },
+      BravoGroup,
+    )) as BravoResponseEntities<FavroApi.Group.Model, BravoGroup>;
+    return await res.getFirstEntity();
+  }
+
+  /**
+   * [📄 See the docs.](https://favro.com/developer/#update-a-group)
+   */
+  async updateGroupById(groupId: string, options: FavroApi.Group.UpdateBody) {
+    const res = (await this.requestWithReturnedEntities(
+      `groups/${groupId}`,
+      {
+        method: 'put',
+        body: options,
+      },
+      BravoGroup,
+    )) as BravoResponseEntities<FavroApi.Group.Model, BravoGroup>;
+    return await res.getFirstEntity();
+  }
+
+  /**
+   * [📄 See the docs.](https://favro.com/developer/#delete-a-group)
+   */
+  async deleteGroupById(groupId: string) {
+    await this.deleteEntity(`groups/${groupId}`);
+  }
+
+  async deleteGroupByName(name: string) {
+    const group = (await this.listGroups()).find((g) => g.name === name);
+    if (group) {
+      await this.deleteGroupById(group.groupId);
+    }
   }
 
   //#endregion
