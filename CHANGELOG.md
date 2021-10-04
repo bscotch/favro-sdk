@@ -1,3 +1,12 @@
+# [2.1.0](https://github.com/bscotch/favro-sdk/compare/v2.0.2...v2.1.0) (2021-10-04)
+
+
+### Features
+
+* Add client and BravoGroup methods for creating, updating, and deleting Groups, with tests. ([c2dd9f3](https://github.com/bscotch/favro-sdk/commit/c2dd9f32001cb83777b3963fe6f410f2455c8a4e))
+
+
+
 ## [2.0.2](https://github.com/bscotch/favro-sdk/compare/v2.0.1...v2.0.2) (2021-10-04)
 
 
