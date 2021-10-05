@@ -3,6 +3,7 @@ import { URL } from 'url';
 import type { FavroApi } from '$types/FavroApi.js';
 import { BravoError } from '../errors.js';
 import type { FavroClient } from './FavroClient.js';
+import { stringToDate, stringToNumber } from '../utility.js';
 
 function dataIsNull(data: any): data is null {
   return data === null;
@@ -55,11 +56,24 @@ export class FavroResponse<
   }
 
   get requestsRemaining() {
-    return Number(this._response.headers.get('X-RateLimit-Remaining'));
+    return stringToNumber(this._response.headers.get('X-RateLimit-Remaining'), {
+      defaultIfNullish: Infinity,
+      customError: this._client.error,
+    });
   }
 
   get limitResetsAt() {
-    return new Date(this._response.headers.get('X-RateLimit-Reset')!);
+    return stringToDate(this._response.headers.get('X-RateLimit-Limit'), {
+      defaultIfNullish: new Date(),
+      customError: this._client.error,
+    });
+  }
+
+  get limit() {
+    return stringToNumber(this._response.headers.get('X-RateLimit-Limit'), {
+      defaultIfNullish: Infinity,
+      customError: this._client.error,
+    });
   }
 
   get backendId() {

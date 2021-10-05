@@ -1,4 +1,4 @@
-import type { ArrayMatchFunction } from '$/types/Utility.js';
+import type { ArrayMatchFunction, Nullable } from '$/types/Utility.js';
 import { assertBravoClaim, BravoError } from './errors.js';
 import crypto from 'crypto';
 
@@ -276,4 +276,55 @@ export async function generateRandomString(
 
 export function isNullish(value: any): value is null | undefined {
   return value === null || value === undefined;
+}
+
+export function isNumber(value: any): value is number {
+  return typeof value === 'number';
+}
+
+export function isTruthyString(value: any): value is string {
+  return typeof value === 'string' && value.length > 0;
+}
+
+export function stringToDate(
+  dateString: Nullable<string>,
+  options?: { defaultIfNullish?: Date; customError?: typeof BravoError },
+) {
+  if (isTruthyString(dateString)) {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      throw new (options?.customError || BravoError)(
+        `Cannot convert ${dateString} to a date`,
+      );
+    }
+    return date;
+  }
+  if (options?.defaultIfNullish) {
+    return options?.defaultIfNullish;
+  }
+  throw new (options?.customError || BravoError)(
+    `Cannot convert ${dateString} to a date`,
+  );
+}
+
+/**
+ * Convert a numeric string to a number. If the string argument is
+ * nullish, throw an error unless `defaultIfNullish` is provided.
+ */
+export function stringToNumber(
+  string: Nullable<string>,
+  options?: { defaultIfNullish?: number; customError?: typeof BravoError },
+) {
+  if (isTruthyString(string)) {
+    if (isNaN(Number(string))) {
+      throw new (options?.customError || BravoError)('String is not a number');
+    }
+    return +string;
+  }
+  if (options?.defaultIfNullish !== undefined) {
+    return options?.defaultIfNullish;
+  }
+  throw new (options?.customError || BravoError)(
+    `Cannot convert ${string} to a number`,
+  );
 }

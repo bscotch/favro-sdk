@@ -114,6 +114,8 @@ export class FavroClient {
    * when the limit will be reset.
    */
   protected _requestsRemaining = Infinity;
+
+  protected _requestsLimit = Infinity;
   protected _requestsMade = 0;
   protected _limitResetsAt?: Date;
   private _backendId?: string;
@@ -167,6 +169,7 @@ export class FavroClient {
     return {
       total: this._requestsMade,
       remaining: this._requestsRemaining,
+      limit: this._requestsLimit,
       limitResetsAt: this._limitResetsAt,
     };
   }
@@ -216,16 +219,26 @@ export class FavroClient {
     });
     const res = new FavroResponse<Data, this>(this, rawResponse);
     this._backendId = res.backendId || this._backendId;
-    this._limitResetsAt = res.limitResetsAt || this._limitResetsAt;
-    this._requestsRemaining =
-      typeof res.requestsRemaining == 'number'
-        ? res.requestsRemaining
-        : this._requestsRemaining;
+    this._limitResetsAt = res.limitResetsAt;
+    this._requestsLimit = res.limit;
+    this._requestsRemaining = res.requestsRemaining;
 
     if (this._requestsRemaining < 1 || res.status == 429) {
       // TODO: Set an interval before allowing requests to go through again, OR SOMETHING
       this._requestsRemaining = 0;
-      this._logger.warn(`Favro API rate limit reached!`);
+      this._logger.warn(
+        `Favro API rate limit reached! ${JSON.stringify(
+          {
+            status: res.status,
+            remaining: this._requestsRemaining,
+            made: this._requestsMade,
+            limit: res.limit,
+            resetAt: this._limitResetsAt,
+          },
+          null,
+          2,
+        )}`,
+      );
     }
     if (res.status > 299) {
       this._logger.error(`Favro API Error: ${res.status}`, {
