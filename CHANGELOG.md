@@ -1,3 +1,12 @@
+## [2.1.1](https://github.com/bscotch/favro-sdk/compare/v2.1.0...v2.1.1) (2021-10-05)
+
+
+### Features
+
+* Improve handling of rate limit monitoring, since it doesn't ([bc72c29](https://github.com/bscotch/favro-sdk/commit/bc72c29f59415ebd4435e98a58788ce303948614))
+
+
+
 # [2.1.0](https://github.com/bscotch/favro-sdk/compare/v2.0.2...v2.1.0) (2021-10-04)
 
 
