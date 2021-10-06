@@ -54,7 +54,7 @@ export type ParametersExcludingIndices<
 export type ParametersExcludingFirst<AnyFunc extends AnyFunction> =
   ParametersExcludingIndices<AnyFunc, 0>;
 
-export type ValueOrValueArray<T> = T[] | T;
+export type OneOrMore<T> = T[] | T;
 
 export type ExtractKeysByValue<Container, ValueTypeFilter> = {
   [Key in keyof Container]-?: Container[Key] extends Function

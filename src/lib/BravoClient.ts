@@ -12,6 +12,7 @@ import {
   stringsMatch,
   generateRandomString,
   stringToNumber,
+  wrapIfNotArray,
 } from './utility.js';
 import { BravoCollection } from './entities/BravoCollection';
 import { BravoUser } from '$/lib/entities/BravoUser';
@@ -20,6 +21,7 @@ import { BravoWidget } from '$entities/BravoWidget.js';
 import { BravoColumn } from './entities/BravoColumn.js';
 import type {
   ArrayMatchFunction,
+  OneOrMore,
   PartialBy,
   RequiredBy,
 } from '$/types/Utility.js';
@@ -33,7 +35,7 @@ import type { BravoEntity } from './BravoEntity.js';
 import type { FavroApi } from '$types/FavroApi.js';
 import { BravoWebhookDefinition } from './entities/BravoWebhook.js';
 import { BravoGroup } from '$/types/Bravo.js';
-import { DebugPath, Logger } from './Logger.js';
+import { DebugPath, DebugPathSetting, Logger } from './Logger.js';
 
 export { FavroClientAuth as BravoClientAuth } from './clientLib/FavroClient.js';
 
@@ -81,8 +83,12 @@ export class BravoClient extends FavroClient {
     return new BravoResponseEntities(this, entityClass, res);
   }
 
-  enableDebugLogging(debugNamespace: DebugPath) {
-    Logger.enableDebug(debugNamespace);
+  /**
+   * Override any previous debugLogging settings
+   * with a new set.
+   */
+  enableDebugLogging(debugNamespaces: OneOrMore<DebugPathSetting>) {
+    Logger.enableDebug(wrapIfNotArray(debugNamespaces));
   }
 
   disableDebugLogging() {

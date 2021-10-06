@@ -1,7 +1,6 @@
 import type { DebugPaths } from '$/types/ObjectPaths.js';
 import type { AnyFunction } from '$/types/Utility.js';
 import debug from 'debug';
-import { sortPaths } from './utility.js';
 
 const requiredLogLevels = ['log', 'error'] as const;
 const optionalLogLevels = ['info', 'trace', 'warn', 'dir'] as const;
@@ -17,6 +16,7 @@ export type LoggerUtility = {
   };
 
 export type DebugPath = DebugPaths<typeof Logger['debugHeirarchy']>;
+export type DebugPathSetting = DebugPath | `-${DebugPath}`;
 
 export class Logger {
   private static _debuggers: { [namePath: string]: debug.Debugger } = {};
@@ -37,8 +37,8 @@ export class Logger {
     } as const;
   }
 
-  static enableDebug(debugNamespace: DebugPath) {
-    debug.enable(debugNamespace);
+  static enableDebug(debugNamespaces: DebugPathSetting[]) {
+    debug.enable(debugNamespaces.join(','));
   }
 
   static disableDebug() {
@@ -71,19 +71,14 @@ export class Logger {
     Logger._utility.error.bind(Logger._utility)(...args);
   }
 
-  static getDebugLogger(path: string, parentPath?: string) {
-    const fullPath = parentPath ? `${parentPath}:${path}` : path;
-    this._debuggers[fullPath] ||= debug(fullPath);
-    this._debuggers[fullPath].log = Logger.log;
-    this._debuggerPaths.add(fullPath);
-    return this._debuggers[fullPath];
+  static getDebugLogger(path: DebugPath) {
+    this._debuggers[path] ||= debug(path);
+    this._debuggers[path].log = Logger.log;
+    this._debuggerPaths.add(path);
+    return this._debuggers[path];
   }
 
   static set loggingUtility(utility: LoggerUtility) {
     Logger._utility = utility;
-  }
-
-  static get debugPaths() {
-    return sortPaths([...this._debuggerPaths], ':');
   }
 }
