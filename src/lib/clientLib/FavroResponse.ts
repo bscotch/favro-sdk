@@ -82,12 +82,15 @@ export class FavroResponse<
     );
   }
 
+  get contentType() {
+    return this._response.headers.get('Content-Type');
+  }
+
   async getParsedBody() {
     if (typeof this._parsedBody != 'undefined') {
       return this._parsedBody;
     }
-    const type = this._response.headers.get('Content-Type');
-    if (!type?.startsWith('application/json')) {
+    if (!this.contentType?.startsWith('application/json')) {
       this._parsedBody = null;
       return this._parsedBody;
     }

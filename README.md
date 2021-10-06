@@ -78,7 +78,8 @@ const bravoClient = new BravoClient({
    6. [Add a Card Attachment](#add-a-card-attachment)
    7. [Validate a Webhook Signature](#validate-a-webhook-signature)
    8. [Ensure up-to-date data (clear caches)](#ensure-up-to-date-data-clear-caches)
-7. [The Favro Data Model](#the-favro-data-model)
+7. [Debugging](#debugging)
+8. [The Favro Data Model](#the-favro-data-model)
    1. [Collections](#collections)
    2. [Widgets (a.k.a. "Boards")](#widgets-aka-boards)
    3. [Columns (a.k.a. "Board Statuses")](#columns-aka-board-statuses)
@@ -86,7 +87,7 @@ const bravoClient = new BravoClient({
    5. [Built-In Card Fields](#built-in-card-fields)
    6. [Custom Fields](#custom-fields)
    7. [Webhooks (Outgoing)](#webhooks-outgoing)
-8. [Tips, Tricks, and Limitations](#tips-tricks-and-limitations)
+9. [Tips, Tricks, and Limitations](#tips-tricks-and-limitations)
    1. [API rate limits are very low](#api-rate-limits-are-very-low)
    2. [Search options are extremely limited](#search-options-are-extremely-limited)
    3. [Webhooks used by Automations have incomplete data](#webhooks-used-by-automations-have-incomplete-data)
@@ -292,6 +293,21 @@ bravoClient.clearCache();
 await card.refresh();
 ```
 
+
+
+## Debugging
+
+To help diagnose problems in various contexts, Bravo provides a few useful mechanisms for logging.
+
+- **Custom Errors:** If you have a custom Error class you want to use instead of the Bravo one (e.g. if your error class is hooked up to your logging utilities), you can provide that class as an option when setting up your `BravoClient`.
+- **Custom Console:** If you have a custom drop-in replacement for Node's `console` object, you can also provide that object as an option when setting up your `BravoClient`. You can use this with custom loggers, or to divert logs to a file or other I/O mechanism.
+- **DEBUG:** In addition to regular logging (for warnings, errors, and info), you can get more verbose logging by setting the `DEBUG` environment variable. Bravo uses the popular [debug](https://www.npmjs.com/package/debug) package for this, with the following namespaces:
+  - `bravo:*`: Everything below.
+  - `bravo:http:*`: HTTP requests and responses (maximally verbose)
+  - `bravo:http:basic`: HTTP requests and responses (simple summaries of requests and responses, like URLs, methods, and status codes)
+  - `bravo:http:headers`: Request and response headers (WARNING: will include your API Token!)
+  - `bravo:http:bodies`: Request and response bodies (extremely verbose)
+  - `bravo:http:stats`: Summary of requests made, logged after each request, including Favro API rate limit information.
 
 ## The Favro Data Model
 

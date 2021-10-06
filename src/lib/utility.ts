@@ -328,3 +328,16 @@ export function stringToNumber(
     `Cannot convert ${string} to a number`,
   );
 }
+
+export function sortPaths(paths: string[], delimiter: string) {
+  return paths.sort((a, b) => {
+    const aParts = a.split(delimiter);
+    const bParts = b.split(delimiter);
+    for (let i = 0; i < aParts.length; i++) {
+      if (aParts[i] !== bParts[i]) {
+        return aParts[i].localeCompare(bParts[i], 'en', { numeric: true });
+      }
+    }
+    return 0;
+  });
+}

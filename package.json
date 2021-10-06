@@ -24,7 +24,7 @@
     "build/types/**/*"
   ],
   "scripts": {
-    "test": "npm run build && mocha --inspect --require source-map-support/register --bail --timeout 6000 ./build/test/",
+    "test": "npm run build && mocha --inspect --require source-map-support/register --bail --timeout 6000 --require ./load-env.js ./build/test/",
     "build": "rimraf build && tsc && tsc-alias",
     "preversion": "npm run lint && npm run build && npm test",
     "version": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && npm run format && git add -A",
@@ -35,11 +35,13 @@
   },
   "license": "MIT",
   "dependencies": {
+    "debug": "^4.3.2",
     "node-fetch": "^2.6.1"
   },
   "devDependencies": {
     "@microsoft/api-extractor": "^7.18.7",
     "@types/chai": "^4.2.21",
+    "@types/debug": "^4.1.7",
     "@types/mocha": "^9.0.0",
     "@types/node": "^16.6.2",
     "@types/node-fetch": "^2.5.12",

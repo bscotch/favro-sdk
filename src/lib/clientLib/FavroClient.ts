@@ -3,7 +3,7 @@ import fetch from 'node-fetch';
 import { URL } from 'url';
 import { FavroResponse } from '$lib/clientLib/FavroResponse';
 import { isNullish, toBase64 } from '$lib/utility.js';
-import type { AnyFunction } from '$/types/Utility.js';
+import { Logger, LoggerUtility } from '../Logger';
 
 type OptionFavroHttpMethod = 'get' | 'post' | 'put' | 'delete';
 
@@ -92,14 +92,6 @@ export interface FavroClientAuth {
   userEmail: string;
 }
 
-export type Logger = {
-  log?: AnyFunction;
-  error: AnyFunction;
-  info: AnyFunction;
-  trace?: AnyFunction;
-  warn: AnyFunction;
-};
-
 export class FavroClient {
   protected _token!: string;
   protected _organizationId!: string;
@@ -121,8 +113,6 @@ export class FavroClient {
   private _backendId?: string;
   private _fetch = fetch;
 
-  private _logger: Logger;
-
   readonly error = BravoError;
 
   /**
@@ -134,13 +124,13 @@ export class FavroClient {
     options?: FavroClientAuth,
     extendedOptions?: {
       customFetch?: typeof fetch;
-      logger?: Logger;
+      logger?: LoggerUtility;
       /** Optionally use a custom Error class */
       error?: typeof BravoError;
     },
   ) {
     this.error = extendedOptions?.error || BravoError;
-    this._logger = extendedOptions?.logger || console;
+    Logger.loggingUtility = extendedOptions?.logger || console;
     for (const [optionsName, envName] of [
       ['token', 'FAVRO_TOKEN'],
       ['userEmail', 'FAVRO_USER_EMAIL'],
@@ -191,6 +181,11 @@ export class FavroClient {
      */
     customFetch?: Fetcher,
   ) {
+    const debugBase = `bravo:http:`;
+    const debugBasic = Logger.getDebugLogger(`${debugBase}basic`);
+    const debugHeaders = Logger.getDebugLogger(`${debugBase}headers`);
+    const debugBodies = Logger.getDebugLogger(`${debugBase}bodies`);
+    const debugStats = Logger.getDebugLogger(`${debugBase}stats`);
     this.assert(
       this._organizationId || !options?.requireOrganizationId,
       'An organizationId must be set for this request',
@@ -198,7 +193,7 @@ export class FavroClient {
     const method = options?.method || 'get';
     throwIfBodyAndMethodIncompatible(method, options?.body);
     // Ensure initial slash
-    url = createFavroApiUrl(url, options?.query);
+    const fullUrl = createFavroApiUrl(url, options?.query);
     const { contentType, body } = computeBodyProps(options?.body);
     const headers = cleanHeaders({
       Host: 'favro.com', // Required by API (otherwise fails without explanation)
@@ -212,36 +207,43 @@ export class FavroClient {
       'X-Favro-Backend-Identifier': options?.backendId || this._backendId!,
     });
     this._requestsMade++;
-    const rawResponse = await (customFetch || this._fetch)(url, {
+    const reqOptions = {
       method,
       headers, // Force it to assume no undefineds
       body,
-    });
+    };
+    debugBasic(`sent ${method.toUpperCase()} ${url}`);
+    debugHeaders(`sent %O`, headers);
+    debugBodies(`sent %O`, body);
+    const rawResponse = await (customFetch || this._fetch)(fullUrl, reqOptions);
     const res = new FavroResponse<Data, this>(this, rawResponse);
     this._backendId = res.backendId || this._backendId;
     this._limitResetsAt = res.limitResetsAt;
     this._requestsLimit = res.limit;
     this._requestsRemaining = res.requestsRemaining;
-
+    const requestStats = {
+      status: res.status,
+      remaining: this._requestsRemaining,
+      made: this._requestsMade,
+      limit: res.limit,
+      resetAt: this._limitResetsAt,
+    };
+    debugBasic(`got ${res.status} ${res.contentType} %o`, requestStats);
+    debugHeaders(`got %O`, headers);
+    debugBodies(`got %O`, body);
+    debugStats(`%O`, requestStats);
     if (this._requestsRemaining < 1 || res.status == 429) {
       // TODO: Set an interval before allowing requests to go through again, OR SOMETHING
-      this._requestsRemaining = 0;
-      this._logger.warn(
+      Logger.warn(
         `Favro API rate limit reached! ${JSON.stringify(
-          {
-            status: res.status,
-            remaining: this._requestsRemaining,
-            made: this._requestsMade,
-            limit: res.limit,
-            resetAt: this._limitResetsAt,
-          },
+          requestStats,
           null,
           2,
         )}`,
       );
     }
     if (res.status > 299) {
-      this._logger.error(`Favro API Error: ${res.status}`, {
+      Logger.error(`Favro API Error: ${res.status}`, {
         url,
         method,
         body: await rawResponse.text(),
@@ -256,7 +258,7 @@ export class FavroClient {
     ) {
       // @ts-expect-error
       const message = parsedBody.message;
-      throw new BravoError(
+      throw new this.error(
         `Unexpected combo of status code (${res.status}) and response body ("${message}")`,
       );
     }

@@ -31,7 +31,6 @@
 
 import { BravoClient } from '$lib/BravoClient.js';
 import { expect } from 'chai';
-import dotenv from 'dotenv';
 import fetch from 'node-fetch';
 import type { BravoCollection } from '$entities/BravoCollection.js';
 import type { BravoWidget } from '$entities/BravoWidget.js';
@@ -53,7 +52,6 @@ import type { BravoGroup } from '$/types/Bravo.js';
  * @remarks A root .env file must be populated with the required
  * env vars in order to run tests!
  */
-dotenv.config();
 const organizationId = process.env.FAVRO_ORGANIZATION_ID!;
 const myUserEmail = process.env.FAVRO_USER_EMAIL!;
 
