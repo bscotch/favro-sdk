@@ -1,3 +1,12 @@
+## [2.1.2](https://github.com/bscotch/favro-sdk/compare/v2.1.1...v2.1.2) (2021-10-06)
+
+
+### Bug Fixes
+
+* Card searches can use the 'cardSequentialId' as a search param, but that value can be provided in multiple formats and the Favro API doesn't always play nice. The value should be normalized to the numeric identifier. ([c2d6db0](https://github.com/bscotch/favro-sdk/commit/c2d6db09b0fd6bbfe1e691c30cb915b945f53787))
+
+
+
 ## [2.1.1](https://github.com/bscotch/favro-sdk/compare/v2.1.0...v2.1.1) (2021-10-05)
 
 
