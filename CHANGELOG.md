@@ -1,3 +1,13 @@
+## [2.3.1](https://github.com/bscotch/favro-sdk/compare/v2.3.0...v2.3.1) (2021-10-06)
+
+
+### Bug Fixes
+
+* Can only enable one debugger at a time, which isn't useful. ([b91a187](https://github.com/bscotch/favro-sdk/commit/b91a187ce9e9a481865b6595389501eca00ffe13))
+* Fetching cards by sequentialId fails due to incorrectly parsing the provided ID. ([9005682](https://github.com/bscotch/favro-sdk/commit/90056826fd0b209ce420ad1c1fbd718e72d1bf44))
+
+
+
 # [2.3.0](https://github.com/bscotch/favro-sdk/compare/v2.2.0...v2.3.0) (2021-10-06)
 
 
