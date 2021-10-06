@@ -559,7 +559,7 @@ export class BravoClient extends FavroClient {
     // in multiple ways (as a URL, with a prefix, or plain)
     if (typeof options?.cardSequentialId == 'string') {
       options.cardSequentialId = stringToNumber(
-        options.cardSequentialId.replace(/^.*(\d+)$/, '$1'),
+        options.cardSequentialId.replace(/^.*?(\d+)$/, '$1'),
       );
     }
     const res = (await this.requestWithReturnedEntities(

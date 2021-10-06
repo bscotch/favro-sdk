@@ -157,8 +157,8 @@ export class FavroClient {
 
   get requestStats() {
     return {
-      total: this._requestsMade,
-      remaining: this._requestsRemaining,
+      totalRequests: this._requestsMade,
+      limitRemaining: this._requestsRemaining,
       limit: this._requestsLimit,
       limitResetsAt: this._limitResetsAt,
     };
@@ -212,7 +212,9 @@ export class FavroClient {
       headers, // Force it to assume no undefineds
       body,
     };
-    debugBasic(`sent ${method.toUpperCase()} ${url}`);
+    debugBasic(
+      `sent ${method.toUpperCase()} ${fullUrl.replace(/^.?\.com\b/, '')}`,
+    );
     debugHeaders(`sent %O`, headers);
     debugBodies(`sent %O`, body);
     const rawResponse = await (customFetch || this._fetch)(fullUrl, reqOptions);
@@ -221,22 +223,15 @@ export class FavroClient {
     this._limitResetsAt = res.limitResetsAt;
     this._requestsLimit = res.limit;
     this._requestsRemaining = res.requestsRemaining;
-    const requestStats = {
-      status: res.status,
-      remaining: this._requestsRemaining,
-      made: this._requestsMade,
-      limit: res.limit,
-      resetAt: this._limitResetsAt,
-    };
-    debugBasic(`got ${res.status} ${res.contentType} %o`, requestStats);
+    debugBasic(`got ${res.status} ${res.contentType} ${rawResponse.size}b`);
     debugHeaders(`got %O`, headers);
     debugBodies(`got %O`, body);
-    debugStats(`%O`, requestStats);
+    debugStats(`%O`, this.requestStats);
     if (this._requestsRemaining < 1 || res.status == 429) {
       // TODO: Set an interval before allowing requests to go through again, OR SOMETHING
       Logger.warn(
         `Favro API rate limit reached! ${JSON.stringify(
-          requestStats,
+          this.requestStats,
           null,
           2,
         )}`,

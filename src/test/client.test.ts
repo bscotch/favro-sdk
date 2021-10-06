@@ -423,9 +423,11 @@ describe('BravoClient', function () {
       expect(foundCard!.equals(testCard)).to.be.true;
 
       // Fetch it again via sequentialId
+      client.enableDebugLogging(['bravo:http:*', '-bravo:http:headers']);
       const bySequentialId = await client.findCardInstancesBySequentialId(
-        foundCard.sequentialId,
+        foundCard.url,
       );
+      client.disableDebugLogging();
       expect(bySequentialId[0]!.equals(foundCard), 'can fetch by sequentialId')
         .to.be.true;
 
