@@ -1,3 +1,12 @@
+# [2.2.0](https://github.com/bscotch/favro-sdk/compare/v2.1.2...v2.2.0) (2021-10-06)
+
+
+### Features
+
+* Add NODE_DEBUG-style logging to Favro API requests, allowing devs to opt into a ton of info for triangulating request issues. ([04e047f](https://github.com/bscotch/favro-sdk/commit/04e047f5cb1da4bb1d26a4f55677b5ffab29d44f))
+
+
+
 ## [2.1.2](https://github.com/bscotch/favro-sdk/compare/v2.1.1...v2.1.2) (2021-10-06)
 
 
