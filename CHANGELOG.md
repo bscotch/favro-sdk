@@ -1,3 +1,12 @@
+# [2.3.0](https://github.com/bscotch/favro-sdk/compare/v2.2.0...v2.3.0) (2021-10-06)
+
+
+### Features
+
+* Allow enabling/disabling debug logging via BravoClient methods, allowing finer control over what gets logged. ([f670267](https://github.com/bscotch/favro-sdk/commit/f670267ba9f44c224d9271d09e91871c8c543b10))
+
+
+
 # [2.2.0](https://github.com/bscotch/favro-sdk/compare/v2.1.2...v2.2.0) (2021-10-06)
 
 
