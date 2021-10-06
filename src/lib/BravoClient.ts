@@ -33,6 +33,7 @@ import type { BravoEntity } from './BravoEntity.js';
 import type { FavroApi } from '$types/FavroApi.js';
 import { BravoWebhookDefinition } from './entities/BravoWebhook.js';
 import { BravoGroup } from '$/types/Bravo.js';
+import { DebugPath, Logger } from './Logger.js';
 
 export { FavroClientAuth as BravoClientAuth } from './clientLib/FavroClient.js';
 
@@ -78,6 +79,14 @@ export class BravoClient extends FavroClient {
   ) {
     const res = await this.request<EntityData>(url, options);
     return new BravoResponseEntities(this, entityClass, res);
+  }
+
+  enableDebugLogging(debugNamespace: DebugPath) {
+    Logger.enableDebug(debugNamespace);
+  }
+
+  disableDebugLogging() {
+    Logger.disableDebug();
   }
 
   /** Get the hydrated Organization model that this client is using. */

@@ -301,7 +301,7 @@ To help diagnose problems in various contexts, Bravo provides a few useful mecha
 
 - **Custom Errors:** If you have a custom Error class you want to use instead of the Bravo one (e.g. if your error class is hooked up to your logging utilities), you can provide that class as an option when setting up your `BravoClient`.
 - **Custom Console:** If you have a custom drop-in replacement for Node's `console` object, you can also provide that object as an option when setting up your `BravoClient`. You can use this with custom loggers, or to divert logs to a file or other I/O mechanism.
-- **DEBUG:** In addition to regular logging (for warnings, errors, and info), you can get more verbose logging by setting the `DEBUG` environment variable. Bravo uses the popular [debug](https://www.npmjs.com/package/debug) package for this, with the following namespaces:
+- **DEBUG:** In addition to regular logging (for warnings, errors, and info), you can get more verbose logging by setting the `DEBUG` environment variable and/or by using `enableDebugLogging()` and `disableDebugLogging()` BravoClient methods. Bravo uses the popular [debug](https://www.npmjs.com/package/debug) package for this, with the following namespaces:
   - `bravo:*`: Everything below.
   - `bravo:http:*`: HTTP requests and responses (maximally verbose)
   - `bravo:http:basic`: HTTP requests and responses (simple summaries of requests and responses, like URLs, methods, and status codes)

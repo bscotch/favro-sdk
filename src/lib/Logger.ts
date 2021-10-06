@@ -1,3 +1,4 @@
+import type { DebugPaths } from '$/types/ObjectPaths.js';
 import type { AnyFunction } from '$/types/Utility.js';
 import debug from 'debug';
 import { sortPaths } from './utility.js';
@@ -15,11 +16,34 @@ export type LoggerUtility = {
     [RequiredLoggerName in RequiredLogLevel]: AnyFunction;
   };
 
+export type DebugPath = DebugPaths<typeof Logger['debugHeirarchy']>;
+
 export class Logger {
   private static _debuggers: { [namePath: string]: debug.Debugger } = {};
   private static _utility: LoggerUtility = console;
 
   private static _debuggerPaths: Set<string> = new Set();
+
+  static get debugHeirarchy() {
+    return {
+      bravo: {
+        http: {
+          basic: null,
+          headers: null,
+          bodies: null,
+          stats: null,
+        },
+      },
+    } as const;
+  }
+
+  static enableDebug(debugNamespace: DebugPath) {
+    debug.enable(debugNamespace);
+  }
+
+  static disableDebug() {
+    debug.disable();
+  }
 
   /**
    * Always log something using the provided logging utility's `log` method,

@@ -191,6 +191,7 @@ describe('BravoClient', function () {
     }
     testWebhookSecret = await generateRandomString(32, 'base64');
     client.clearCache();
+    client.disableDebugLogging();
   });
 
   it('utility functions behave', async function () {
@@ -488,6 +489,7 @@ describe('BravoClient', function () {
       const newDescription = '# New Description\n\nHello!';
       const testDate = new Date();
       const tagName = 'totally-real-tag';
+      client.enableDebugLogging('bravo:http:*');
       let updateBuilder = testCard.createNewUpdateBuilder();
       updateBuilder
         .setName(newName)
@@ -505,6 +507,7 @@ describe('BravoClient', function () {
         .setDueDate(testDate)
         .archive();
       await testCard.update(updateBuilder);
+      client.disableDebugLogging();
       expect(testCard.detailedDescription).to.equal(newDescription);
       expect(testCard.name).to.equal(newName);
       let userAssignment = testCard.assignments.find(
