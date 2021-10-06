@@ -11,6 +11,7 @@ import {
   createIsMatchFilter,
   stringsMatch,
   generateRandomString,
+  stringToNumber,
 } from './utility.js';
 import { BravoCollection } from './entities/BravoCollection';
 import { BravoUser } from '$/lib/entities/BravoUser';
@@ -539,6 +540,13 @@ export class BravoClient extends FavroClient {
    * {@link https://favro.com/developer/#get-all-cards}
    */
   async listCardInstances(options?: FavroApi.Card.SearchQuery) {
+    // Clean up the sequentialId, if present, since it can come in
+    // in multiple ways (as a URL, with a prefix, or plain)
+    if (typeof options?.cardSequentialId == 'string') {
+      options.cardSequentialId = stringToNumber(
+        options.cardSequentialId.replace(/^.*(\d+)$/, '$1'),
+      );
+    }
     const res = (await this.requestWithReturnedEntities(
       `cards`,
       {
