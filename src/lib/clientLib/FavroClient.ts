@@ -218,15 +218,19 @@ export class FavroClient {
     debugHeaders(`sent %O`, headers);
     debugBodies(`sent %O`, body);
     const rawResponse = await (customFetch || this._fetch)(fullUrl, reqOptions);
+    debugBasic(
+      `got ${rawResponse.status} ${rawResponse.headers.get('Content-Type')} ${
+        rawResponse.size
+      }b`,
+    );
+    debugHeaders(`got %O`, rawResponse.headers.raw());
+    debugStats(`%O`, this.requestStats);
     const res = new FavroResponse<Data, this>(this, rawResponse);
     this._backendId = res.backendId || this._backendId;
     this._limitResetsAt = res.limitResetsAt;
     this._requestsLimit = res.limit;
     this._requestsRemaining = res.requestsRemaining;
-    debugBasic(`got ${res.status} ${res.contentType} ${rawResponse.size}b`);
-    debugHeaders(`got %O`, headers);
-    debugBodies(`got %O`, body);
-    debugStats(`%O`, this.requestStats);
+
     if (this._requestsRemaining < 1 || res.status == 429) {
       // TODO: Set an interval before allowing requests to go through again, OR SOMETHING
       Logger.warn(
@@ -246,6 +250,7 @@ export class FavroClient {
     }
     this.assert(res.status < 300, `Failed with status ${res.status}`);
     const parsedBody = await res.getParsedBody();
+    debugBodies(`got %O`, parsedBody);
     if (
       parsedBody &&
       typeof parsedBody != 'string' &&
