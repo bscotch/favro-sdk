@@ -25,8 +25,10 @@ const favroApiBaseUrl = 'https://favro.com/api/v1';
 
 function createFavroApiUrl(url: string, params?: Record<string, string>) {
   // Ensure initial slash
-  url = url.startsWith('/') ? url : `/${url}`;
-  url = `${favroApiBaseUrl}${url}`;
+  if (!url.startsWith('https://favro.com')) {
+    url = url.startsWith('/') ? url : `/${url}`;
+    url = `${favroApiBaseUrl}${url}`;
+  }
   const fullUrl = new URL(url);
   if (params) {
     for (const param of Object.keys(params)) {
@@ -182,10 +184,10 @@ export class FavroClient {
     customFetch?: Fetcher,
   ) {
     const debugBase = `bravo:http:`;
-    const debugBasic = Logger.getDebugLogger(`${debugBase}basic`);
-    const debugHeaders = Logger.getDebugLogger(`${debugBase}headers`);
-    const debugBodies = Logger.getDebugLogger(`${debugBase}bodies`);
-    const debugStats = Logger.getDebugLogger(`${debugBase}stats`);
+    const debugBasic = Logger.debug(`${debugBase}basic`);
+    const debugHeaders = Logger.debug(`${debugBase}headers`);
+    const debugBodies = Logger.debug(`${debugBase}bodies`);
+    const debugStats = Logger.debug(`${debugBase}stats`);
     this.assert(
       this._organizationId || !options?.requireOrganizationId,
       'An organizationId must be set for this request',
@@ -228,8 +230,8 @@ export class FavroClient {
     const res = new FavroResponse<Data, this>(this, rawResponse);
     this._backendId = res.backendId || this._backendId;
     this._limitResetsAt = res.limitResetsAt;
-    this._requestsLimit = res.limit;
-    this._requestsRemaining = res.requestsRemaining;
+    this._requestsLimit = res.limit ?? this._requestsRemaining;
+    this._requestsRemaining = res.requestsRemaining ?? this._requestsRemaining;
 
     if (this._requestsRemaining < 1 || res.status == 429) {
       // TODO: Set an interval before allowing requests to go through again, OR SOMETHING

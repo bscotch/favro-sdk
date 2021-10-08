@@ -5,6 +5,7 @@ import type { BravoWidget } from '$entities/BravoWidget.js';
 import type { BravoCustomFieldDefinition } from '../entities/BravoCustomField.js';
 import type { FavroApi } from '$types/FavroApi.js';
 import type { BravoTagDefinition } from '../entities/BravoTag.js';
+import { Logger } from '../Logger.js';
 
 export type BravoResponseWidgets = BravoResponseEntities<
   FavroApi.Widget.Model,
@@ -178,8 +179,10 @@ export class BravoResponseEntities<
    */
   private async fetchNextPage() {
     // Ensure the prior page got added!
+    Logger.debug('bravo:paging:next')(`fetching`);
     await this.ensureEntitiesAreHydrated();
     if (!this._latestPage || (await this._latestPage.isLastPage())) {
+      Logger.debug('bravo:paging:next')(`cancelled`);
       return;
     }
     this._latestPage = await this._latestPage.getNextPageResponse();

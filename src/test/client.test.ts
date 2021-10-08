@@ -6,6 +6,8 @@
  * for full testing. Therefore the developer must do some
  * manual setup work in a Favro Organization created for testing:
  *
+ * ## TESTING SETUP
+ *
  *  - Create a separate Favro Organization for testing
  *    (to keep your production Favro data safe!)
  *  - A root .env file must be added and include vars:
@@ -47,6 +49,11 @@ import type { BravoTagDefinition } from '$/lib/entities/BravoTag.js';
 import type { FavroApi } from '$types/FavroApi.js';
 import { BravoWebhookDefinition } from '$/lib/entities/BravoWebhook.js';
 import type { BravoGroup } from '$/types/Bravo.js';
+import {
+  pagingTestMinCards,
+  pagingTestWidgetName,
+  populateTestOrg,
+} from './utility/populateTestOrg.js';
 
 /**
  * @remarks A root .env file must be populated with the required
@@ -170,6 +177,7 @@ describe('BravoClient', function () {
   // are low) the tests become dependent on the outcomes of prior tests.
 
   before(async function () {
+    client.disableDebugLogging();
     // Clean up any leftover remote testing content
     // (Since names aren't required to be unique, there could be quite a mess!)
     // NOTE:
@@ -190,8 +198,8 @@ describe('BravoClient', function () {
       await collection.delete();
     }
     testWebhookSecret = await generateRandomString(32, 'base64');
+    await populateTestOrg(client);
     client.clearCache();
-    client.disableDebugLogging();
   });
 
   it('utility functions behave', async function () {
@@ -238,6 +246,18 @@ describe('BravoClient', function () {
         `Signature ${sample.signature} should be valid`,
       ).to.be.true;
     }
+  });
+
+  it('can page multi-page responses', async function () {
+    const pagingTestWidget = await client.findWidgetByName(
+      pagingTestWidgetName,
+    );
+    assertBravoTestClaim(pagingTestWidget, 'Paging test widget not found');
+    const cardsList = await client.listCardInstances({
+      widgetCommonId: pagingTestWidget.widgetCommonId,
+    });
+    const allCards = await cardsList.getAllEntities();
+    expect(allCards.length).to.be.greaterThanOrEqual(pagingTestMinCards);
   });
 
   it('can list organizations', async function () {

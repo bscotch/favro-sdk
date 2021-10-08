@@ -33,6 +33,9 @@ export class Logger {
           bodies: null,
           stats: null,
         },
+        paging: {
+          next: null,
+        },
       },
     } as const;
   }
@@ -71,7 +74,7 @@ export class Logger {
     Logger._utility.error.bind(Logger._utility)(...args);
   }
 
-  static getDebugLogger(path: DebugPath) {
+  static debug(path: DebugPath) {
     this._debuggers[path] ||= debug(path);
     this._debuggers[path].log = Logger.log;
     this._debuggerPaths.add(path);

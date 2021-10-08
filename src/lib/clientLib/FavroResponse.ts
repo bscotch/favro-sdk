@@ -4,6 +4,7 @@ import type { FavroApi } from '$types/FavroApi.js';
 import { BravoError } from '../errors.js';
 import type { FavroClient } from './FavroClient.js';
 import { stringToDate, stringToNumber } from '../utility.js';
+import { Logger } from '../Logger.js';
 
 function dataIsNull(data: any): data is null {
   return data === null;
@@ -57,7 +58,7 @@ export class FavroResponse<
 
   get requestsRemaining() {
     return stringToNumber(this._response.headers.get('X-RateLimit-Remaining'), {
-      defaultIfNullish: Infinity,
+      defaultIfNullish: null,
       customError: this._client.error,
     });
   }
@@ -71,7 +72,7 @@ export class FavroResponse<
 
   get limit() {
     return stringToNumber(this._response.headers.get('X-RateLimit-Limit'), {
-      defaultIfNullish: Infinity,
+      defaultIfNullish: null,
       customError: this._client.error,
     });
   }
@@ -109,11 +110,18 @@ export class FavroResponse<
   async isLastPage() {
     const body = await this.getParsedBody();
     if (!dataIsPagedEntity(body)) {
+      Logger.debug('bravo:paging:next')(`NOT_PAGED %O`, body);
       return true;
     }
     if (body.page >= body.pages - 1) {
+      Logger.debug('bravo:paging:next')(
+        `ON_LAST_PAGE:${body.page}/${body.pages}`,
+      );
       return true;
     }
+    Logger.debug('bravo:paging:next')(
+      `MORE_PAGES_EXIST:${body.page}/${body.pages}`,
+    );
     return false;
   }
 

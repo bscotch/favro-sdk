@@ -311,9 +311,9 @@ export function stringToDate(
  * Convert a numeric string to a number. If the string argument is
  * nullish, throw an error unless `defaultIfNullish` is provided.
  */
-export function stringToNumber(
+export function stringToNumber<Default>(
   string: Nullable<string>,
-  options?: { defaultIfNullish?: number; customError?: typeof BravoError },
+  options?: { defaultIfNullish?: Default; customError?: typeof BravoError },
 ) {
   if (isTruthyString(string)) {
     if (isNaN(Number(string))) {
