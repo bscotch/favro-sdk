@@ -1,3 +1,13 @@
+## [2.3.2](https://github.com/bscotch/favro-sdk/compare/v2.3.1...v2.3.2) (2021-10-08)
+
+
+### Bug Fixes
+
+* Paging was not working due to invalid URL created for additional pages. ([36d6b2c](https://github.com/bscotch/favro-sdk/commit/36d6b2ce88743626fd7e6add6049b37c892b85f1))
+* Response debug logging refers to request variables, which is both wrong AND confusing. ([bed3966](https://github.com/bscotch/favro-sdk/commit/bed3966f58ba9ab0bee0bb522e82fba139cdeb1f))
+
+
+
 ## [2.3.1](https://github.com/bscotch/favro-sdk/compare/v2.3.0...v2.3.1) (2021-10-06)
 
 
